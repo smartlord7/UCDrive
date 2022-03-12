@@ -14,7 +14,8 @@ public class Main {
         u.setUserName("administrator");
         u.setPassword("administrator123#");
 
-        UserDAO.create(u);
+        //UserDAO.create(u);
+        System.out.println(UserDAO.getDirectoryPermissions(1, "test"));
     }
 
     private void run() {
@@ -32,6 +33,11 @@ public class Main {
 
     public Main() {
         run();
+        try {
+            addDefaults();
+        } catch (NoSuchAlgorithmException | SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
