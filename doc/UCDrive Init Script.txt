@@ -1,0 +1,45 @@
+CREATE TABLE [User] (
+	UserId		 BIGINT IDENTITY,
+	UserName	 VARCHAR(512) NOT NULL,
+	PasswordHash	 VARCHAR(64) NOT NULL,
+	CreateDate DateTime NOT NULL,
+	PRIMARY KEY(UserId)
+);
+
+CREATE TABLE SessionLog (
+	SessionLogId	 BIGINT IDENTITY,
+	StartDate DateTime NOT NULL,
+	EndDate	 DateTime NOT NULL,
+	LastDirectory	 VARCHAR(512) NOT NULL,
+	UserId	 BIGINT NOT NULL,
+	PRIMARY KEY(UserId)
+);
+
+CREATE TABLE DirectoryPermission (
+	DirectoryPermissionId BIGINT IDENTITY,
+	Directory		 VARCHAR(512) NOT NULL,
+	PermissionType	 INTEGER NOT NULL,
+	UserId		 BIGINT NOT NULL,
+	PRIMARY KEY(DirectoryPermissionId)
+);
+
+CREATE TABLE Exception (
+	ExceptionId BIGINT IDENTITY,
+	Message	 VARCHAR(1024),
+	Stack	 VARCHAR(4096),
+	Source	 VARCHAR(1024),
+	CreatedDate	 DateTime NOT NULL,
+	PRIMARY KEY(ExceptionId)
+);
+
+CREATE TABLE Exception_User (
+	ExceptionId		BIGINT,
+	UserId			BIGINT NOT NULL,
+	PRIMARY KEY(ExceptionId)
+);
+
+ALTER TABLE SessionLog ADD CONSTRAINT sessionlog_fk1 FOREIGN KEY (UserId) REFERENCES [User](UserId);
+ALTER TABLE DirectoryPermission ADD CONSTRAINT directorypermission_fk1 FOREIGN KEY (UserId) REFERENCES [User](userid);
+ALTER TABLE Exception_User ADD CONSTRAINT exception_user_fk1 FOREIGN KEY (ExceptionId) REFERENCES Exception(ExceptionId);
+ALTER TABLE Exception_User ADD CONSTRAINT exception_user_fk2 FOREIGN KEY (UserId) REFERENCES [User](UserId);
+
