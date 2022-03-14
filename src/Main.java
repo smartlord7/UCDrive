@@ -12,7 +12,7 @@ public class Main {
     private void test() throws SQLException, NoSuchAlgorithmException {
         User u = new User();
         u.setUserName("administrator");
-        u.setPassword("administrator123#");
+        u.setPassword("administrator123##");
 
         System.out.println("Auth: " + UserDAO.authenticate(u));
         System.out.println("Permissions: " + UserDAO.getDirectoryPermissions(1, "test"));
