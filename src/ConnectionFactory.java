@@ -63,5 +63,4 @@ public class ConnectionFactory {
 
         return getConnection(instance, database, user, password);
     }
-
 }

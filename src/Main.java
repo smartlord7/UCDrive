@@ -1,6 +1,7 @@
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import datalayer.model.User.User;
+import server.Server;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -26,7 +27,7 @@ public class Main {
         SessionLogDAO.connection = conn;
     }
 
-    private void run() throws SQLException, NoSuchAlgorithmException {
+    private void run() throws SQLException, NoSuchAlgorithmException, IOException {
         try {
             conn = ConnectionFactory.getConnection();
             conn.setAutoCommit(false);
@@ -37,13 +38,14 @@ public class Main {
 
         initConnections();
         test();
+        Server.run();
     }
 
-    public Main() throws SQLException, NoSuchAlgorithmException {
+    public Main() throws SQLException, NoSuchAlgorithmException, IOException {
         run();
     }
 
-    public static void main(String[] args) throws SQLException, NoSuchAlgorithmException {
+    public static void main(String[] args) throws SQLException, NoSuchAlgorithmException, IOException {
         new Main();
     }
 }
