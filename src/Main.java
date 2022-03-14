@@ -9,16 +9,17 @@ import java.sql.SQLException;
 public class Main {
     private Connection conn;
 
-    private void addDefaults() throws NoSuchAlgorithmException, SQLException {
+    private void test() throws SQLException, NoSuchAlgorithmException {
         User u = new User();
         u.setUserName("administrator");
         u.setPassword("administrator123#");
 
-        //UserDAO.create(u);
-        System.out.println(UserDAO.getDirectoryPermissions(1, "test"));
+        System.out.println("Auth: " + UserDAO.authenticate(u));
+        System.out.println("Permissions: " + UserDAO.getDirectoryPermissions(1, "test"));
+        System.out.println("Change password: " + UserDAO.changePassword(u, "administrator123##"));
     }
 
-    private void run() {
+    private void run() throws SQLException, NoSuchAlgorithmException {
         try {
             conn = ConnectionFactory.getConnection();
             conn.setAutoCommit(false);
@@ -28,19 +29,14 @@ public class Main {
         }
 
         UserDAO.connection = conn;
-
+        test();
     }
 
-    public Main() {
+    public Main() throws SQLException, NoSuchAlgorithmException {
         run();
-        try {
-            addDefaults();
-        } catch (NoSuchAlgorithmException | SQLException e) {
-            e.printStackTrace();
-        }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException, NoSuchAlgorithmException {
         new Main();
     }
 }
