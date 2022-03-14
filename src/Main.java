@@ -1,3 +1,4 @@
+import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import datalayer.model.User.User;
 
@@ -17,6 +18,12 @@ public class Main {
         System.out.println("Auth: " + UserDAO.authenticate(u));
         System.out.println("Permissions: " + UserDAO.getDirectoryPermissions(1, "test"));
         System.out.println("Change password: " + UserDAO.changePassword(u, "administrator123##"));
+        System.out.println("Last session dir: " + SessionLogDAO.getDirectoryFromLastSession(1));
+    }
+
+    private void initConnections() {
+        UserDAO.connection = conn;
+        SessionLogDAO.connection = conn;
     }
 
     private void run() throws SQLException, NoSuchAlgorithmException {
@@ -28,7 +35,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        UserDAO.connection = conn;
+        initConnections();
         test();
     }
 
