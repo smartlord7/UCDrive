@@ -1,6 +1,11 @@
 package server;
 
+import businesslayer.User.UserDAO;
+import datalayer.enumerate.FilePermissionEnum;
+
 import java.io.*;
+import java.sql.SQLException;
+import java.util.HashSet;
 
 public class Server{
     public static void run() throws IOException {
@@ -19,7 +24,7 @@ public class Server{
             getDiskSpace();
         }
     }
-    public static String menu(){
+    private static String menu(){
         return """
                 \t\t\t\t       Client
                 \t\t\t\t\t   MENU
@@ -37,6 +42,52 @@ public class Server{
                 \t\t\t5 - EXIT
                                     \s""";
     }
+    private static int getFilePerms(String curDir,int id) throws SQLException {
+        HashSet<FilePermissionEnum> perms = UserDAO.getDirectoryPermissions(id,curDir);
+        if(perms.contains(FilePermissionEnum.READ)){
+            System.out.println("User has read Permissions");
+            return 0;
+        }else if(perms.contains(FilePermissionEnum.WRITE)){
+            System.out.println("User has write Permissions");
+            return 1;
+        }else if(perms.contains(FilePermissionEnum.READ_WRITE)){
+            System.out.println("User has Read and Write Permissions");
+            return 2;
+        }
+        else{
+            return 3;
+        }
+    }
+
+    private static void downloadFiles(File curDir) throws SQLException {
+        showFiles(curDir);
+        int id = 4;
+        int perm = getFilePerms(curDir.getPath(), id);
+        System.out.println("Select the file to download: ");
+        if(perm == 0 || perm == 2 && getFreeSpace(curDir) > curDir.length()){
+            System.out.println("Permission to download");
+            download();
+        }else if(perm == 1){
+            System.out.println("No permission to download");
+        }else if(getFreeSpace(curDir) < curDir.length()){
+            System.out.println("No space left");
+        }
+    }
+    private static void uploadFiles(File curDir) throws SQLException    {
+        showFiles(curDir);
+        int id = 4;
+        int perm = getFilePerms(curDir.getPath(), id);
+        long space = getFreeSpace(curDir);
+        System.out.println("Select the file to upload: ");
+        if(perm == 1 || perm == 2 && getFreeSpace(curDir) > curDir.length() ){
+            System.out.println("Permission to upload");
+            upload();
+        }else if(perm == 0){
+            System.out.println("No permission to upload");
+        }else if(getFreeSpace(curDir) < curDir.length()){
+            System.out.println("No space left");
+        }
+    }
     private static void showFiles(File curDir) {
 
         File[] filesList = curDir.listFiles();
@@ -48,7 +99,9 @@ public class Server{
             }
         }
     }
-    public static void fileAccess(){
+
+
+    private static void fileAccess(){
         String PATH = "/remote/dir/server/";
         String directoryName = PATH;
         File directory = new File(directoryName);
@@ -59,15 +112,30 @@ public class Server{
             showFiles(directory);
         }
     }
+    private static void backTrack(){
+        String curDir = System.getProperty("user.dir");
 
-    public static void getDiskSpace(File curDir){
+    }
+    private static long getTotalSpace(File curDir){
+        long totalSpace = curDir.getTotalSpace();
+
+        System.out.println("Total space: "+totalSpace);
+
+        return totalSpace;
+    }
+    private static long getUsedSpace(File curDir){
         long totalSpace = curDir.getTotalSpace();
         long freeSpace = curDir.getFreeSpace();
         long usedSpace = totalSpace - freeSpace;
 
-        System.out.println("Total space: "+totalSpace);
         System.out.println("Used space: "+usedSpace);
+        return usedSpace;
+    }
+    private static long getFreeSpace(File curDir){
+        long freeSpace = curDir.getFreeSpace();
 
+        System.out.println("Free space: "+freeSpace);
+        return freeSpace;
     }
 }
 
