@@ -1,7 +1,7 @@
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import datalayer.model.User.User;
-import server.Server;
+import server.ServerMain;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -17,7 +17,7 @@ public class Main {
         u.setPassword("administrator123##");
 
         System.out.println("Auth: " + UserDAO.authenticate(u));
-        System.out.println("Permissions: " + UserDAO.getDirectoryPermissions(1, "test"));
+        System.out.println("Permission: " + UserDAO.getDirectoryPermission(1, "test"));
         System.out.println("Change password: " + UserDAO.changePassword(u, "administrator123##"));
         System.out.println("Last session dir: " + SessionLogDAO.getDirectoryFromLastSession(1));
     }
@@ -38,7 +38,7 @@ public class Main {
 
         initConnections();
         test();
-        Server.run();
+        ServerMain.run();
     }
 
     public Main() throws SQLException, NoSuchAlgorithmException, IOException {

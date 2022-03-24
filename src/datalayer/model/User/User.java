@@ -50,13 +50,5 @@ public class User {
         this.createDate = createDate;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "userId=" + userId +
-                ", userName='" + userName + '\'' +
-                ", password='" + password + '\'' +
-                ", createDate=" + createDate +
-                '}';
-    }
+
 }

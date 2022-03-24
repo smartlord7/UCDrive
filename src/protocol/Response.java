@@ -1,8 +1,9 @@
 package protocol;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class Response {
+public class Response implements Serializable {
     private ResponseStatusEnum status;
     private HashMap<String, String> errors;
     private String data;

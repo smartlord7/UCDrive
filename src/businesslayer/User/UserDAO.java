@@ -1,11 +1,10 @@
 package businesslayer.User;
 
-import datalayer.enumerate.FilePermissionEnum;
+import datalayer.enumerate.DirectoryPermissionEnum;
 import datalayer.model.User.User;
-import helper.SHA256Hasher;
+import util.SHA256Hasher;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.util.HashSet;
 
 public class UserDAO {
     public static Connection connection;
@@ -104,8 +103,8 @@ public class UserDAO {
         return 0;
     }
 
-    public static HashSet<FilePermissionEnum> getDirectoryPermissions(int userId, String directory) throws SQLException {
-        HashSet<FilePermissionEnum> permissions = new HashSet<FilePermissionEnum>();
+    public static DirectoryPermissionEnum getDirectoryPermission(int userId, String directory) throws SQLException {
+        DirectoryPermissionEnum permission = DirectoryPermissionEnum.NONE;
         PreparedStatement stmt = connection.prepareStatement("SELECT PermissionType FROM DirectoryPermission WHERE UserId = ? AND Directory = ?");
 
         stmt.setInt(1, userId);
@@ -113,9 +112,9 @@ public class UserDAO {
         ResultSet res = stmt.executeQuery();
 
         while (res.next()) {
-            permissions.add(FilePermissionEnum.toEnum(res.getInt(1)));
+            permission = DirectoryPermissionEnum.toEnum(res.getInt(1));
         }
 
-        return permissions;
+        return permission;
     }
 }

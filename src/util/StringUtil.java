@@ -1,4 +1,4 @@
-package helper;
+package util;
 
 public class StringUtil {
     public static String bytesToHex(byte[] bytes) {

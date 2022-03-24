@@ -1,14 +1,18 @@
 package server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import presentationlayer.Server;
+import protocol.Request;
+import protocol.RequestMethodEnum;
+import protocol.Response;
+
+import java.io.*;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 
 class ClientCommandConnection extends Thread {
-    DataInputStream in;
-    DataOutputStream out;
+    ObjectInputStream in;
+    ObjectOutputStream out;
     Socket clientSocket;
     int thread_number;
 
@@ -16,27 +20,47 @@ class ClientCommandConnection extends Thread {
         thread_number = number;
         try {
             clientSocket = aClientSocket;
-            in = new DataInputStream(clientSocket.getInputStream());
-            out = new DataOutputStream(clientSocket.getOutputStream());
+            in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
+            out = new ObjectOutputStream(new DataOutputStream(clientSocket.getOutputStream()));
             this.start();
         } catch (IOException e) {
             System.out.println("Connection:" + e.getMessage());
         }
     }
-    public void run(){
-        String resposta;
-        try {
-            while(true){
-                //an echo server
-                String data = in.readUTF();
-                System.out.println("T[" + thread_number + "] Recebeu: "+data);
-                resposta=data.toUpperCase();
-                out.writeUTF(resposta);
+
+    @Override
+    public void run() {
+        while(true) {
+            Response resp;
+            Request req;
+            try {
+                req = (Request) in.readObject();
+                resp = handleRequest(req);
+                out.writeObject(resp);
+            } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
+                e.printStackTrace();
             }
-        } catch(EOFException e) {
-            System.out.println("EOF:" + e);
-        } catch(IOException e) {
-            System.out.println("IO:" + e);
         }
+    }
+
+    private Response handleRequest(Request req) throws SQLException, NoSuchAlgorithmException {
+        Response resp = null;
+        RequestMethodEnum method = req.getMethod();
+
+        switch (method) {
+            case USER_AUTHENTICATION -> resp = Server.loginUser(req);
+            case USER_CHANGE_PASSWORD -> {
+            }
+            case USER_LIST_SERVER_FILES -> {
+            }
+            case USER_CHANGE_CWD -> {
+            }
+            case USER_DOWNLOAD_FILE -> {
+            }
+            case USER_UPLOAD_FILE -> {
+            }
+        }
+
+        return resp;
     }
 }

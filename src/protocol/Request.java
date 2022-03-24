@@ -1,22 +1,24 @@
 package protocol;
 
-public class Request {
-    private String method;
+import java.io.Serializable;
+
+public class Request implements Serializable {
+    private RequestMethodEnum method;
     private String data;
 
     public Request() {
     }
 
-    public Request(String method, String data) {
+    public Request(RequestMethodEnum method, String data) {
         this.method = method;
         this.data = data;
     }
 
-    public String getMethod() {
+    public RequestMethodEnum getMethod() {
         return method;
     }
 
-    public void setMethod(String method) {
+    public void setMethod(RequestMethodEnum method) {
         this.method = method;
     }
 

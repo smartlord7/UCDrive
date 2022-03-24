@@ -1,5 +1,7 @@
 package protocol;
 
-public enum ResponseStatusEnum {
+import java.io.Serializable;
+
+public enum ResponseStatusEnum implements Serializable {
     ERROR, SUCCESS
 }

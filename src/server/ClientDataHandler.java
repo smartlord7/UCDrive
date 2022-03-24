@@ -15,16 +15,16 @@ public class ClientDataHandler implements Runnable {
     @Override
     public void run() {
         try (ServerSocket listenSocket = new ServerSocket(port)) {
-            System.out.println("Listening to port "+port);
-            System.out.println("LISTEN SOCKET=" + listenSocket);
+            System.out.println("[DATA THREAD] Port: " + port);
+            System.out.println("[DATA THREAD] Socket: " + listenSocket);
             while(true) {
-                Socket clientSocket = listenSocket.accept(); // BLOQUEANTE
-                System.out.println("CLIENT_SOCKET (created at accept())="+clientSocket);
+                Socket clientSocket = listenSocket.accept();
+                System.out.println("[DATA THREAD] Client: " + clientSocket);
                 number++;
-                new ClientDataConnection(clientSocket, number);
+                new ClientCommandConnection(clientSocket, number);
             }
         } catch(IOException e) {
-            System.out.println("Listen:" + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
