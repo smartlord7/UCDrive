@@ -2,6 +2,7 @@ package server;
 
 import businesslayer.User.UserDAO;
 import datalayer.enumerate.FilePermissionEnum;
+import org.apache.commons.lang3.;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -114,6 +115,9 @@ public class Server{
     }
     private static void backTrack(){
         String curDir = System.getProperty("user.dir");
+        String[] parts = curDir.split("/");
+        //WIP String beforeFirstDot = parts[1];
+        System.out.println(beforeFirstDot);
 
     }
     private static long getTotalSpace(File curDir){
