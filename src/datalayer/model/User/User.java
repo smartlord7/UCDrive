@@ -6,7 +6,9 @@ public class User {
     private int userId;
     private String userName;
     private String password;
+    private String newPassword;
     private DateTimeOffset createDate;
+    private boolean isAuth;
 
     public User() {
     }
@@ -42,6 +44,14 @@ public class User {
         this.password = password;
     }
 
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
+
     public DateTimeOffset getCreateDate() {
         return createDate;
     }
@@ -50,5 +60,11 @@ public class User {
         this.createDate = createDate;
     }
 
+    public boolean isAuth() {
+        return isAuth;
+    }
 
+    public void setAuth(boolean auth) {
+        isAuth = auth;
+    }
 }

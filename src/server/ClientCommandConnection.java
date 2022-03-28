@@ -7,6 +7,7 @@ import protocol.Response;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 
@@ -37,6 +38,11 @@ class ClientCommandConnection extends Thread {
                 req = (Request) in.readObject();
                 resp = handleRequest(req);
                 out.writeObject(resp);
+                out.flush();
+                out.reset();
+            } catch (SocketException | EOFException e) {
+                e.printStackTrace();
+                return;
             } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -49,8 +55,7 @@ class ClientCommandConnection extends Thread {
 
         switch (method) {
             case USER_AUTHENTICATION -> resp = Server.loginUser(req);
-            case USER_CHANGE_PASSWORD -> {
-            }
+            case USER_CHANGE_PASSWORD -> resp = Server.changePassword(req);
             case USER_LIST_SERVER_FILES -> {
             }
             case USER_CHANGE_CWD -> {

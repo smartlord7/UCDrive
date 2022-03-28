@@ -60,6 +60,9 @@ public class ConnectionFactory {
 
         System.out.println("Password: ");
         password = in.readLine();
+        if (password.length() < 1) {
+            password = "ucdriveadmin123#";
+        }
 
         return getConnection(instance, database, user, password);
     }

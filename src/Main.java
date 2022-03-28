@@ -18,7 +18,8 @@ public class Main {
 
         System.out.println("Auth: " + UserDAO.authenticate(u));
         System.out.println("Permission: " + UserDAO.getDirectoryPermission(1, "test"));
-        System.out.println("Change password: " + UserDAO.changePassword(u, "administrator123##"));
+        u.setNewPassword("administrator123##");
+        System.out.println("Change password: " + UserDAO.changePassword(u));
         System.out.println("Last session dir: " + SessionLogDAO.getDirectoryFromLastSession(1));
     }
 

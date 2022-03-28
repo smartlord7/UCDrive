@@ -31,7 +31,7 @@ public class UserDAO {
         return 0;
     }
 
-    public static int changePassword(User user, String newPassword) throws NoSuchAlgorithmException {
+    public static int changePassword(User user) throws NoSuchAlgorithmException {
         PreparedStatement stmt;
 
         try {
@@ -59,7 +59,7 @@ public class UserDAO {
             }
 
             stmt = connection.prepareStatement("UPDATE [User] SET PasswordHash = ? WHERE UserId = ?");
-            stmt.setString(1, SHA256Hasher.hash(newPassword));
+            stmt.setString(1, SHA256Hasher.hash(user.getNewPassword()));
             stmt.setInt(2, userId);
             stmt.executeUpdate();
             connection.commit();

@@ -17,11 +17,7 @@ import static util.FileUtil.showFiles;
 public class Server {
     private static Gson gson = new Gson();
 
-    public static Response loginUser(Request req) throws SQLException, NoSuchAlgorithmException {
-        Response resp = new Response();
-        User user = gson.fromJson(req.getData(), User.class);
-        int result = UserDAO.authenticate(user);
-
+    private static void checkUserCredentials(Response resp, User user, int result) {
         if (result == 0) {
             resp.setStatus(ResponseStatusEnum.SUCCESS);
         } else {
@@ -34,6 +30,24 @@ public class Server {
             }
             resp.setErrors(errors);
         }
+    }
+
+    public static Response loginUser(Request req) throws SQLException, NoSuchAlgorithmException {
+        Response resp = new Response();
+        User user = gson.fromJson(req.getData(), User.class);
+        int result = UserDAO.authenticate(user);
+
+        checkUserCredentials(resp, user, result);
+
+        return resp;
+    }
+
+    public static Response changePassword(Request req) throws NoSuchAlgorithmException {
+        Response resp = new Response();
+        User user = gson.fromJson(req.getData(), User.class);
+        int result = UserDAO.changePassword(user);
+
+        checkUserCredentials(resp, user, result);
 
         return resp;
     }
