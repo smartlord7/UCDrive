@@ -12,7 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import static util.FileUtil.getFreeSpace;
-import static util.FileUtil.showFiles;
 
 public class Server {
     private static Gson gson = new Gson();
@@ -57,7 +56,6 @@ public class Server {
     }
 
     public static void downloadFiles(File curDir) throws SQLException {
-        showFiles(curDir);
         int id = 4;
         DirectoryPermissionEnum perm = getDirectoryPermission(curDir.getPath(), id);
         System.out.println("Select the file to download: ");
@@ -72,7 +70,6 @@ public class Server {
     }
 
     public static void uploadFiles(File curDir) throws SQLException    {
-        showFiles(curDir);
         int id = 4;
         DirectoryPermissionEnum perm = getDirectoryPermission(curDir.getPath(), id);
         long space = getFreeSpace(curDir);

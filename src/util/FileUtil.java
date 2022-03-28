@@ -1,17 +1,21 @@
 package util;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 public class FileUtil {
-    public static void showFiles(File curDir) {
+    public static String listCurrDirFiles(File curDir) {
+        String list = "";
+        StringBuilder sb = new StringBuilder(list);
         File[] filesList = curDir.listFiles();
-        for (File f : filesList) {
-            if (f.isDirectory())
-                showFiles(f);
-            if (f.isFile()) {
-                System.out.println(f.getName());
+
+        if (filesList != null) {
+            for (File f : filesList) {
+                sb.append(f.getName()).append("\n");
             }
         }
+
+        return sb.toString();
     }
 
     public static void fileAccess(){
@@ -20,9 +24,6 @@ public class FileUtil {
         File directory = new File(directoryName);
         if (!directory.exists()){
             directory.mkdirs();
-            showFiles(directory);
-        }else{
-            showFiles(directory);
         }
     }
 
@@ -36,14 +37,7 @@ public class FileUtil {
     }
 
     public static String backDir(String currentDir){
-        StringBuilder newDir = new StringBuilder();
-        String[] parts = currentDir.split("/");
-
-        for (int i = 0; i < parts.length - 1; i++) {
-            newDir.append(parts[i]).append("/");
-        }
-
-        return newDir.toString();
+        return Paths.get(currentDir).getParent().toString();
     }
 
     public static long getTotalSpace(File curDir){
