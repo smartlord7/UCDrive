@@ -43,7 +43,7 @@ class ClientCommandConnection extends Thread {
                 out.flush();
                 out.reset();
             } catch (SocketException | EOFException e) {
-                e.printStackTrace();
+                System.out.println("[ERROR] Client " + clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " disconnected!");
                 return;
             } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -58,8 +58,7 @@ class ClientCommandConnection extends Thread {
         switch (method) {
             case USER_AUTHENTICATION -> resp = Server.loginUser(req);
             case USER_CHANGE_PASSWORD -> resp = Server.changePassword(req);
-            case USER_LIST_SERVER_FILES -> {
-            }
+            case USER_LIST_SERVER_FILES -> resp = Server.listCurrDirFiles(req);
             case USER_CHANGE_CWD -> {
             }
             case USER_DOWNLOAD_FILE -> {

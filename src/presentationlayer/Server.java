@@ -7,6 +7,8 @@ import datalayer.model.User.User;
 import protocol.Request;
 import protocol.Response;
 import protocol.ResponseStatusEnum;
+import util.FileUtil;
+
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -47,6 +49,32 @@ public class Server {
         int result = UserDAO.changePassword(user);
 
         checkUserCredentials(resp, user, result);
+
+        return resp;
+    }
+
+    public static Response listCurrDirFiles(Request req) {
+        Response resp = new Response();
+        String dir = req.getData();
+        File f;
+
+        if (dir != null && dir.length() != 0) {
+            f = new File(dir);
+
+            if (!f.exists() || !f.isDirectory()) {
+                resp.setStatus(ResponseStatusEnum.ERROR);
+                HashMap<String, String> errors = new HashMap<>();
+                errors.put("DirectoryNotFound", "Directory '" + dir + "' not found");
+                resp.setErrors(errors);
+            } else {
+                resp.setStatus(ResponseStatusEnum.SUCCESS);
+                resp.setData(FileUtil.listDirFiles(f));
+            }
+        } else {
+            f = new File(System.getProperty("user.dir"));
+            resp.setStatus(ResponseStatusEnum.SUCCESS);
+            resp.setData(FileUtil.listDirFiles(f));
+        }
 
         return resp;
     }

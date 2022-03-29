@@ -7,14 +7,26 @@ import protocol.RequestMethodEnum;
 import protocol.Response;
 import protocol.ResponseStatusEnum;
 import util.FileUtil;
-
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
 public class Client {
+    private final User user = new User();
+    private ObjectOutputStream out;
+    private ObjectInputStream input;
+    private String currLocalDir = System.getProperty("user.dir");
+    private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    private Request req = new Request();
+    private Response resp;
+    private boolean serverConfigured = false;
+    private String currRemoteDir = null;
+    private final Gson gson = new Gson();
+
     private void showErrors(HashMap<String, String> errors) {
         for (String key : errors.keySet()) {
             System.out.println(key + ": " + errors.get(key));
@@ -22,47 +34,70 @@ public class Client {
     }
 
     private String cmdPrefix(User user, String currLocalDir) {
-        return user.isAuth() ? user.getUserName() + "@" : "" + "UCDrive~\\" + currLocalDir + "\n$ ";
+        return (user.isAuth() ? user.getUserName() + "@" : "") + "UCDrive~\\" + currLocalDir + "\n$ ";
+    }
+
+    private boolean hasAuth() {
+        if (!user.isAuth()) {
+            System.out.println("Error: user not logged in!");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean hasConnection() {
+        if (!serverConfigured) {
+            System.out.println("Error: server not configured!");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean hasSession() {
+        return hasConnection() && hasAuth();
     }
 
     public void run() throws IOException, ClassNotFoundException {
         String line;
-        String ip;
-        boolean serverConfigured = false;
-        String currLocalDir = System.getProperty("user.dir");
-        String currRemoteDir = null;
-        int port;
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        ObjectOutputStream out = null;
-        ObjectInputStream input = null;
-        StringTokenizer st;
-        Request req = new Request();
+        String ip = null;
+        int port = -1;
         Response resp;
-        HashMap<String, String> errors;
-        User user = new User();
-        Gson gson = new Gson();
+        Socket s = null;
 
-        System.out.print(cmdPrefix(user, currLocalDir));
-        while (!(line = in.readLine()).equalsIgnoreCase("exit")) {
-            if (line.equalsIgnoreCase("config server")) {
+        while (!serverConfigured) {
+            try {
                 System.out.println("Server IP: ");
                 ip = in.readLine();
                 System.out.println("Server port: ");
                 port = Integer.parseInt(in.readLine());
-                serverConfigured = true;
 
-                try (Socket s = new Socket(ip, port)) {
-                    out = new ObjectOutputStream(new DataOutputStream(s.getOutputStream()));
-                    input = new ObjectInputStream(new DataInputStream(s.getInputStream()));
-                }
-            } else if (line.equalsIgnoreCase("auth")) {
+                s = new Socket(ip, port);
+                serverConfigured = true;
+            } catch (SocketException | UnknownHostException e) {
+                e.printStackTrace();
+                System.out.println("Error: host " + ip + ":" + port + " unreachable");
+            }
+        }
+
+        out = new ObjectOutputStream(new DataOutputStream(s.getOutputStream()));
+        input = new ObjectInputStream(new DataInputStream(s.getInputStream()));
+        System.out.println("Connected to " + ip + ":" + port);
+        serverConfigured = true;
+        System.out.print(cmdPrefix(user, currLocalDir));
+        while (!(line = in.readLine()).equalsIgnoreCase("exit")) {
+            line = line.strip().trim();
+
+            StringTokenizer st;
+            HashMap<String, String> errors;
+            if (line.equalsIgnoreCase("auth")) {
                 if (user.isAuth()) {
                     System.out.println("Error: user already logged in!");
                     continue;
                 }
 
-                if (!serverConfigured) {
-                    System.out.println("Error: server not configured!");
+                if (!hasConnection()) {
                     continue;
                 }
 
@@ -84,15 +119,8 @@ public class Client {
                     errors = resp.getErrors();
                     showErrors(errors);
                 }
-
             } else if (line.equalsIgnoreCase("cpwd")) {
-                if (!serverConfigured) {
-                    System.out.println("Error: server not configured");
-                    continue;
-                }
-
-                if (!user.isAuth()) {
-                    System.out.println("Error: user not logged in!");
+                if (!hasSession()) {
                     continue;
                 }
 
@@ -113,6 +141,9 @@ public class Client {
                     errors = resp.getErrors();
                     showErrors(errors);
                 }
+
+                out.flush();
+                out.reset();
             } else if (line.toLowerCase().startsWith("ls")) {
                 st = new StringTokenizer(line);
                 String dir = currLocalDir;
@@ -129,13 +160,46 @@ public class Client {
                 } else {
                     System.out.println(FileUtil.listDirFiles(file));
                 }
+            } else if (line.toLowerCase().startsWith("sls")) {
+                if (!hasSession()) {
+                    continue;
+                }
+
+                st = new StringTokenizer(line);
+                st.nextToken();
+                String targetDir = null;
+
+                if (st.hasMoreTokens()) {
+                    targetDir = st.nextToken();
+                }
+
+                req.setMethod(RequestMethodEnum.USER_LIST_SERVER_FILES);
+                req.setData(targetDir);
+                out.writeObject(req);
+
+                resp = (Response) input.readObject();
+
+                if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                    System.out.println(resp.getData());
+                } else {
+                    errors = resp.getErrors();
+                    showErrors(errors);
+                }
+
+                out.flush();
+                out.reset();
             } else if (line.toLowerCase().startsWith("cd")) {
                 st = new StringTokenizer(line);
                 st.nextToken();
                 String targetDir = st.nextToken();
                 boolean validDir = false;
 
+                if (targetDir.contains("..")) {
+                    targetDir = currLocalDir + "\\" + targetDir;
+                }
+
                 File file = new File(targetDir);
+
                 if (!file.isDirectory() || !file.exists()) {
                     file = new File(currLocalDir + "\\" + targetDir);
 
@@ -154,12 +218,7 @@ public class Client {
                     System.setProperty("user.dir", currLocalDir);
                 }
             } else {
-                System.out.println("Unkown command '" + line + "'");
-            }
-
-            if (serverConfigured) {
-                out.flush();
-                out.reset();
+                System.out.println("Unknown command '" + line + "'");
             }
 
             System.out.print(cmdPrefix(user, currLocalDir));
