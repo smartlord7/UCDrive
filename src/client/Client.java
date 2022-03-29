@@ -11,6 +11,7 @@ import util.FileUtil;
 import java.io.*;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 public class Client {
@@ -20,11 +21,16 @@ public class Client {
         }
     }
 
+    private String cmdPrefix(User user, String currLocalDir) {
+        return user.isAuth() ? user.getUserName() + "@" : "" + "UCDrive~\\" + currLocalDir + "\n$ ";
+    }
+
     public void run() throws IOException, ClassNotFoundException {
         String line;
         String ip;
         boolean serverConfigured = false;
-        String currDir = System.getProperty("user.dir");
+        String currLocalDir = System.getProperty("user.dir");
+        String currRemoteDir = null;
         int port;
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         ObjectOutputStream out = null;
@@ -36,8 +42,8 @@ public class Client {
         User user = new User();
         Gson gson = new Gson();
 
-
-        while ((line = in.readLine()) != null && line.length() > 0) {
+        System.out.print(cmdPrefix(user, currLocalDir));
+        while (!(line = in.readLine()).equalsIgnoreCase("exit")) {
             if (line.equalsIgnoreCase("config server")) {
                 System.out.println("Server IP: ");
                 ip = in.readLine();
@@ -51,12 +57,12 @@ public class Client {
                 }
             } else if (line.equalsIgnoreCase("auth")) {
                 if (user.isAuth()) {
-                    System.out.println("User already logged in!");
+                    System.out.println("Error: user already logged in!");
                     continue;
                 }
 
-                if (serverConfigured) {
-                    System.out.println("Server not configured!");
+                if (!serverConfigured) {
+                    System.out.println("Error: server not configured!");
                     continue;
                 }
 
@@ -79,9 +85,15 @@ public class Client {
                     showErrors(errors);
                 }
 
-            } else if (serverConfigured && line.equalsIgnoreCase("cpwd")) {
+            } else if (line.equalsIgnoreCase("cpwd")) {
+                if (!serverConfigured) {
+                    System.out.println("Error: server not configured");
+                    continue;
+                }
+
                 if (!user.isAuth()) {
-                    System.out.println("User not logged in!");
+                    System.out.println("Error: user not logged in!");
+                    continue;
                 }
 
                 System.out.println("Old password: ");
@@ -96,27 +108,61 @@ public class Client {
                 resp = (Response) input.readObject();
 
                 if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                    System.out.println("Password changed succesfully!");
+                    System.out.println("Password changed successfully!");
                 } else {
                     errors = resp.getErrors();
                     showErrors(errors);
                 }
-            } else if (line.equalsIgnoreCase("ls")) {
-                System.out.println(FileUtil.listCurrDirFiles(new File(currDir)));
+            } else if (line.toLowerCase().startsWith("ls")) {
+                st = new StringTokenizer(line);
+                String dir = currLocalDir;
+
+                st.nextToken();
+                if (st.hasMoreTokens()) {
+                    dir = st.nextToken();
+                }
+
+                File file = new File(dir);
+
+                if (!file.isDirectory() || !file.exists()) {
+                    System.out.println("Error: no directory '" + dir + "' found!");
+                } else {
+                    System.out.println(FileUtil.listDirFiles(file));
+                }
             } else if (line.toLowerCase().startsWith("cd")) {
                 st = new StringTokenizer(line);
                 st.nextToken();
                 String targetDir = st.nextToken();
+                boolean validDir = false;
 
-                if (targetDir.equals("..")) {
-                    currDir = FileUtil.backDir(currDir);
+                File file = new File(targetDir);
+                if (!file.isDirectory() || !file.exists()) {
+                    file = new File(currLocalDir + "\\" + targetDir);
+
+                    if (!file.isDirectory() || !file.exists()) {
+                        System.out.println("Error: no directory '" + targetDir + "' found!");
+                    } else {
+                        validDir = true;
+                    }
+
+                } else {
+                    validDir = true;
                 }
+
+                if (validDir) {
+                    currLocalDir = file.getCanonicalPath();
+                    System.setProperty("user.dir", currLocalDir);
+                }
+            } else {
+                System.out.println("Unkown command '" + line + "'");
             }
 
             if (serverConfigured) {
                 out.flush();
                 out.reset();
             }
+
+            System.out.print(cmdPrefix(user, currLocalDir));
         }
     }
 

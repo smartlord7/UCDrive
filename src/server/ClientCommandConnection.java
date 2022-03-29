@@ -12,12 +12,14 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 
 class ClientCommandConnection extends Thread {
-    ObjectInputStream in;
-    ObjectOutputStream out;
-    Socket clientSocket;
-    int thread_number;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
+    private Socket clientSocket;
+    private String currDir;
+    private int thread_number;
 
     public ClientCommandConnection(Socket aClientSocket, int number) {
+        currDir = System.getProperty("user.dir");
         thread_number = number;
         try {
             clientSocket = aClientSocket;

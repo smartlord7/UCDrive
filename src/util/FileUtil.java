@@ -1,13 +1,12 @@
 package util;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 public class FileUtil {
-    public static String listCurrDirFiles(File curDir) {
+    public static String listDirFiles(File dir) {
         String list = "";
         StringBuilder sb = new StringBuilder(list);
-        File[] filesList = curDir.listFiles();
+        File[] filesList = dir.listFiles();
 
         if (filesList != null) {
             for (File f : filesList) {
@@ -34,10 +33,6 @@ public class FileUtil {
 
         System.out.println("Total space: "+totalSpace);
         System.out.println("Used space: "+usedSpace);
-    }
-
-    public static String backDir(String currentDir){
-        return Paths.get(currentDir).getParent().toString();
     }
 
     public static long getTotalSpace(File curDir){
