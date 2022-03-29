@@ -9,9 +9,7 @@ import datalayer.model.User.UserSession;
 import protocol.Request;
 import protocol.Response;
 import protocol.ResponseStatusEnum;
-import server.ClientCommandConnection;
 import util.FileUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -37,8 +35,9 @@ public class Server {
         }
     }
 
-    public static Response authUser(Request req) throws SQLException, NoSuchAlgorithmException {
+    public static Response authUser(Request req, UserSession session) throws SQLException, NoSuchAlgorithmException {
         int loginResult;
+        int userId;
         String lastSessionDir;
         User user;
         UserSession userSession;
@@ -49,13 +48,16 @@ public class Server {
         loginResult = UserDAO.authenticate(user);
 
         checkUserCredentials(resp, user, loginResult);
-        lastSessionDir = SessionLogDAO.getDirectoryFromLastSession(user.getUserId());
+        userId = user.getUserId();
+        lastSessionDir = SessionLogDAO.getDirectoryFromLastSession(userId);
 
         if (lastSessionDir == null) {
             lastSessionDir = System.getProperty("user.dir");
         }
 
-        userSession = new UserSession(user.getUserId(), lastSessionDir);
+        userSession = new UserSession(userId, lastSessionDir);
+        session.setUserId(user.getUserId());
+        session.setCurrentDir(lastSessionDir);
         resp.setData(gson.toJson(userSession));
 
         return resp;

@@ -58,7 +58,7 @@ public class ClientCommandConnection extends Thread {
         RequestMethodEnum method = req.getMethod();
 
         switch (method) {
-            case USER_AUTHENTICATION -> resp = Server.authUser(req);
+            case USER_AUTHENTICATION -> resp = Server.authUser(req, session);
             case USER_CHANGE_PASSWORD -> resp = Server.changePassword(req);
             case USER_LIST_SERVER_FILES -> resp = Server.listDirFiles(req);
             case USER_CHANGE_CWD -> resp = Server.changeWorkingDir(req, session);
