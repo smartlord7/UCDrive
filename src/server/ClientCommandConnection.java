@@ -1,5 +1,6 @@
 package server;
 
+import datalayer.model.User.UserSession;
 import presentationlayer.Server;
 import protocol.Request;
 import protocol.RequestMethodEnum;
@@ -11,18 +12,19 @@ import java.net.SocketException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 
-class ClientCommandConnection extends Thread {
+public class ClientCommandConnection extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Socket clientSocket;
-    private String currDir;
-    private int thread_number;
+    private UserSession session;
+    private int connectionId;
 
-    public ClientCommandConnection(Socket aClientSocket, int number) {
-        currDir = System.getProperty("user.dir");
-        thread_number = number;
+    public ClientCommandConnection(Socket socket, int id) {
+        session = new UserSession();
+        connectionId = id;
+        session.setCurrentDir(System.getProperty("user.dir"));
         try {
-            clientSocket = aClientSocket;
+            clientSocket = socket;
             in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
             out = new ObjectOutputStream(new DataOutputStream(clientSocket.getOutputStream()));
             this.start();
@@ -51,16 +53,15 @@ class ClientCommandConnection extends Thread {
         }
     }
 
-    private Response handleRequest(Request req) throws SQLException, NoSuchAlgorithmException {
+    private Response handleRequest(Request req) throws SQLException, NoSuchAlgorithmException, IOException {
         Response resp = null;
         RequestMethodEnum method = req.getMethod();
 
         switch (method) {
-            case USER_AUTHENTICATION -> resp = Server.loginUser(req);
+            case USER_AUTHENTICATION -> resp = Server.authUser(req);
             case USER_CHANGE_PASSWORD -> resp = Server.changePassword(req);
-            case USER_LIST_SERVER_FILES -> resp = Server.listCurrDirFiles(req);
-            case USER_CHANGE_CWD -> {
-            }
+            case USER_LIST_SERVER_FILES -> resp = Server.listDirFiles(req);
+            case USER_CHANGE_CWD -> resp = Server.changeWorkingDir(req, session);
             case USER_DOWNLOAD_FILE -> {
             }
             case USER_UPLOAD_FILE -> {

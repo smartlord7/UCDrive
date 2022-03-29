@@ -1,6 +1,7 @@
 package util;
 
 import java.io.File;
+import java.io.IOException;
 
 public class FileUtil {
     public static String listDirFiles(File dir) {
@@ -15,6 +16,35 @@ public class FileUtil {
         }
 
         return sb.toString();
+    }
+
+    public static String getNextCWD(String targetDir, String currDir) throws IOException {
+        boolean validDir = false;
+        if (targetDir.contains("..")) {
+            targetDir = currDir + "\\" + targetDir;
+        }
+
+        File file = new File(targetDir);
+
+        if (!file.isDirectory() || !file.exists()) {
+            file = new File(currDir + "\\" + targetDir);
+
+            if (!file.isDirectory() || !file.exists()) {
+                System.out.println("Error: no directory '" + targetDir + "' found!");
+            } else {
+                validDir = true;
+            }
+
+        } else {
+            validDir = true;
+        }
+
+        if (validDir) {
+            currDir = file.getCanonicalPath();
+            System.setProperty("user.dir", currDir);
+        }
+
+        return currDir;
     }
 
     public static void fileAccess(){

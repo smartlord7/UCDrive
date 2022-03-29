@@ -1,15 +1,19 @@
 package presentationlayer;
 
+import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import com.google.gson.Gson;
 import datalayer.enumerate.DirectoryPermissionEnum;
 import datalayer.model.User.User;
+import datalayer.model.User.UserSession;
 import protocol.Request;
 import protocol.Response;
 import protocol.ResponseStatusEnum;
+import server.ClientCommandConnection;
 import util.FileUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -33,12 +37,26 @@ public class Server {
         }
     }
 
-    public static Response loginUser(Request req) throws SQLException, NoSuchAlgorithmException {
-        Response resp = new Response();
-        User user = gson.fromJson(req.getData(), User.class);
-        int result = UserDAO.authenticate(user);
+    public static Response authUser(Request req) throws SQLException, NoSuchAlgorithmException {
+        int loginResult;
+        String lastSessionDir;
+        User user;
+        UserSession userSession;
+        Response resp;
 
-        checkUserCredentials(resp, user, result);
+        resp = new Response();
+        user = gson.fromJson(req.getData(), User.class);
+        loginResult = UserDAO.authenticate(user);
+
+        checkUserCredentials(resp, user, loginResult);
+        lastSessionDir = SessionLogDAO.getDirectoryFromLastSession(user.getUserId());
+
+        if (lastSessionDir == null) {
+            lastSessionDir = System.getProperty("user.dir");
+        }
+
+        userSession = new UserSession(user.getUserId(), lastSessionDir);
+        resp.setData(gson.toJson(userSession));
 
         return resp;
     }
@@ -53,7 +71,7 @@ public class Server {
         return resp;
     }
 
-    public static Response listCurrDirFiles(Request req) {
+    public static Response listDirFiles(Request req) {
         Response resp = new Response();
         String dir = req.getData();
         File f;
@@ -74,6 +92,33 @@ public class Server {
             f = new File(System.getProperty("user.dir"));
             resp.setStatus(ResponseStatusEnum.SUCCESS);
             resp.setData(FileUtil.listDirFiles(f));
+        }
+
+        return resp;
+    }
+
+    public static Response changeWorkingDir(Request req, UserSession session) throws IOException {
+        Response resp = new Response();
+        String dir = req.getData();
+        File f;
+
+        if (dir != null && dir.length() != 0) {
+            f = new File(dir);
+            if (!f.exists() || !f.isDirectory()) {
+                resp.setStatus(ResponseStatusEnum.ERROR);
+                HashMap<String, String> errors = new HashMap<>();
+                errors.put("DirectoryNotFound", "Directory '" + dir + "' not found");
+                resp.setErrors(errors);
+            } else {
+                String nextCWD = FileUtil.getNextCWD(dir, session.getCurrentDir());
+                session.setCurrentDir(nextCWD);
+                resp.setData(nextCWD);
+                resp.setStatus(ResponseStatusEnum.SUCCESS);
+            }
+        } else {
+            HashMap<String, String> errors = new HashMap<>();
+            errors.put("NoSpecifiedDirectory", "No directory was specified");
+            resp.setErrors(errors);
         }
 
         return resp;

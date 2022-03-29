@@ -16,15 +16,15 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 public class Client {
-    private final User user = new User();
     private ObjectOutputStream out;
     private ObjectInputStream input;
     private String currLocalDir = System.getProperty("user.dir");
-    private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-    private Request req = new Request();
     private Response resp;
-    private boolean serverConfigured = false;
     private String currRemoteDir = null;
+    private final User user = new User();
+    private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    private boolean serverConfigured = false;
+    private final Request req = new Request();
     private final Gson gson = new Gson();
 
     private void showErrors(HashMap<String, String> errors) {
@@ -89,9 +89,10 @@ public class Client {
         while (!(line = in.readLine()).equalsIgnoreCase("exit")) {
             line = line.strip().trim();
 
-            StringTokenizer st;
+            StringTokenizer st = new StringTokenizer(line);
+            String cmd = st.nextToken();
             HashMap<String, String> errors;
-            if (line.equalsIgnoreCase("auth")) {
+            if (cmd.equalsIgnoreCase("auth")) {
                 if (user.isAuth()) {
                     System.out.println("Error: user already logged in!");
                     continue;
@@ -113,7 +114,7 @@ public class Client {
                 resp = (Response) input.readObject();
 
                 if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                    System.out.println("User " + user.getUserName() + " authenticated successfully!");
+                    System.out.println("User '" + user.getUserName() + "' authenticated successfully!");
                     user.setAuth(true);
                 } else {
                     errors = resp.getErrors();
@@ -144,11 +145,9 @@ public class Client {
 
                 out.flush();
                 out.reset();
-            } else if (line.toLowerCase().startsWith("ls")) {
-                st = new StringTokenizer(line);
+            } else if (cmd.equalsIgnoreCase("ls")) {
                 String dir = currLocalDir;
 
-                st.nextToken();
                 if (st.hasMoreTokens()) {
                     dir = st.nextToken();
                 }
@@ -160,13 +159,11 @@ public class Client {
                 } else {
                     System.out.println(FileUtil.listDirFiles(file));
                 }
-            } else if (line.toLowerCase().startsWith("sls")) {
+            } else if (cmd.equalsIgnoreCase("sls")) {
                 if (!hasSession()) {
                     continue;
                 }
 
-                st = new StringTokenizer(line);
-                st.nextToken();
                 String targetDir = null;
 
                 if (st.hasMoreTokens()) {
@@ -185,40 +182,33 @@ public class Client {
                     errors = resp.getErrors();
                     showErrors(errors);
                 }
-
-                out.flush();
-                out.reset();
-            } else if (line.toLowerCase().startsWith("cd")) {
-                st = new StringTokenizer(line);
-                st.nextToken();
+            } else if (cmd.equalsIgnoreCase("cd")) {
                 String targetDir = st.nextToken();
-                boolean validDir = false;
-
-                if (targetDir.contains("..")) {
-                    targetDir = currLocalDir + "\\" + targetDir;
+                currLocalDir = FileUtil.getNextCWD(targetDir, currLocalDir);
+            } else if (cmd.equalsIgnoreCase("scd")) {
+                if (!hasSession()) {
+                    continue;
                 }
 
-                File file = new File(targetDir);
+                String targetDir = st.nextToken();
+                req.setMethod(RequestMethodEnum.USER_CHANGE_CWD);
+                req.setData(targetDir);
+                out.writeObject(req);
+                resp = (Response) input.readObject();
 
-                if (!file.isDirectory() || !file.exists()) {
-                    file = new File(currLocalDir + "\\" + targetDir);
-
-                    if (!file.isDirectory() || !file.exists()) {
-                        System.out.println("Error: no directory '" + targetDir + "' found!");
-                    } else {
-                        validDir = true;
-                    }
-
+                if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                    currRemoteDir = resp.getData();
                 } else {
-                    validDir = true;
-                }
-
-                if (validDir) {
-                    currLocalDir = file.getCanonicalPath();
-                    System.setProperty("user.dir", currLocalDir);
+                    errors = resp.getErrors();
+                    showErrors(errors);
                 }
             } else {
                 System.out.println("Unknown command '" + line + "'");
+            }
+
+            if (serverConfigured) {
+                out.flush();
+                out.reset();
             }
 
             System.out.print(cmdPrefix(user, currLocalDir));

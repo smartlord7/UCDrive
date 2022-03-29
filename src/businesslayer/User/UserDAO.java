@@ -78,16 +78,19 @@ public class UserDAO {
 
     public static int authenticate(User user) throws SQLException, NoSuchAlgorithmException {
         PreparedStatement stmt;
+        String passwordHash;
+        ResultSet res;
 
-        stmt = connection.prepareStatement("SELECT PasswordHash FROM [User] WHERE UserName = ? ");
+        stmt = connection.prepareStatement("SELECT UserId, PasswordHash FROM [User] WHERE UserName = ? ");
 
         stmt.setString(1, user.getUserName());
-        ResultSet res = stmt.executeQuery();
+        res = stmt.executeQuery();
 
-        String passwordHash = null;
+        passwordHash = null;
 
         while (res.next()) {
-            passwordHash = res.getString(1);
+            user.setUserId(res.getInt(1));
+            passwordHash = res.getString(2);
         }
 
         if (passwordHash == null) {
