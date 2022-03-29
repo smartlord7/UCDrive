@@ -3,5 +3,5 @@ package protocol;
 import java.io.Serializable;
 
 public enum ResponseStatusEnum implements Serializable {
-    ERROR, SUCCESS
+    ERROR, SUCCESS, NOT_AUTHORIZED
 }
