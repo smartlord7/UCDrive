@@ -2,6 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import datalayer.model.User.User;
+import datalayer.model.User.UserSession;
 import protocol.Request;
 import protocol.RequestMethodEnum;
 import protocol.Response;
@@ -12,18 +13,19 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.StringTokenizer;
+import util.Const;
+import util.StringUtil;
 
 public class Client {
     private ObjectOutputStream out;
     private ObjectInputStream input;
     private String currLocalDir = System.getProperty("user.dir");
     private Response resp;
-    private String currRemoteDir = null;
+    private UserSession session = null;
+    private boolean serverConfigured = false;
     private final User user = new User();
     private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-    private boolean serverConfigured = false;
     private final Request req = new Request();
     private final Gson gson = new Gson();
 
@@ -34,7 +36,19 @@ public class Client {
     }
 
     private String cmdPrefix(User user, String currLocalDir) {
-        return (user.isAuth() ? user.getUserName() + "@" : "") + "UCDrive~\\" + currLocalDir + "\n$ ";
+        String userName;
+        String prefix;
+
+        userName = user.getUserName();
+        prefix = (user.isAuth() ? userName + "@" : "") + Const.APP_NAME + "-local~\\" + currLocalDir + "\n";
+
+        if (user.isAuth()) {
+            prefix += StringUtil.repeat(" ", userName.length()) + "@" + Const.APP_NAME + "-remote~\\" + session.getCurrentDir() + "\n$ ";
+        } else {
+            prefix += "$ ";
+        }
+
+        return prefix;
     }
 
     private boolean hasAuth() {
@@ -115,6 +129,7 @@ public class Client {
 
                 if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
                     System.out.println("User '" + user.getUserName() + "' authenticated successfully!");
+                    session = gson.fromJson(resp.getData(), UserSession.class);
                     user.setAuth(true);
                 } else {
                     errors = resp.getErrors();
@@ -143,8 +158,6 @@ public class Client {
                     showErrors(errors);
                 }
 
-                out.flush();
-                out.reset();
             } else if (cmd.equalsIgnoreCase("ls")) {
                 String dir = currLocalDir;
 
@@ -197,7 +210,7 @@ public class Client {
                 resp = (Response) input.readObject();
 
                 if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                    currRemoteDir = resp.getData();
+                    session.setCurrentDir(resp.getData());
                 } else {
                     errors = resp.getErrors();
                     showErrors(errors);

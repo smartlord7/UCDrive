@@ -75,42 +75,62 @@ public class Server {
         Response resp = new Response();
         String dir = req.getData();
         File f;
+        boolean validDir = true;
 
         if (dir != null && dir.length() != 0) {
             f = new File(dir);
 
             if (!f.exists() || !f.isDirectory()) {
-                resp.setStatus(ResponseStatusEnum.ERROR);
-                HashMap<String, String> errors = new HashMap<>();
-                errors.put("DirectoryNotFound", "Directory '" + dir + "' not found");
-                resp.setErrors(errors);
-            } else {
-                resp.setStatus(ResponseStatusEnum.SUCCESS);
-                resp.setData(FileUtil.listDirFiles(f));
+                f = new File(System.getProperty("user.dir") + "\\" + dir);
+
+                validDir = directoryExists(resp, dir, f);
             }
         } else {
             f = new File(System.getProperty("user.dir"));
+        }
+
+        if (validDir) {
             resp.setStatus(ResponseStatusEnum.SUCCESS);
             resp.setData(FileUtil.listDirFiles(f));
         }
-
         return resp;
     }
 
-    public static Response changeWorkingDir(Request req, UserSession session) throws IOException {
-        Response resp = new Response();
-        String dir = req.getData();
-        File f;
+    private static boolean directoryExists(Response resp, String dir, File f) {
+        if (!f.exists() || !f.isDirectory()) {
+            resp.setStatus(ResponseStatusEnum.ERROR);
+            HashMap<String, String> errors = new HashMap<>();
+            errors.put("DirectoryNotFound", "Directory '" + dir + "' not found");
+            resp.setErrors(errors);
 
-        if (dir != null && dir.length() != 0) {
-            f = new File(dir);
+            return false;
+        }
+
+        return true;
+    }
+
+    public static Response changeWorkingDir(Request req, UserSession session) throws IOException {
+        boolean validDir;
+        String targetDir;
+        File f;
+        Response resp;
+
+        validDir = true;
+        resp = new Response();
+        targetDir = req.getData();
+
+        if (targetDir != null && targetDir.length() != 0) {
+            f = new File(targetDir);
+
             if (!f.exists() || !f.isDirectory()) {
-                resp.setStatus(ResponseStatusEnum.ERROR);
-                HashMap<String, String> errors = new HashMap<>();
-                errors.put("DirectoryNotFound", "Directory '" + dir + "' not found");
-                resp.setErrors(errors);
-            } else {
-                String nextCWD = FileUtil.getNextCWD(dir, session.getCurrentDir());
+                targetDir = System.getProperty("user.dir") + "\\" + targetDir;
+                f = new File(targetDir);
+
+                validDir = directoryExists(resp, targetDir, f);
+            }
+
+            if (validDir) {
+                String nextCWD = FileUtil.getNextCWD(targetDir, session.getCurrentDir());
                 session.setCurrentDir(nextCWD);
                 resp.setData(nextCWD);
                 resp.setStatus(ResponseStatusEnum.SUCCESS);
