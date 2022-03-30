@@ -6,6 +6,7 @@ public class ServerUserSession {
     private int userId;
     private String currentDir;
     private FileMetadata fileMetadata;
+    private Object syncObj;
     private String other;
 
     public ServerUserSession() {
@@ -47,4 +48,6 @@ public class ServerUserSession {
     public synchronized void setOther(String other) {
         this.other = other;
     }
+
+
 }

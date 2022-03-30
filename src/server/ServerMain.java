@@ -19,10 +19,10 @@ public class ServerMain {
         }
 
         BufferedReader in = new BufferedReader (new InputStreamReader(System.in));
-        System.out.println("Choose command channel port: ");
-        commandPort = Integer.parseInt(in.readLine());
-        System.out.println("Choose data channel port: ");
-        dataPort = Integer.parseInt(in.readLine());
+        //System.out.println("Choose command channel port: ");
+        commandPort = 8000;
+        //System.out.println("Choose data channel port: ");
+        dataPort = 8001;
     }
 
     public static void run() throws IOException {

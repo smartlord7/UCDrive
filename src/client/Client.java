@@ -22,6 +22,8 @@ import java.util.StringTokenizer;
 import util.Const;
 import util.StringUtil;
 
+import static sun.nio.ch.IOStatus.EOF;
+
 public class Client {
     private boolean serverConfigured = false;
     private String currLocalDir = System.getProperty("user.dir");
@@ -84,43 +86,30 @@ public class Client {
         return hasConnection() && hasAuth();
     }
 
-    private void configServer() throws IOException {
-        String ip = "";
-        int cmdPort;
-        int dataPort;
+    private void configServer(String ip, int cmdPort, int dataPort) throws IOException {
+        try {
 
-        while (!serverConfigured) {
-                System.out.println("Server IP: ");
-                ip = in.readLine();
-                System.out.println("Server cmd port: ");
-                cmdPort = Integer.parseInt(in.readLine());
-
-                try {
-
-                    cmdSocket = new Socket(ip, cmdPort);
-                } catch (SocketException | UnknownHostException e) {
-                    e.printStackTrace();
-                    System.out.println("Error: cmd host " + ip + ":" + cmdPort + " unreachable");
-                    continue;
-                }
-
-                System.out.println("Connected to " + ip + ":" + cmdPort);
-
-                System.out.println("Server data port: ");
-                dataPort = Integer.parseInt(in.readLine());
-
-                try {
-                    dataSocket = new Socket(ip, dataPort);
-                } catch (SocketException | UnknownHostException e) {
-                    e.printStackTrace();
-                    System.out.println("Error: data host " + ip + ":" + dataPort + " unreachable");
-                    continue;
-                }
-
-                System.out.println("Connected to " + ip + ":" + dataPort);
-
-                serverConfigured = true;
+            cmdSocket = new Socket(ip, cmdPort);
+        } catch (SocketException | UnknownHostException e) {
+            e.printStackTrace();
+            System.out.println("Error: cmd host " + ip + ":" + cmdPort + " unreachable");
+            System.exit(-1);
         }
+
+        System.out.println("Command channel connected to " + ip + ":" + cmdPort);
+
+
+        try {
+            dataSocket = new Socket(ip, dataPort);
+        } catch (SocketException | UnknownHostException e) {
+            e.printStackTrace();
+            System.out.println("Error: data host " + ip + ":" + dataPort + " unreachable");
+            System.exit(-1);
+        }
+
+        System.out.println("Data channel connected to " + ip + ":" + dataPort);
+
+        serverConfigured = true;
 
         outCmd = new ObjectOutputStream(new DataOutputStream(cmdSocket.getOutputStream()));
         inCmd = new ObjectInputStream(new DataInputStream(cmdSocket.getInputStream()));
@@ -309,7 +298,7 @@ public class Client {
         for (String file : filesToUpload) {
             Path p = Paths.get(file);
             FileMetadata info = new FileMetadata(p.getName(p.getNameCount() - 1).toString(), (int) Files.size(Paths.get(file)));
-            req.setMethod(RequestMethodEnum.USER_UPLOAD_FILES);
+            req.setMethod(RequestMethodEnum.USER_UPLOAD_FILE);
             req.setData(gson.toJson(info));
             outCmd.writeObject(req);
 
@@ -325,6 +314,8 @@ public class Client {
                 while (fileReader.read(buffer, 0, readSize) != -1) {
                     outData.write(buffer);
                 }
+
+                fileReader.close();
             } else if (resp.getStatus() == ResponseStatusEnum.UNAUTHORIZED){
                 showErrors(resp.getErrors());
             }
@@ -336,9 +327,45 @@ public class Client {
             return;
         }
 
-        req.setMethod(RequestMethodEnum.USER_DOWNLOAD_FILES);
-        outCmd.writeObject(req);
-        resp = (Response) inCmd.readObject();
+        FileMetadata fileMeta;
+
+        while (st.hasMoreTokens()) {
+            req.setMethod(RequestMethodEnum.USER_DOWNLOAD_FILE);
+            fileMeta = new FileMetadata();
+            fileMeta.setFileName(st.nextToken());
+            req.setData(gson.toJson(fileMeta));
+            outCmd.writeObject(req);
+            resp = (Response) inCmd.readObject();
+
+            if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                fileMeta = gson.fromJson(resp.getData(), FileMetadata.class);
+                int totalRead = 0;
+                int bytesRead;
+                int fileSize = fileMeta.getFileSize();
+                byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
+                FileOutputStream fileWriter;
+
+                while ((bytesRead = inData.read(buffer,0, Const.UPLOAD_FILE_CHUNK_SIZE)) != EOF)
+                {
+                    fileWriter = new FileOutputStream(currLocalDir + "\\" + fileMeta.getFileName());
+                    byte[] finalBuffer = buffer;
+
+                    if (bytesRead > fileMeta.getFileSize()) {
+                        finalBuffer = FileUtil.substring(buffer, 0, fileSize);
+                    }
+
+                    totalRead += bytesRead;
+                    fileWriter.write(finalBuffer);
+
+                    if (totalRead >= fileSize) {
+                        fileWriter.close();
+                        return;
+                    }
+                }
+            } else {
+                showErrors(resp.getErrors());
+            }
+        }
     }
 
     private void clearChannels() throws IOException {
@@ -363,7 +390,6 @@ public class Client {
 
     public void run() throws IOException, ClassNotFoundException {
         String line;
-        configServer();
 
         System.out.print(cmdPrefix(user, currLocalDir));
         while (!(line = in.readLine()).equalsIgnoreCase("exit")) {
@@ -399,11 +425,12 @@ public class Client {
         cleanAndExit();
     }
 
-    public Client() throws IOException, ClassNotFoundException {
+    public Client(String ip, int commandPort, int dataPort) throws IOException, ClassNotFoundException {
+        configServer(ip, commandPort, dataPort);
         run();
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        Client client = new Client();
+        Client client = new Client(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]));
     }
 }

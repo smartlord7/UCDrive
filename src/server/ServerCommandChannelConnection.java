@@ -62,9 +62,8 @@ public class ServerCommandChannelConnection extends Thread {
             case USER_CHANGE_PASSWORD -> resp = Server.changePassword(req);
             case USER_LIST_SERVER_FILES -> resp = Server.listDirFiles(req, session);
             case USER_CHANGE_CWD -> resp = Server.changeWorkingDir(req, session);
-            case USER_UPLOAD_FILES -> resp = Server.uploadFiles(req, session);
-            case USER_DOWNLOAD_FILES -> {
-            }
+            case USER_UPLOAD_FILE -> resp = Server.uploadFiles(req, session);
+            case USER_DOWNLOAD_FILE -> resp = Server.downloadFiles(req, session);
         }
 
         return resp;

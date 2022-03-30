@@ -17,6 +17,7 @@ import util.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -232,18 +233,49 @@ public class Server {
         return resp;
     }
 
-    public static void downloadFiles(File curDir) throws SQLException {
-        int id = 4;
-        DirectoryPermissionEnum perm = DirectoryPermissionDAO.getDirectoryPermission(id, curDir.getPath());
-        System.out.println("Select the file to download: ");
-        if(perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE && getFreeSpace(curDir) > curDir.length()){
-            System.out.println("Permission to download");
-            //download();
-        }else if(perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.NONE){
-            System.out.println("No permission to download");
-        }else if(getFreeSpace(curDir) < curDir.length()){
-            System.out.println("No space left");
+    public static Response downloadFiles(Request req, ServerUserSession session) throws SQLException, IOException {
+        int userId;
+        String currDir;
+        String fileName;
+        String filePath;
+        Path p;
+        DirectoryPermissionEnum perm;
+        Response resp;
+        HashMap<String, String> errors;
+        FileMetadata fileMeta;
+
+        userId = session.getUserId();
+        currDir = session.getCurrentDir();
+        resp = new Response();
+        errors = new HashMap<>();
+
+        fileMeta = gson.fromJson(req.getData(), FileMetadata.class);
+        fileName = fileMeta.getFileName();
+        filePath = currDir + "\\" + fileMeta.getFileName();
+        p = Paths.get(filePath);
+        fileMeta.setFileSize((int) Files.size(p));
+
+        if (!Files.exists(p)) {
+            resp.setStatus(ResponseStatusEnum.ERROR);
+            errors.put("FileNotFound", "File '" +  fileName + "' not found");
+            resp.setErrors(errors);
+
+            return resp;
         }
+
+        perm = DirectoryPermissionDAO.getDirectoryPermission(userId, currDir);
+
+        if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE){
+            session.setFileMetadata(fileMeta);
+            resp.setStatus(ResponseStatusEnum.SUCCESS);
+            resp.setData(gson.toJson(fileMeta));
+        } else if (perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.NONE){
+            resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
+            errors.put("NoReadPermission", "User has no permission to read from directory '" +  fileName + "'");
+            resp.setErrors(errors);
+        }
+
+        return resp;
     }
 
     public static String menu(){

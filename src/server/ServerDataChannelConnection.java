@@ -1,12 +1,17 @@
 package server;
 
+import protocol.RequestMethodEnum;
+import protocol.Response;
+import protocol.ResponseStatusEnum;
 import util.Const;
 import util.FileMetadata;
 import util.FileUtil;
 
 import java.io.*;
 import java.net.Socket;
-
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import static sun.nio.ch.IOStatus.EOF;
 
 class ServerDataChannelConnection extends Thread {
@@ -33,13 +38,42 @@ class ServerDataChannelConnection extends Thread {
 
     public void run() {
         try {
-           receiveFileByChunks(in, session);
+            while (true) {
+                while (session.getFileMetadata() == null) ;
+                sendFileByChunks();
+                session.setFileMetadata(null);
+                out.flush();
+                out.reset();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void receiveFileByChunks(InputStream in, ServerUserSession session) throws IOException {
+    private void sendFileByChunks() throws IOException {
+        int fileSize;
+        int readSize;
+        byte[] buffer;
+        String fileToSend;
+        Path p;
+        DataInputStream fileReader;
+
+        fileToSend = session.getCurrentDir() + "\\" + session.getFileMetadata().getFileName();
+        fileReader = new DataInputStream(new FileInputStream(fileToSend));
+        p = Paths.get(fileToSend);
+        fileSize = (int) Files.size(p);
+
+        buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
+        readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
+
+        while (fileReader.read(buffer, 0, readSize) != -1) {
+            out.write(buffer);
+        }
+
+        fileReader.close();
+    }
+
+    private void receiveFileByChunks() throws IOException {
         int totalRead = 0;
         int bytesRead;
         int fileSize = 0;

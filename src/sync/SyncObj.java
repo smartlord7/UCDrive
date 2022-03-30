@@ -1,13 +1,8 @@
 package sync;
 
-import util.FileMetadata;
-
-import java.util.ArrayList;
-
 public class SyncObj {
     private boolean use;
     private boolean active;
-    private FileMetadata fileMeta;
 
     public SyncObj() {
     }
@@ -22,14 +17,6 @@ public class SyncObj {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public FileMetadata getFileInfo() {
-        return fileMeta;
-    }
-
-    public void setFileInfo(FileMetadata fileMeta) {
-        this.fileMeta = fileMeta;
     }
 
     public boolean isUse() {
