@@ -1,7 +1,8 @@
 package util;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+
+import static sun.nio.ch.IOStatus.EOF;
 
 public class FileUtil {
     public static String listDirFiles(File dir) {
@@ -47,12 +48,48 @@ public class FileUtil {
         return currDir;
     }
 
-    public static void fileAccess(){
-        String PATH = "/remote/dir/server/";
-        String directoryName = PATH;
-        File directory = new File(directoryName);
-        if (!directory.exists()){
-            directory.mkdirs();
+    public static byte[] substring(byte[] array, int start, int end) {
+        assert end > start;
+        int length = (end - start);
+
+        byte[] newArray = new byte[length];
+        System.arraycopy(array, start, newArray, 0, length);
+
+        return newArray;
+    }
+
+    public static void receiveFileByChunks(InputStream in, FileMetadata fileMetadata, int chunkSize) throws IOException {
+        int totalRead = 0;
+        int bytesRead;
+        int fileSize = 0;
+        byte[] buffer = new byte[chunkSize];
+        String name;
+        FileMetadata fileMeta = null;
+        FileOutputStream fileWriter = null;
+
+        bytesRead = 0;
+        while ((bytesRead = in.read(buffer,0, chunkSize)) != EOF)
+        {
+            if (fileMeta == null) {
+                if (fileMeta == null || fileMeta.getFileSize() == 0) {
+                    continue;
+                }
+
+                fileSize = fileMeta.getFileSize();
+                fileWriter = new FileOutputStream(fileMetadata.getFileName());
+            }
+
+            if (bytesRead > fileMeta.getFileSize()) {
+                buffer = FileUtil.substring(buffer, 0, fileSize);
+            }
+
+            totalRead += bytesRead;
+            fileWriter.write(buffer);
+
+            if (totalRead >= fileSize) {
+                fileWriter.close();
+                fileMeta = null;
+            }
         }
     }
 

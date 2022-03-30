@@ -3,6 +3,7 @@ package presentationlayer;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import datalayer.enumerate.DirectoryPermissionEnum;
 import datalayer.model.User.User;
 import datalayer.model.User.UserSession;
@@ -10,11 +11,16 @@ import protocol.Request;
 import protocol.Response;
 import protocol.ResponseStatusEnum;
 import sync.SyncObj;
+import util.FileMetadata;
 import util.FileUtil;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import static util.FileUtil.getFreeSpace;
 
@@ -149,24 +155,22 @@ public class Server {
 
     public static Response uploadFiles(Request req, UserSession session, SyncObj obj) throws SQLException, InterruptedException {
         int userId;
-        long spaceLeft;
         String dir;
         DirectoryPermissionEnum perm;
         Response resp;
         HashMap<String, String> errors;
+        FileMetadata fileMeta;
 
         userId = session.getUserId();
-        spaceLeft = getFreeSpace(new File(session.getCurrentDir()));
         dir = session.getCurrentDir();
         perm = UserDAO.getDirectoryPermission(userId, dir);
         resp = new Response();
         errors = new HashMap<>();
 
         if (perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.READ_WRITE){
+            fileMeta = gson.fromJson(req.getData(), FileMetadata.class);
+            obj.setFileInfo(fileMeta);
             resp.setStatus(ResponseStatusEnum.SUCCESS);
-            System.out.println("Started upload");
-            obj.broadcast();
-            obj.wait(false);
         } else if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.NONE){
             resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
             errors.put("NoWritePermission", "User has no permission to write in directory '" +  dir + "'");

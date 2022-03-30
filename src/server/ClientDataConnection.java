@@ -1,7 +1,8 @@
 package server;
 
-import sync.ClientChannelSync;
 import sync.SyncObj;
+import util.Const;
+import util.FileUtil;
 
 import java.io.*;
 import java.net.Socket;
@@ -20,6 +21,8 @@ class ClientDataConnection extends Thread {
             clientSocket = aClientSocket;
             in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
             out = new ObjectOutputStream(new DataOutputStream(clientSocket.getOutputStream()));
+            out.flush();
+            out.reset();
             this.start();
         } catch (IOException e) {
             System.out.println("Connection:" + e.getMessage());
@@ -28,12 +31,8 @@ class ClientDataConnection extends Thread {
 
     public void run() {
         try {
-            while(true){
-                syncObj.wait(true);
-                syncObj.broadcast();
-                System.out.println("Finished upload");
-            }
-        } catch (InterruptedException e) {
+            FileUtil.receiveFileByChunks(in, syncObj.getFileInfo(), Const.UPLOAD_FILE_CHUNK_SIZE);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

@@ -6,7 +6,6 @@ import protocol.Request;
 import protocol.RequestMethodEnum;
 import protocol.Response;
 import sync.SyncObj;
-
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;

@@ -7,11 +7,16 @@ import protocol.Request;
 import protocol.RequestMethodEnum;
 import protocol.Response;
 import protocol.ResponseStatusEnum;
+import util.FileMetadata;
 import util.FileUtil;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import util.Const;
@@ -99,6 +104,8 @@ public class Client {
                     continue;
                 }
 
+                System.out.println("Connected to " + ip + ":" + cmdPort);
+
                 System.out.println("Server data port: ");
                 dataPort = Integer.parseInt(in.readLine());
 
@@ -110,6 +117,8 @@ public class Client {
                     continue;
                 }
 
+                System.out.println("Connected to " + ip + ":" + dataPort);
+
                 serverConfigured = true;
         }
 
@@ -117,7 +126,6 @@ public class Client {
         inCmd = new ObjectInputStream(new DataInputStream(cmdSocket.getInputStream()));
         outData = new ObjectOutputStream(new DataOutputStream(dataSocket.getOutputStream()));
         inData = new ObjectInputStream(new DataInputStream(dataSocket.getInputStream()));
-        System.out.println("Connected to " + ip);
     }
 
     private void authUser() throws IOException, ClassNotFoundException {
@@ -240,13 +248,60 @@ public class Client {
     }
 
     private void uploadFiles() throws IOException, ClassNotFoundException {
+        ArrayList<String> filesToUpload;
+        DataInputStream fileReader;
+
         if (!hasSession()) {
             return;
         }
 
-        req.setMethod(RequestMethodEnum.USER_UPLOAD_FILES);
-        outCmd.writeObject(req);
-        resp = (Response) inCmd.readObject();
+        filesToUpload = new ArrayList<>();
+
+        while (st.hasMoreTokens()) {
+            String fileName = st.nextToken();
+            Path path = Paths.get(fileName);
+
+            if (!Files.exists(path)) {
+
+                fileName = currLocalDir + "\\" + fileName;
+                path = Paths.get(fileName);
+
+                if (!Files.exists(path)) {
+                    System.out.println("Error: file " + fileName + " does not exist!");
+                    return;
+                }
+            }
+
+            if (Files.size(path) == 0) {
+                System.out.println("Error: file " + fileName + " is empty!");
+                return;
+            }
+
+            filesToUpload.add(fileName);
+        }
+
+        for (String file : filesToUpload) {
+            FileMetadata info = new FileMetadata(file, (int) Files.size(Paths.get(file)));
+            req.setMethod(RequestMethodEnum.USER_UPLOAD_FILES);
+            req.setData(gson.toJson(info));
+            outCmd.writeObject(req);
+
+            resp = (Response) inCmd.readObject();
+
+            if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                fileReader = new DataInputStream(new FileInputStream(file));
+                int fileSize = info.getFileSize();
+                byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
+
+                int readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
+
+                while (fileReader.read(buffer, 0, readSize) != -1) {
+                    outData.write(buffer);
+                }
+            } else if (resp.getStatus() == ResponseStatusEnum.UNAUTHORIZED){
+                showErrors(resp.getErrors());
+            }
+        }
     }
 
     private void downloadFiles() throws IOException, ClassNotFoundException {
@@ -263,6 +318,8 @@ public class Client {
         if (serverConfigured) {
             outCmd.flush();
             outCmd.reset();
+            outData.flush();
+            outData.reset();
         }
     }
 
