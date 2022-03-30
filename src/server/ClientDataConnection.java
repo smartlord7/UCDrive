@@ -1,14 +1,11 @@
 package server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 class ClientDataConnection extends Thread {
-    DataInputStream in;
-    DataOutputStream out;
+    ObjectInputStream in;
+    ObjectOutputStream out;
     Socket clientSocket;
     int thread_number;
 
@@ -16,27 +13,21 @@ class ClientDataConnection extends Thread {
         thread_number = number;
         try {
             clientSocket = aClientSocket;
-            in = new DataInputStream(clientSocket.getInputStream());
-            out = new DataOutputStream(clientSocket.getOutputStream());
+            in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
+            out = new ObjectOutputStream(new DataOutputStream(clientSocket.getOutputStream()));
             this.start();
         } catch (IOException e) {
             System.out.println("Connection:" + e.getMessage());
         }
     }
-    public void run(){
-        String resposta;
+
+    public void run() {
         try {
             while(true){
-                //an echo server
-                String data = in.readUTF();
-                System.out.println("T[" + thread_number + "] Recebeu: "+data);
-                resposta=data.toUpperCase();
-                out.writeUTF(resposta);
+               Thread.sleep(1000);
             }
-        } catch(EOFException e) {
-            System.out.println("EOF:" + e);
-        } catch(IOException e) {
-            System.out.println("IO:" + e);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

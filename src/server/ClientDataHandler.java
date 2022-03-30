@@ -17,11 +17,11 @@ public class ClientDataHandler implements Runnable {
         try (ServerSocket listenSocket = new ServerSocket(port)) {
             System.out.println("[DATA THREAD] Port: " + port);
             System.out.println("[DATA THREAD] Socket: " + listenSocket);
-            while(true) {
+            while (true) {
                 Socket clientSocket = listenSocket.accept();
                 System.out.println("[DATA THREAD] Client: " + clientSocket);
                 number++;
-                new ClientCommandConnection(clientSocket, number);
+                new ClientDataConnection(clientSocket, number);
             }
         } catch(IOException e) {
             e.printStackTrace();

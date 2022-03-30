@@ -22,11 +22,12 @@ public class ClientCommandConnection extends Thread {
     public ClientCommandConnection(Socket socket, int id) {
         session = new UserSession();
         connectionId = id;
-        session.setCurrentDir(System.getProperty("user.dir"));
         try {
             clientSocket = socket;
             in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
             out = new ObjectOutputStream(new DataOutputStream(clientSocket.getOutputStream()));
+            out.flush();
+            out.reset();
             this.start();
         } catch (IOException e) {
             System.out.println("Connection:" + e.getMessage());
