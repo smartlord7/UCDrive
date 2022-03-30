@@ -1,15 +1,19 @@
 package server;
 
+import sync.ClientChannelSync;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ClientCommandHandler implements Runnable{
-    private int port;
+public class ClientCommandHandler implements Runnable {
     private int number = 0;
+    private final int port;
+    private final ClientChannelSync channelSync;
 
-    public ClientCommandHandler(int port) {
+    public ClientCommandHandler(int port, ClientChannelSync channelSync) {
         this.port = port;
+        this.channelSync = channelSync;
     }
 
     @Override
@@ -21,7 +25,8 @@ public class ClientCommandHandler implements Runnable{
                 Socket clientSocket = listenSocket.accept();
                 System.out.println("[CMD THREAD] Client: " + clientSocket);
                 number++;
-                new ClientCommandConnection(clientSocket, number);
+                String client = clientSocket.getInetAddress() + ":" + clientSocket.getLocalPort();
+                new ClientCommandConnection(clientSocket, number, channelSync.addClientSyncObj(client));
             }
         } catch(IOException e) {
             e.printStackTrace();;

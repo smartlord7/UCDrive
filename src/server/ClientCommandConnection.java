@@ -5,6 +5,8 @@ import presentationlayer.Server;
 import protocol.Request;
 import protocol.RequestMethodEnum;
 import protocol.Response;
+import sync.ClientChannelSync;
+import sync.SyncObj;
 
 import java.io.*;
 import java.net.Socket;
@@ -18,10 +20,12 @@ public class ClientCommandConnection extends Thread {
     private Socket clientSocket;
     private UserSession session;
     private int connectionId;
+    private final SyncObj syncObj;
 
-    public ClientCommandConnection(Socket socket, int id) {
-        session = new UserSession();
-        connectionId = id;
+    public ClientCommandConnection(Socket socket, int id, SyncObj syncObj) {
+        this.connectionId = id;
+        this.session = new UserSession();
+        this.syncObj = syncObj;
         try {
             clientSocket = socket;
             in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));

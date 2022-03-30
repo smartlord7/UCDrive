@@ -1,16 +1,21 @@
 package server;
 
+import sync.ClientChannelSync;
+import sync.SyncObj;
+
 import java.io.*;
 import java.net.Socket;
 
 class ClientDataConnection extends Thread {
-    ObjectInputStream in;
-    ObjectOutputStream out;
-    Socket clientSocket;
-    int thread_number;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
+    private Socket clientSocket;
+    private int number;
+    private final SyncObj syncObj;
 
-    public ClientDataConnection(Socket aClientSocket, int number) {
-        thread_number = number;
+    public ClientDataConnection(Socket aClientSocket, int number, SyncObj syncObj) {
+        this.number = number;
+        this.syncObj = syncObj;
         try {
             clientSocket = aClientSocket;
             in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
