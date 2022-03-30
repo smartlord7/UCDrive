@@ -2,7 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import datalayer.model.User.User;
-import datalayer.model.User.UserSession;
+import datalayer.model.User.ClientUserSession;
 import protocol.Request;
 import protocol.RequestMethodEnum;
 import protocol.Response;
@@ -30,7 +30,7 @@ public class Client {
     private ObjectOutputStream outData;
     private ObjectInputStream inData;
     private Response resp;
-    private UserSession session = null;
+    private ClientUserSession session = null;
     private Socket cmdSocket;
     private Socket dataSocket;
     private HashMap<String, String> errors;
@@ -151,7 +151,33 @@ public class Client {
 
         if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
             System.out.println("User '" + user.getUserName() + "' authenticated successfully!");
-            session = gson.fromJson(resp.getData(), UserSession.class);
+            session = gson.fromJson(resp.getData(), ClientUserSession.class);
+            user.setAuth(true);
+        } else {
+            errors = resp.getErrors();
+            showErrors(errors);
+        }
+    }
+
+    private void registerUser() throws IOException, ClassNotFoundException {
+        if (!hasConnection()) {
+            return;
+        }
+
+        System.out.println("Username: ");
+        user.setUserName(in.readLine());
+        System.out.println("Password: ");
+        user.setPassword(in.readLine());
+
+        req.setMethod(RequestMethodEnum.USER_CREATE);
+        req.setData(gson.toJson(user));
+        outCmd.writeObject(req);
+
+        resp = (Response) inCmd.readObject();
+
+        if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+            System.out.println("User '" + user.getUserName() + "' created successfully!");
+            session = gson.fromJson(resp.getData(), ClientUserSession.class);
             user.setAuth(true);
         } else {
             errors = resp.getErrors();
@@ -346,6 +372,8 @@ public class Client {
             String cmd = st.nextToken();
             if (cmd.equalsIgnoreCase("auth")) {
                 authUser();
+            } else if (cmd.equalsIgnoreCase("register")) {
+                registerUser();
             } else if (line.equalsIgnoreCase("cpwd")) {
                 changeUserPassword();
             } else if (cmd.equalsIgnoreCase("ls")) {

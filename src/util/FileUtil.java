@@ -1,9 +1,6 @@
 package util;
 
-import server.UserSession;
-
 import java.io.*;
-import static sun.nio.ch.IOStatus.EOF;
 
 public class FileUtil {
     public static String listDirFiles(File dir) {
@@ -43,7 +40,6 @@ public class FileUtil {
 
         if (validDir) {
             currDir = file.getCanonicalPath();
-            System.setProperty("user.dir", currDir);
         }
 
         return currDir;

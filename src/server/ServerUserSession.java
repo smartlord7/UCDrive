@@ -2,16 +2,16 @@ package server;
 
 import util.FileMetadata;
 
-public class UserSession {
+public class ServerUserSession {
     private int userId;
     private String currentDir;
     private FileMetadata fileMetadata;
     private String other;
 
-    public UserSession() {
+    public ServerUserSession() {
     }
 
-    public UserSession(int userId, String lastSessionDir) {
+    public ServerUserSession(int userId, String lastSessionDir) {
         this.userId = userId;
         this.currentDir = lastSessionDir;
     }

@@ -1,15 +1,13 @@
 package datalayer.model.User;
 
-import util.FileMetadata;
-
-public class UserSession {
+public class ClientUserSession {
     private int userId;
     private String currentDir;
 
-    public UserSession() {
+    public ClientUserSession() {
     }
 
-    public UserSession(int userId, String lastSessionDir) {
+    public ClientUserSession(int userId, String lastSessionDir) {
         this.userId = userId;
         this.currentDir = lastSessionDir;
     }

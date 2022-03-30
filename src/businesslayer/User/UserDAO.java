@@ -1,6 +1,5 @@
 package businesslayer.User;
 
-import datalayer.enumerate.DirectoryPermissionEnum;
 import datalayer.model.User.User;
 import util.SHA256Hasher;
 import java.security.NoSuchAlgorithmException;
@@ -9,7 +8,7 @@ import java.sql.*;
 public class UserDAO {
     public static Connection connection;
 
-    public static int create(User user) throws NoSuchAlgorithmException {
+    public static void create(User user) throws NoSuchAlgorithmException {
         PreparedStatement stmt;
         try {
             stmt = connection.prepareStatement("INSERT INTO [User] (UserName, PasswordHash, CreateDate) VALUES (?, ?, ?)");
@@ -27,8 +26,6 @@ public class UserDAO {
             }
             e.printStackTrace();
         }
-
-        return 0;
     }
 
     public static int changePassword(User user) throws NoSuchAlgorithmException {

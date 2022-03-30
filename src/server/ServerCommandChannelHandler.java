@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ClientDataHandler implements Runnable {
+public class ServerCommandChannelHandler implements Runnable {
     private int number = 0;
     private final int port;
     private final UserSessions sessions;
 
-    public ClientDataHandler(int port, UserSessions sessions) {
+    public ServerCommandChannelHandler(int port, UserSessions sessions) {
         this.port = port;
         this.sessions = sessions;
     }
@@ -19,18 +19,17 @@ public class ClientDataHandler implements Runnable {
     @Override
     public void run() {
         try (ServerSocket listenSocket = new ServerSocket(port)) {
-            System.out.println("[DATA THREAD] Port: " + port);
-            System.out.println("[DATA THREAD] Socket: " + listenSocket);
-
-            while (true) {
+            System.out.println("[CMD THREAD] Port: " + port);
+            System.out.println("[CMD THREAD] Socket: " + listenSocket);
+            while(true) {
                 Socket clientSocket = listenSocket.accept();
-                System.out.println("[DATA THREAD] Client: " + clientSocket);
+                System.out.println("[CMD THREAD] Client: " + clientSocket);
                 number++;
                 String client = clientSocket.getInetAddress().toString();
-                new ClientDataConnection(clientSocket, number, sessions.getSession(client));
+                new ServerCommandChannelConnection(clientSocket, number, sessions.addSession(client));
             }
         } catch(IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();;
         }
     }
 }

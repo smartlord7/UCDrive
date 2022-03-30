@@ -1,6 +1,7 @@
 import businesslayer.DirectoryPermission.DirectoryPermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
+import datalayer.enumerate.DirectoryPermissionEnum;
 import datalayer.model.User.User;
 import server.ServerMain;
 
@@ -22,6 +23,7 @@ public class Main {
         u.setNewPassword("administrator123##");
         System.out.println("Change password: " + UserDAO.changePassword(u));
         System.out.println("Last session dir: " + SessionLogDAO.getDirectoryFromLastSession(1));
+        DirectoryPermissionDAO.addDirectoryPermission(1, "users\\administrator", DirectoryPermissionEnum.READ_WRITE);
     }
 
     private void initConnections() {

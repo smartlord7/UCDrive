@@ -11,8 +11,13 @@ public class DirectoryPermissionDAO {
     public static Connection connection;
 
     public static DirectoryPermissionEnum getDirectoryPermission(int userId, String directory) throws SQLException {
-        DirectoryPermissionEnum permission = DirectoryPermissionEnum.NONE;
-        PreparedStatement stmt = connection.prepareStatement("SELECT PermissionType FROM DirectoryPermission WHERE UserId = ? AND ? LIKE Directory + '%'");
+        DirectoryPermissionEnum permission;
+        PreparedStatement stmt;
+
+        permission = DirectoryPermissionEnum.NONE;
+        stmt = connection.prepareStatement(
+                "SELECT PermissionType FROM DirectoryPermission" +
+                        " WHERE UserId = ? AND ? LIKE Directory + '%'");
 
         stmt.setInt(1, userId);
         stmt.setString(2, directory);
@@ -23,5 +28,34 @@ public class DirectoryPermissionDAO {
         }
 
         return permission;
+    }
+
+    public static void addDirectoryPermission(int userId, String directory, DirectoryPermissionEnum permission) {
+        PreparedStatement stmt;
+
+        try {
+        if (permission == DirectoryPermissionEnum.NONE) {
+            return;
+        }
+
+        stmt = connection.prepareStatement(
+                "INSERT INTO DirectoryPermission (Directory, PermissionType, UserId)" +
+                        "VALUES (?, ?, ?)");
+        stmt.setString(1, directory);
+        stmt.setInt(2, permission.ordinal());
+        stmt.setInt(3, userId);
+        stmt.executeUpdate();
+
+        connection.commit();
+
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+
     }
 }

@@ -10,14 +10,14 @@ import java.net.SocketException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 
-public class ClientCommandConnection extends Thread {
+public class ServerCommandChannelConnection extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Socket clientSocket;
-    private UserSession session;
+    private ServerUserSession session;
     private int connectionId;
 
-    public ClientCommandConnection(Socket socket, int id, UserSession session) {
+    public ServerCommandChannelConnection(Socket socket, int id, ServerUserSession session) {
         this.connectionId = id;
         this.session = session;
         try {
@@ -57,9 +57,10 @@ public class ClientCommandConnection extends Thread {
         RequestMethodEnum method = req.getMethod();
 
         switch (method) {
+            case USER_CREATE -> resp = Server.createUser(req, session);
             case USER_AUTHENTICATION -> resp = Server.authUser(req, session);
             case USER_CHANGE_PASSWORD -> resp = Server.changePassword(req);
-            case USER_LIST_SERVER_FILES -> resp = Server.listDirFiles(req);
+            case USER_LIST_SERVER_FILES -> resp = Server.listDirFiles(req, session);
             case USER_CHANGE_CWD -> resp = Server.changeWorkingDir(req, session);
             case USER_UPLOAD_FILES -> resp = Server.uploadFiles(req, session);
             case USER_DOWNLOAD_FILES -> {

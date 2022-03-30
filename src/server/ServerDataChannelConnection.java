@@ -9,14 +9,14 @@ import java.net.Socket;
 
 import static sun.nio.ch.IOStatus.EOF;
 
-class ClientDataConnection extends Thread {
+class ServerDataChannelConnection extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Socket clientSocket;
     private int number;
-    private final UserSession session;
+    private final ServerUserSession session;
 
-    public ClientDataConnection(Socket aClientSocket, int number, UserSession session) {
+    public ServerDataChannelConnection(Socket aClientSocket, int number, ServerUserSession session) {
         this.number = number;
         this.session = session;
         try {
@@ -39,7 +39,7 @@ class ClientDataConnection extends Thread {
         }
     }
 
-    private static void receiveFileByChunks(InputStream in, UserSession session) throws IOException {
+    private static void receiveFileByChunks(InputStream in, ServerUserSession session) throws IOException {
         int totalRead = 0;
         int bytesRead;
         int fileSize = 0;

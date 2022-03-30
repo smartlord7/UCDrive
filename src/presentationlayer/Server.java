@@ -5,15 +5,19 @@ import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import com.google.gson.Gson;
 import datalayer.enumerate.DirectoryPermissionEnum;
+import datalayer.model.User.ClientUserSession;
 import datalayer.model.User.User;
-import server.UserSession;
+import server.ServerUserSession;
 import protocol.Request;
 import protocol.Response;
 import protocol.ResponseStatusEnum;
+import util.Const;
 import util.FileMetadata;
 import util.FileUtil;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -37,69 +41,6 @@ public class Server {
         }
     }
 
-    public static Response authUser(Request req, UserSession session) throws SQLException, NoSuchAlgorithmException {
-        int loginResult;
-        int userId;
-        String lastSessionDir;
-        User user;
-        UserSession userSession;
-        Response resp;
-
-        resp = new Response();
-        user = gson.fromJson(req.getData(), User.class);
-        loginResult = UserDAO.authenticate(user);
-
-        checkUserCredentials(resp, user, loginResult);
-        userId = user.getUserId();
-        lastSessionDir = SessionLogDAO.getDirectoryFromLastSession(userId);
-
-        if (lastSessionDir == null) {
-            lastSessionDir = System.getProperty("user.dir");
-        }
-
-        userSession = new UserSession(userId, lastSessionDir);
-        session.setUserId(user.getUserId());
-        session.setCurrentDir(lastSessionDir);
-        resp.setData(gson.toJson(userSession));
-
-        return resp;
-    }
-
-    public static Response changePassword(Request req) throws NoSuchAlgorithmException {
-        Response resp = new Response();
-        User user = gson.fromJson(req.getData(), User.class);
-        int result = UserDAO.changePassword(user);
-
-        checkUserCredentials(resp, user, result);
-
-        return resp;
-    }
-
-    public static Response listDirFiles(Request req) {
-        Response resp = new Response();
-        String dir = req.getData();
-        File f;
-        boolean validDir = true;
-
-        if (dir != null && dir.length() != 0) {
-            f = new File(dir);
-
-            if (!f.exists() || !f.isDirectory()) {
-                f = new File(System.getProperty("user.dir") + "\\" + dir);
-
-                validDir = directoryExists(resp, dir, f);
-            }
-        } else {
-            f = new File(System.getProperty("user.dir"));
-        }
-
-        if (validDir) {
-            resp.setStatus(ResponseStatusEnum.SUCCESS);
-            resp.setData(FileUtil.listDirFiles(f));
-        }
-        return resp;
-    }
-
     private static boolean directoryExists(Response resp, String dir, File f) {
         if (!f.exists() || !f.isDirectory()) {
             resp.setStatus(ResponseStatusEnum.ERROR);
@@ -113,11 +54,117 @@ public class Server {
         return true;
     }
 
-    public static Response changeWorkingDir(Request req, UserSession session) throws IOException {
+    private static Response initSession(ServerUserSession session, int userId, String initialDir, User user, Response resp) {
+        ClientUserSession userSession;
+        userSession = new ClientUserSession(userId, initialDir);
+        session.setUserId(user.getUserId());
+        session.setCurrentDir(initialDir);
+        userSession.setUserId(user.getUserId());
+        userSession.setCurrentDir(initialDir);
+        resp.setStatus(ResponseStatusEnum.SUCCESS);
+        resp.setData(gson.toJson(userSession));
+
+        return resp;
+    }
+
+    public static Response createUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException, IOException {
+        int userId;
+        String initialDir;
+        User user;
+        Response resp;
+
+        resp = new Response();
+        user = gson.fromJson(req.getData(), User.class);
+        UserDAO.create(user);
+        UserDAO.authenticate(user);
+        userId = user.getUserId();
+
+        initialDir = Const.USERS_FOLDER_NAME + "\\" + user.getUserName();
+        Files.createDirectory(Paths.get(initialDir));
+        DirectoryPermissionDAO.addDirectoryPermission(userId, initialDir, DirectoryPermissionEnum.READ_WRITE);
+
+        return initSession(session, userId, initialDir, user, resp);
+    }
+
+    public static Response authUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException {
+        int loginResult;
+        int userId;
+        String lastSessionDir;
+        User user;
+        Response resp;
+
+        resp = new Response();
+        user = gson.fromJson(req.getData(), User.class);
+        loginResult = UserDAO.authenticate(user);
+
+        checkUserCredentials(resp, user, loginResult);
+        userId = user.getUserId();
+        lastSessionDir = SessionLogDAO.getDirectoryFromLastSession(userId);
+
+        if (lastSessionDir == null) {
+            lastSessionDir = Const.USERS_FOLDER_NAME + "\\" + user.getUserName();
+        }
+
+        return initSession(session, userId, lastSessionDir, user, resp);
+    }
+
+    public static Response changePassword(Request req) throws NoSuchAlgorithmException {
+        Response resp = new Response();
+        User user = gson.fromJson(req.getData(), User.class);
+        int result = UserDAO.changePassword(user);
+
+        checkUserCredentials(resp, user, result);
+
+        return resp;
+    }
+
+    public static Response listDirFiles(Request req, ServerUserSession session) throws SQLException {
+        boolean validDir = true;
+        DirectoryPermissionEnum perm;
+        String dir = req.getData();
+        Response resp = new Response();
+        HashMap<String, String> errors = null;
+        File f;
+
+        if (dir != null && dir.length() != 0) {
+            f = new File(dir);
+
+            if (!f.exists() || !f.isDirectory()) {
+                dir = session.getCurrentDir() + "\\" + dir;
+                f = new File(dir);
+
+                validDir = directoryExists(resp, dir, f);
+            }
+        } else {
+            dir = session.getCurrentDir();
+            f = new File(dir);
+        }
+
+        if (validDir) {
+            perm = DirectoryPermissionDAO.getDirectoryPermission(session.getUserId(), dir);
+
+            if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE) {
+                resp.setStatus(ResponseStatusEnum.SUCCESS);
+                resp.setData(FileUtil.listDirFiles(f));
+            } else {
+                resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
+                errors = new HashMap<>();
+                errors.put("NoReadPermission", "User has no permission to read from directory '" + dir + "'");
+            }
+        }
+
+        resp.setErrors(errors);
+
+        return resp;
+    }
+
+    public static Response changeWorkingDir(Request req, ServerUserSession session) throws IOException, SQLException {
         boolean validDir;
         String targetDir;
-        File f;
+        DirectoryPermissionEnum perm;
         Response resp;
+        HashMap<String, String> errors = null;
+        File f;
 
         validDir = true;
         resp = new Response();
@@ -135,20 +182,30 @@ public class Server {
 
             if (validDir) {
                 String nextCWD = FileUtil.getNextCWD(targetDir, session.getCurrentDir());
-                session.setCurrentDir(nextCWD);
-                resp.setData(nextCWD);
-                resp.setStatus(ResponseStatusEnum.SUCCESS);
+                perm = DirectoryPermissionDAO.getDirectoryPermission(session.getUserId(), nextCWD);
+
+                if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE) {
+                    session.setCurrentDir(nextCWD);
+                    resp.setStatus(ResponseStatusEnum.SUCCESS);
+                    resp.setData(nextCWD);
+                } else {
+                    resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
+                    errors = new HashMap<>();
+                    errors.put("NoReadPermission", "User has no permission to read from directory '" + targetDir + "'");
+                }
             }
         } else {
-            HashMap<String, String> errors = new HashMap<>();
+            resp.setStatus(ResponseStatusEnum.ERROR);
+            errors = new HashMap<>();
             errors.put("NoSpecifiedDirectory", "No directory was specified");
-            resp.setErrors(errors);
         }
+
+        resp.setErrors(errors);
 
         return resp;
     }
 
-    public static Response uploadFiles(Request req, UserSession session) throws SQLException {
+    public static Response uploadFiles(Request req, ServerUserSession session) throws SQLException {
         int userId;
         String dir;
         DirectoryPermissionEnum perm;
