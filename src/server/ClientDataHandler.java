@@ -1,6 +1,6 @@
 package server;
 
-import sync.ClientChannelSync;
+import sync.UserSessions;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -9,11 +9,11 @@ import java.net.Socket;
 public class ClientDataHandler implements Runnable {
     private int number = 0;
     private final int port;
-    private final ClientChannelSync channelSync;
+    private final UserSessions sessions;
 
-    public ClientDataHandler(int port, ClientChannelSync channelSync) {
+    public ClientDataHandler(int port, UserSessions sessions) {
         this.port = port;
-        this.channelSync = channelSync;
+        this.sessions = sessions;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class ClientDataHandler implements Runnable {
                 System.out.println("[DATA THREAD] Client: " + clientSocket);
                 number++;
                 String client = clientSocket.getInetAddress().toString();
-                new ClientDataConnection(clientSocket, number, channelSync.getClientSyncObj(client));
+                new ClientDataConnection(clientSocket, number, sessions.getSession(client));
             }
         } catch(IOException e) {
             e.printStackTrace();

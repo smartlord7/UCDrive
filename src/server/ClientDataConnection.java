@@ -1,6 +1,5 @@
 package server;
 
-import sync.SyncObj;
 import util.Const;
 import util.FileUtil;
 
@@ -12,11 +11,11 @@ class ClientDataConnection extends Thread {
     private ObjectOutputStream out;
     private Socket clientSocket;
     private int number;
-    private final SyncObj syncObj;
+    private final UserSession session;
 
-    public ClientDataConnection(Socket aClientSocket, int number, SyncObj syncObj) {
+    public ClientDataConnection(Socket aClientSocket, int number, UserSession session) {
         this.number = number;
-        this.syncObj = syncObj;
+        this.session = session;
         try {
             clientSocket = aClientSocket;
             in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
@@ -31,7 +30,7 @@ class ClientDataConnection extends Thread {
 
     public void run() {
         try {
-            FileUtil.receiveFileByChunks(in, syncObj.getFileInfo(), Const.UPLOAD_FILE_CHUNK_SIZE);
+            FileUtil.receiveFileByChunks(in, session, Const.UPLOAD_FILE_CHUNK_SIZE);
         } catch (IOException e) {
             e.printStackTrace();
         }

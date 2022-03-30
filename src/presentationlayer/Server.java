@@ -1,26 +1,21 @@
 package presentationlayer;
 
+import businesslayer.DirectoryPermission.DirectoryPermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import datalayer.enumerate.DirectoryPermissionEnum;
 import datalayer.model.User.User;
-import datalayer.model.User.UserSession;
+import server.UserSession;
 import protocol.Request;
 import protocol.Response;
 import protocol.ResponseStatusEnum;
-import sync.SyncObj;
 import util.FileMetadata;
 import util.FileUtil;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import static util.FileUtil.getFreeSpace;
 
@@ -153,7 +148,7 @@ public class Server {
         return resp;
     }
 
-    public static Response uploadFiles(Request req, UserSession session, SyncObj obj) throws SQLException, InterruptedException {
+    public static Response uploadFiles(Request req, UserSession session) throws SQLException {
         int userId;
         String dir;
         DirectoryPermissionEnum perm;
@@ -163,13 +158,13 @@ public class Server {
 
         userId = session.getUserId();
         dir = session.getCurrentDir();
-        perm = UserDAO.getDirectoryPermission(userId, dir);
+        perm = DirectoryPermissionDAO.getDirectoryPermission(userId, dir);
         resp = new Response();
         errors = new HashMap<>();
 
         if (perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.READ_WRITE){
             fileMeta = gson.fromJson(req.getData(), FileMetadata.class);
-            obj.setFileInfo(fileMeta);
+            session.setFileMetadata(fileMeta);
             resp.setStatus(ResponseStatusEnum.SUCCESS);
         } else if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.NONE){
             resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
@@ -182,7 +177,7 @@ public class Server {
 
     public static void downloadFiles(File curDir) throws SQLException {
         int id = 4;
-        DirectoryPermissionEnum perm = UserDAO.getDirectoryPermission(id, curDir.getPath());
+        DirectoryPermissionEnum perm = DirectoryPermissionDAO.getDirectoryPermission(id, curDir.getPath());
         System.out.println("Select the file to download: ");
         if(perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE && getFreeSpace(curDir) > curDir.length()){
             System.out.println("Permission to download");

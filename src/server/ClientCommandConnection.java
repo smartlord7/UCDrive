@@ -1,11 +1,9 @@
 package server;
 
-import datalayer.model.User.UserSession;
 import presentationlayer.Server;
 import protocol.Request;
 import protocol.RequestMethodEnum;
 import protocol.Response;
-import sync.SyncObj;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
@@ -18,12 +16,10 @@ public class ClientCommandConnection extends Thread {
     private Socket clientSocket;
     private UserSession session;
     private int connectionId;
-    private final SyncObj syncObj;
 
-    public ClientCommandConnection(Socket socket, int id, SyncObj syncObj) {
+    public ClientCommandConnection(Socket socket, int id, UserSession session) {
         this.connectionId = id;
-        this.session = new UserSession();
-        this.syncObj = syncObj;
+        this.session = session;
         try {
             clientSocket = socket;
             in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
@@ -65,7 +61,7 @@ public class ClientCommandConnection extends Thread {
             case USER_CHANGE_PASSWORD -> resp = Server.changePassword(req);
             case USER_LIST_SERVER_FILES -> resp = Server.listDirFiles(req);
             case USER_CHANGE_CWD -> resp = Server.changeWorkingDir(req, session);
-            case USER_UPLOAD_FILES -> resp = Server.uploadFiles(req, session, syncObj);
+            case USER_UPLOAD_FILES -> resp = Server.uploadFiles(req, session);
             case USER_DOWNLOAD_FILES -> {
             }
         }

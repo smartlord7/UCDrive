@@ -1,5 +1,7 @@
 package datalayer.model.User;
 
+import util.FileMetadata;
+
 public class UserSession {
     private int userId;
     private String currentDir;

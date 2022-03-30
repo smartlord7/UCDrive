@@ -281,7 +281,8 @@ public class Client {
         }
 
         for (String file : filesToUpload) {
-            FileMetadata info = new FileMetadata(file, (int) Files.size(Paths.get(file)));
+            Path p = Paths.get(file);
+            FileMetadata info = new FileMetadata(p.getName(p.getNameCount() - 1).toString(), (int) Files.size(Paths.get(file)));
             req.setMethod(RequestMethodEnum.USER_UPLOAD_FILES);
             req.setData(gson.toJson(info));
             outCmd.writeObject(req);

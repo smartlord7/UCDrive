@@ -1,7 +1,8 @@
 package util;
 
-import java.io.*;
+import server.UserSession;
 
+import java.io.*;
 import static sun.nio.ch.IOStatus.EOF;
 
 public class FileUtil {
@@ -58,7 +59,7 @@ public class FileUtil {
         return newArray;
     }
 
-    public static void receiveFileByChunks(InputStream in, FileMetadata fileMetadata, int chunkSize) throws IOException {
+    public static void receiveFileByChunks(InputStream in, UserSession session, int chunkSize) throws IOException {
         int totalRead = 0;
         int bytesRead;
         int fileSize = 0;
@@ -71,20 +72,23 @@ public class FileUtil {
         while ((bytesRead = in.read(buffer,0, chunkSize)) != EOF)
         {
             if (fileMeta == null) {
+                fileMeta = session.getFileMetadata();
                 if (fileMeta == null || fileMeta.getFileSize() == 0) {
                     continue;
                 }
 
                 fileSize = fileMeta.getFileSize();
-                fileWriter = new FileOutputStream(fileMetadata.getFileName());
+                fileWriter = new FileOutputStream(session.getCurrentDir() + "\\" + fileMeta.getFileName());
             }
 
+            byte[] finalBuffer = buffer;
+
             if (bytesRead > fileMeta.getFileSize()) {
-                buffer = FileUtil.substring(buffer, 0, fileSize);
+                finalBuffer = FileUtil.substring(buffer, 0, fileSize);
             }
 
             totalRead += bytesRead;
-            fileWriter.write(buffer);
+            fileWriter.write(finalBuffer);
 
             if (totalRead >= fileSize) {
                 fileWriter.close();

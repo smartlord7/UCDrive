@@ -1,3 +1,4 @@
+import businesslayer.DirectoryPermission.DirectoryPermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import datalayer.model.User.User;
@@ -17,7 +18,7 @@ public class Main {
         u.setPassword("administrator123##");
 
         System.out.println("Auth: " + UserDAO.authenticate(u));
-        System.out.println("Permission: " + UserDAO.getDirectoryPermission(1, "test"));
+        System.out.println("Permission: " + DirectoryPermissionDAO.getDirectoryPermission(1, "C:\\Users\\ssimoes\\Documents\\GitRepos\\UCDrive\\src\\workspaces"));
         u.setNewPassword("administrator123##");
         System.out.println("Change password: " + UserDAO.changePassword(u));
         System.out.println("Last session dir: " + SessionLogDAO.getDirectoryFromLastSession(1));
@@ -26,6 +27,7 @@ public class Main {
     private void initConnections() {
         UserDAO.connection = conn;
         SessionLogDAO.connection = conn;
+        DirectoryPermissionDAO.connection = conn;
     }
 
     private void run() throws SQLException, NoSuchAlgorithmException, IOException {
