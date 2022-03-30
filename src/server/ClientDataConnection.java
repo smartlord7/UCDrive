@@ -29,7 +29,9 @@ class ClientDataConnection extends Thread {
     public void run() {
         try {
             while(true){
-               Thread.sleep(1000);
+                syncObj.wait(true);
+                syncObj.broadcast();
+                System.out.println("Finished upload");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

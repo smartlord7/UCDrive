@@ -89,8 +89,6 @@ public class Client {
                 ip = in.readLine();
                 System.out.println("Server cmd port: ");
                 cmdPort = Integer.parseInt(in.readLine());
-                System.out.println("Server data port: ");
-                dataPort = Integer.parseInt(in.readLine());
 
                 try {
 
@@ -100,6 +98,10 @@ public class Client {
                     System.out.println("Error: cmd host " + ip + ":" + cmdPort + " unreachable");
                     continue;
                 }
+
+                System.out.println("Server data port: ");
+                dataPort = Integer.parseInt(in.readLine());
+
                 try {
                     dataSocket = new Socket(ip, dataPort);
                 } catch (SocketException | UnknownHostException e) {
@@ -237,12 +239,24 @@ public class Client {
         }
     }
 
-    private void uploadFiles() {
+    private void uploadFiles() throws IOException, ClassNotFoundException {
+        if (!hasSession()) {
+            return;
+        }
 
+        req.setMethod(RequestMethodEnum.USER_UPLOAD_FILES);
+        outCmd.writeObject(req);
+        resp = (Response) inCmd.readObject();
     }
 
-    private void downloadFiles() {
+    private void downloadFiles() throws IOException, ClassNotFoundException {
+        if (!hasSession()) {
+            return;
+        }
 
+        req.setMethod(RequestMethodEnum.USER_DOWNLOAD_FILES);
+        outCmd.writeObject(req);
+        resp = (Response) inCmd.readObject();
     }
 
     private void clearChannels() throws IOException {

@@ -26,7 +26,7 @@ public class ClientDataHandler implements Runnable {
                 Socket clientSocket = listenSocket.accept();
                 System.out.println("[DATA THREAD] Client: " + clientSocket);
                 number++;
-                String client = clientSocket.getInetAddress() + ":" + clientSocket.getLocalPort();
+                String client = clientSocket.getInetAddress().toString();
                 new ClientDataConnection(clientSocket, number, channelSync.getClientSyncObj(client));
             }
         } catch(IOException e) {

@@ -82,10 +82,10 @@ public class FileUtil {
         return usedSpace;
     }
 
-    public static long getFreeSpace(File curDir){
-        long freeSpace = curDir.getFreeSpace();
-
-        System.out.println("Free space: "+freeSpace);
-        return freeSpace;
+    public static long getFreeSpace(File dir){
+        if (!dir.exists() || !dir.isDirectory()) {
+            return -1;
+        }
+        return dir.getFreeSpace();
     }
 }

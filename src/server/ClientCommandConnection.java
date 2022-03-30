@@ -5,7 +5,6 @@ import presentationlayer.Server;
 import protocol.Request;
 import protocol.RequestMethodEnum;
 import protocol.Response;
-import sync.ClientChannelSync;
 import sync.SyncObj;
 
 import java.io.*;
@@ -52,13 +51,13 @@ public class ClientCommandConnection extends Thread {
             } catch (SocketException | EOFException e) {
                 System.out.println("[ERROR] Client " + clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " disconnected!");
                 return;
-            } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
+            } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private Response handleRequest(Request req) throws SQLException, NoSuchAlgorithmException, IOException {
+    private Response handleRequest(Request req) throws SQLException, NoSuchAlgorithmException, IOException, InterruptedException {
         Response resp = null;
         RequestMethodEnum method = req.getMethod();
 
@@ -67,9 +66,8 @@ public class ClientCommandConnection extends Thread {
             case USER_CHANGE_PASSWORD -> resp = Server.changePassword(req);
             case USER_LIST_SERVER_FILES -> resp = Server.listDirFiles(req);
             case USER_CHANGE_CWD -> resp = Server.changeWorkingDir(req, session);
-            case USER_DOWNLOAD_FILE -> {
-            }
-            case USER_UPLOAD_FILE -> {
+            case USER_UPLOAD_FILES -> resp = Server.uploadFiles(req, session, syncObj);
+            case USER_DOWNLOAD_FILES -> {
             }
         }
 

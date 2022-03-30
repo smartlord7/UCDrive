@@ -23,20 +23,4 @@ public class ClientChannelSync {
     public synchronized SyncObj getClientSyncObj(String client) {
         return clientsSyncObjs.get(client);
     }
-
-    public void wait(String client, boolean inverted) throws InterruptedException {
-        SyncObj obj = getClientSyncObj(client);
-
-        synchronized (obj) {
-            if (inverted) {
-                while (!obj.isActive()) {
-                    obj.wait();
-                }
-            } else {
-                while (obj.isActive()) {
-                    obj.wait();
-                }
-            }
-        }
-    }
 }

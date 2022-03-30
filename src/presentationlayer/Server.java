@@ -9,6 +9,7 @@ import datalayer.model.User.UserSession;
 import protocol.Request;
 import protocol.Response;
 import protocol.ResponseStatusEnum;
+import sync.SyncObj;
 import util.FileUtil;
 import java.io.File;
 import java.io.IOException;
@@ -146,34 +147,44 @@ public class Server {
         return resp;
     }
 
-    public static DirectoryPermissionEnum getDirectoryPermission(String currDir, int userId) throws SQLException {
-        return UserDAO.getDirectoryPermission(userId, currDir);
+    public static Response uploadFiles(Request req, UserSession session, SyncObj obj) throws SQLException, InterruptedException {
+        int userId;
+        long spaceLeft;
+        String dir;
+        DirectoryPermissionEnum perm;
+        Response resp;
+        HashMap<String, String> errors;
+
+        userId = session.getUserId();
+        spaceLeft = getFreeSpace(new File(session.getCurrentDir()));
+        dir = session.getCurrentDir();
+        perm = UserDAO.getDirectoryPermission(userId, dir);
+        resp = new Response();
+        errors = new HashMap<>();
+
+        if (perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.READ_WRITE){
+            resp.setStatus(ResponseStatusEnum.SUCCESS);
+            System.out.println("Started upload");
+            obj.broadcast();
+            obj.wait(false);
+        } else if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.NONE){
+            resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
+            errors.put("NoWritePermission", "User has no permission to write in directory '" +  dir + "'");
+            resp.setErrors(errors);
+        }
+
+        return resp;
     }
 
     public static void downloadFiles(File curDir) throws SQLException {
         int id = 4;
-        DirectoryPermissionEnum perm = getDirectoryPermission(curDir.getPath(), id);
+        DirectoryPermissionEnum perm = UserDAO.getDirectoryPermission(id, curDir.getPath());
         System.out.println("Select the file to download: ");
         if(perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE && getFreeSpace(curDir) > curDir.length()){
             System.out.println("Permission to download");
             //download();
         }else if(perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.NONE){
             System.out.println("No permission to download");
-        }else if(getFreeSpace(curDir) < curDir.length()){
-            System.out.println("No space left");
-        }
-    }
-
-    public static void uploadFiles(File curDir) throws SQLException    {
-        int id = 4;
-        DirectoryPermissionEnum perm = getDirectoryPermission(curDir.getPath(), id);
-        long space = getFreeSpace(curDir);
-        System.out.println("Select the file to upload: ");
-        if(perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.READ_WRITE && getFreeSpace(curDir) > curDir.length() ){
-            System.out.println("Permission to upload");
-            //upload();
-        }else if(perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.NONE){
-            System.out.println("No permission to upload");
         }else if(getFreeSpace(curDir) < curDir.length()){
             System.out.println("No space left");
         }

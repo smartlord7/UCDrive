@@ -25,7 +25,7 @@ public class ClientCommandHandler implements Runnable {
                 Socket clientSocket = listenSocket.accept();
                 System.out.println("[CMD THREAD] Client: " + clientSocket);
                 number++;
-                String client = clientSocket.getInetAddress() + ":" + clientSocket.getLocalPort();
+                String client = clientSocket.getInetAddress().toString();
                 new ClientCommandConnection(clientSocket, number, channelSync.addClientSyncObj(client));
             }
         } catch(IOException e) {
