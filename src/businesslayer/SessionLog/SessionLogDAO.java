@@ -8,6 +8,10 @@ import java.sql.SQLException;
 public class SessionLogDAO {
     public static Connection connection;
 
+    public static void create() {
+
+    }
+
     public static String getDirectoryFromLastSession(int userId) throws SQLException {
         PreparedStatement stmt;
         ResultSet res;

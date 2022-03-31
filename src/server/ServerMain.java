@@ -27,11 +27,10 @@ public class ServerMain {
         u.setPassword("administrator123##");
 
         System.out.println("Auth: " + UserDAO.authenticate(u));
-        System.out.println("Permission: " + DirectoryPermissionDAO.getDirectoryPermission(1, "C:\\Users\\ssimoes\\Documents\\GitRepos\\UCDrive\\src\\workspaces"));
+        System.out.println("Permission: " + DirectoryPermissionDAO.getPermission(1, "C:\\Users\\ssimoes\\Documents\\GitRepos\\UCDrive\\src\\workspaces"));
         u.setNewPassword("administrator123##");
         System.out.println("Change password: " + UserDAO.changePassword(u));
         System.out.println("Last session dir: " + SessionLogDAO.getDirectoryFromLastSession(1));
-        DirectoryPermissionDAO.addDirectoryPermission(1, "users\\administrator", DirectoryPermissionEnum.READ_WRITE);
     }
 
     private void init() throws IOException {

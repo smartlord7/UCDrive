@@ -10,7 +10,36 @@ import java.sql.SQLException;
 public class DirectoryPermissionDAO {
     public static Connection connection;
 
-    public static DirectoryPermissionEnum getDirectoryPermission(int userId, String directory) throws SQLException {
+    public static void create(int userId, String directory, DirectoryPermissionEnum permission) {
+        PreparedStatement stmt;
+
+        try {
+            if (permission == DirectoryPermissionEnum.NONE) {
+                return;
+            }
+
+            stmt = connection.prepareStatement(
+                    "INSERT INTO DirectoryPermission (Directory, PermissionType, UserId)" +
+                            "VALUES (?, ?, ?)");
+            stmt.setString(1, directory);
+            stmt.setInt(2, permission.ordinal());
+            stmt.setInt(3, userId);
+            stmt.executeUpdate();
+
+            connection.commit();
+
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+
+    }
+
+    public static DirectoryPermissionEnum getPermission(int userId, String directory) throws SQLException {
         DirectoryPermissionEnum permission;
         PreparedStatement stmt;
 
@@ -28,34 +57,5 @@ public class DirectoryPermissionDAO {
         }
 
         return permission;
-    }
-
-    public static void addDirectoryPermission(int userId, String directory, DirectoryPermissionEnum permission) {
-        PreparedStatement stmt;
-
-        try {
-        if (permission == DirectoryPermissionEnum.NONE) {
-            return;
-        }
-
-        stmt = connection.prepareStatement(
-                "INSERT INTO DirectoryPermission (Directory, PermissionType, UserId)" +
-                        "VALUES (?, ?, ?)");
-        stmt.setString(1, directory);
-        stmt.setInt(2, permission.ordinal());
-        stmt.setInt(3, userId);
-        stmt.executeUpdate();
-
-        connection.commit();
-
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            e.printStackTrace();
-        }
-
     }
 }

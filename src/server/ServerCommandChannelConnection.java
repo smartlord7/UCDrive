@@ -58,7 +58,7 @@ public class ServerCommandChannelConnection extends Thread {
         switch (method) {
             case USER_CREATE -> resp = ServerController.createUser(req, session);
             case USER_AUTHENTICATION -> resp = ServerController.authUser(req, session);
-            case USER_CHANGE_PASSWORD -> resp = ServerController.changePassword(req);
+            case USER_CHANGE_PASSWORD -> resp = ServerController.changeUserPassword(req);
             case USER_LIST_SERVER_FILES -> resp = ServerController.listDirFiles(req, session);
             case USER_CHANGE_CWD -> resp = ServerController.changeWorkingDir(req, session);
             case USER_UPLOAD_FILE -> resp = ServerController.uploadFiles(req, session);

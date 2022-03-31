@@ -9,5 +9,6 @@ public enum RequestMethodEnum implements Serializable {
     USER_LIST_SERVER_FILES,
     USER_CHANGE_CWD,
     USER_DOWNLOAD_FILE,
-    USER_UPLOAD_FILE
+    USER_UPLOAD_FILE,
+    USER_LOGOUT
 }

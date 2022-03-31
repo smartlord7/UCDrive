@@ -1,9 +1,12 @@
 package businesslayer.User;
 
 import datalayer.model.User.User;
+import microsoft.sql.DateTimeOffset;
 import util.SHA256Hasher;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.util.Calendar;
+import java.util.Date;
 
 public class UserDAO {
     public static Connection connection;
@@ -11,10 +14,9 @@ public class UserDAO {
     public static void create(User user) throws NoSuchAlgorithmException {
         PreparedStatement stmt;
         try {
-            stmt = connection.prepareStatement("INSERT INTO [User] (UserName, PasswordHash, CreateDate) VALUES (?, ?, ?)");
+            stmt = connection.prepareStatement("INSERT INTO [User] (UserName, PasswordHash, CreateDate) VALUES (?, ?, CURRENT_TIMESTAMP)");
             stmt.setString(1, user.getUserName());
             stmt.setString(2, SHA256Hasher.hash(user.getPassword()));
-            stmt.setDate(3, new Date(System.currentTimeMillis()));
 
             stmt.executeUpdate();
             connection.commit();

@@ -24,13 +24,13 @@ import util.StringUtil;
 
 import static sun.nio.ch.IOStatus.EOF;
 
-public class Client {
+public class ClientMain {
     private boolean serverConfigured = false;
     private String currLocalDir = System.getProperty("user.dir");
     private ObjectOutputStream outCmd;
     private ObjectInputStream inCmd;
-    private ObjectOutputStream outData;
-    private ObjectInputStream inData;
+    private DataOutputStream outData;
+    private DataInputStream inData;
     private Response resp;
     private ClientUserSession session = null;
     private Socket cmdSocket;
@@ -113,8 +113,8 @@ public class Client {
 
         outCmd = new ObjectOutputStream(new DataOutputStream(cmdSocket.getOutputStream()));
         inCmd = new ObjectInputStream(new DataInputStream(cmdSocket.getInputStream()));
-        outData = new ObjectOutputStream(new DataOutputStream(dataSocket.getOutputStream()));
-        inData = new ObjectInputStream(new DataInputStream(dataSocket.getInputStream()));
+        outData = new DataOutputStream(dataSocket.getOutputStream());
+        inData = new DataInputStream(dataSocket.getInputStream());
     }
 
     private void authUser() throws IOException, ClassNotFoundException {
@@ -145,6 +145,28 @@ public class Client {
         } else {
             errors = resp.getErrors();
             showErrors(errors);
+        }
+    }
+
+    private void logoutUser() throws IOException, ClassNotFoundException {
+        String answer;
+
+        System.out.println("Are you sure you want to logout? (Y/N)");
+        answer = in.readLine();
+
+        if (answer.equalsIgnoreCase("n")) {
+            return;
+        }
+
+        req.setMethod(RequestMethodEnum.USER_LOGOUT);
+        outCmd.writeObject(req);
+
+        resp = (Response) inCmd.readObject();
+
+        if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+            System.out.println("Logged out.");
+        } else {
+            showErrors(resp.getErrors());
         }
     }
 
@@ -282,13 +304,13 @@ public class Client {
                 path = Paths.get(fileName);
 
                 if (!Files.exists(path)) {
-                    System.out.println("Error: file " + fileName + " does not exist!");
+                    System.out.println("Error: file '" + fileName + "' does not exist!");
                     return;
                 }
             }
 
             if (Files.size(path) == 0) {
-                System.out.println("Error: file " + fileName + " is empty!");
+                System.out.println("Error: file '" + fileName + "' is empty!");
                 return;
             }
 
@@ -313,6 +335,7 @@ public class Client {
 
                 while (fileReader.read(buffer, 0, readSize) != -1) {
                     outData.write(buffer);
+                    outData.flush();
                 }
 
                 fileReader.close();
@@ -339,32 +362,7 @@ public class Client {
 
             if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
                 fileMeta = gson.fromJson(resp.getData(), FileMetadata.class);
-                int totalRead = 0;
-                int bytesRead;
-                int readSize;
-                FileOutputStream fileWriter;
-
-                int fileSize = fileMeta.getFileSize();
-                readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
-                byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
-
-                while ((bytesRead = inData.read(buffer,0, readSize)) != EOF)
-                {
-                    fileWriter = new FileOutputStream(currLocalDir + "\\" + fileMeta.getFileName());
-                    byte[] finalBuffer = buffer;
-
-                    if (bytesRead > fileMeta.getFileSize()) {
-                        finalBuffer = FileUtil.substring(buffer, 0, fileSize);
-                    }
-
-                    totalRead += bytesRead;
-                    fileWriter.write(finalBuffer);
-
-                    if (totalRead >= fileSize) {
-                        fileWriter.close();
-                        return;
-                    }
-                }
+               new Thread(new ClientDataWorker(inData, fileMeta, currLocalDir)).start();
             } else {
                 showErrors(resp.getErrors());
             }
@@ -376,7 +374,6 @@ public class Client {
             outCmd.flush();
             outCmd.reset();
             outData.flush();
-            outData.reset();
         }
     }
 
@@ -401,6 +398,8 @@ public class Client {
             String cmd = st.nextToken();
             if (cmd.equalsIgnoreCase("auth")) {
                 authUser();
+            } else if (cmd.equalsIgnoreCase("logout")) {
+                logoutUser();
             } else if (cmd.equalsIgnoreCase("register")) {
                 registerUser();
             } else if (line.equalsIgnoreCase("cpwd")) {
@@ -428,12 +427,12 @@ public class Client {
         cleanAndExit();
     }
 
-    public Client(String ip, int commandPort, int dataPort) throws IOException, ClassNotFoundException {
+    public ClientMain(String ip, int commandPort, int dataPort) throws IOException, ClassNotFoundException {
         configServer(ip, commandPort, dataPort);
         run();
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        Client client = new Client(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+        ClientMain client = new ClientMain(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]));
     }
 }

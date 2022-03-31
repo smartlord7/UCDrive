@@ -13,8 +13,8 @@ import java.nio.file.Paths;
 import static sun.nio.ch.IOStatus.EOF;
 
 class ServerDataChannelConnection extends Thread {
-    private ObjectInputStream in;
-    private ObjectOutputStream out;
+    private DataInputStream in;
+    private DataOutputStream out;
     private Socket clientSocket;
     private int number;
     private final ServerUserSession session;
@@ -24,10 +24,8 @@ class ServerDataChannelConnection extends Thread {
         this.session = session;
         try {
             clientSocket = aClientSocket;
-            in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
-            out = new ObjectOutputStream(new DataOutputStream(clientSocket.getOutputStream()));
-            out.flush();
-            out.reset();
+            in = new DataInputStream(clientSocket.getInputStream());
+            out = new DataOutputStream(clientSocket.getOutputStream());
             this.start();
         } catch (IOException e) {
             System.out.println("Connection:" + e.getMessage());
@@ -43,8 +41,6 @@ class ServerDataChannelConnection extends Thread {
                 } else {
                     receiveFileByChunks();
                 }
-                out.flush();
-                out.reset();
                 session.getSyncObj().setActive(false);
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
@@ -55,6 +51,7 @@ class ServerDataChannelConnection extends Thread {
     private void sendFileByChunks() throws IOException {
         int fileSize;
         int readSize;
+        int read;
         byte[] buffer;
         String fileToSend;
         Path p;
@@ -65,11 +62,12 @@ class ServerDataChannelConnection extends Thread {
         p = Paths.get(fileToSend);
         fileSize = (int) Files.size(p);
 
-        buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
         readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
+        buffer = new byte[readSize];
 
-        while (fileReader.read(buffer, 0, readSize) != -1) {
+        while ((read = fileReader.read(buffer, 0, readSize)) != -1) {
             out.write(buffer);
+            out.flush();
         }
 
         fileReader.close();

@@ -8,7 +8,6 @@ import datalayer.enumerate.DirectoryPermissionEnum;
 import datalayer.model.User.ClientUserSession;
 import datalayer.model.User.User;
 import datalayer.enumerate.FileOperationEnum;
-import server.ServerUserSession;
 import protocol.Request;
 import protocol.Response;
 import protocol.ResponseStatusEnum;
@@ -82,7 +81,7 @@ public class ServerController {
 
         initialDir = Const.USERS_FOLDER_NAME + "\\" + user.getUserName();
         Files.createDirectory(Paths.get(initialDir));
-        DirectoryPermissionDAO.addDirectoryPermission(userId, initialDir, DirectoryPermissionEnum.READ_WRITE);
+        DirectoryPermissionDAO.create(userId, initialDir, DirectoryPermissionEnum.READ_WRITE);
 
         return initSession(session, userId, initialDir, user, resp);
     }
@@ -114,7 +113,11 @@ public class ServerController {
         return initSession(session, userId, lastSessionDir, user, resp);
     }
 
-    public static Response changePassword(Request req) throws NoSuchAlgorithmException {
+    public static Response logoutUser(Request req, ServerUserSession session) {
+        return null;
+    }
+
+    public static Response changeUserPassword(Request req) throws NoSuchAlgorithmException {
         Response resp = new Response();
         User user = gson.fromJson(req.getData(), User.class);
         int result = UserDAO.changePassword(user);
@@ -147,7 +150,7 @@ public class ServerController {
         }
 
         if (validDir) {
-            perm = DirectoryPermissionDAO.getDirectoryPermission(session.getUserId(), dir);
+            perm = DirectoryPermissionDAO.getPermission(session.getUserId(), dir);
 
             if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE) {
                 resp.setStatus(ResponseStatusEnum.SUCCESS);
@@ -188,7 +191,7 @@ public class ServerController {
 
             if (validDir) {
                 String nextCWD = FileUtil.getNextCWD(targetDir, session.getCurrentDir());
-                perm = DirectoryPermissionDAO.getDirectoryPermission(session.getUserId(), nextCWD);
+                perm = DirectoryPermissionDAO.getPermission(session.getUserId(), nextCWD);
 
                 if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE) {
                     session.setCurrentDir(nextCWD);
@@ -221,7 +224,7 @@ public class ServerController {
 
         userId = session.getUserId();
         dir = session.getCurrentDir();
-        perm = DirectoryPermissionDAO.getDirectoryPermission(userId, dir);
+        perm = DirectoryPermissionDAO.getPermission(userId, dir);
         resp = new Response();
         errors = new HashMap<>();
 
@@ -258,9 +261,8 @@ public class ServerController {
 
         fileMeta = gson.fromJson(req.getData(), FileMetadata.class);
         fileName = fileMeta.getFileName();
-        filePath = currDir + "\\" + fileMeta.getFileName();
+        filePath = System.getProperty("user.dir") + "\\" + currDir + "\\" + fileMeta.getFileName();
         p = Paths.get(filePath);
-        fileMeta.setFileSize((int) Files.size(p));
 
         if (!Files.exists(p)) {
             resp.setStatus(ResponseStatusEnum.ERROR);
@@ -269,8 +271,10 @@ public class ServerController {
 
             return resp;
         }
+        fileMeta.setFileSize((int) Files.size(p));
 
-        perm = DirectoryPermissionDAO.getDirectoryPermission(userId, currDir);
+
+        perm = DirectoryPermissionDAO.getPermission(userId, currDir);
 
         if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE){
             session.setFileMetadata(fileMeta);
