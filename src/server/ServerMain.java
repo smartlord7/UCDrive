@@ -17,64 +17,50 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class ServerMain {
-    private Connection conn;
-    private static int commandPort;
-    private static int dataPort;
-
-    private void test() throws SQLException, NoSuchAlgorithmException {
-        User u = new User();
-        u.setUserName("administrator");
-        u.setPassword("administrator123##");
-
-        System.out.println("Auth: " + UserDAO.authenticate(u));
-        System.out.println("Permission: " + DirectoryPermissionDAO.getPermission(1, "C:\\Users\\ssimoes\\Documents\\GitRepos\\UCDrive\\src\\workspaces"));
-        u.setNewPassword("administrator123##");
-        System.out.println("Change password: " + UserDAO.changePassword(u));
-        System.out.println("Last session dir: " + SessionLogDAO.getDirectoryFromLastSession(1));
-    }
+    private final ServerConfig config;
 
     private void init() throws IOException {
-        UserDAO.connection = conn;
-        SessionLogDAO.connection = conn;
-        DirectoryPermissionDAO.connection = conn;
+        UserDAO.connection = config.getConn();
+        SessionLogDAO.connection = config.getConn();
+        DirectoryPermissionDAO.connection = config.getConn();
 
         Path p = Paths.get(Const.USERS_FOLDER_NAME);
         if (!Files.exists(p)) {
             Files.createDirectory(p);
         }
-
-        commandPort = 8000;
-        dataPort = 8001;
     }
 
-    private void initConnections() {
-        UserDAO.connection = conn;
-        SessionLogDAO.connection = conn;
-        DirectoryPermissionDAO.connection = conn;
-    }
-
-    private void run() throws SQLException, NoSuchAlgorithmException, IOException {
+    private void run() throws IOException {
         try {
-            conn = ConnectionFactory.getConnection();
+            Connection conn = ConnectionFactory.getConnection(config.getInstance(),
+                    config.getDatabase(), config.getUser(), config.getPassword());
             conn.setAutoCommit(false);
+            config.setConn(conn);
 
-        } catch (IOException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
         init();
-        test();
         UserSessions sessions = new UserSessions();
 
-        new Thread(new ServerCommandChannelHandler(commandPort, sessions)).start();
-        new Thread(new ServerDataChannelHandler(dataPort, sessions)).start();
+        new Thread(new ServerCommandChannelHandler(config.getCommandPort(), sessions)).start();
+        new Thread(new ServerDataChannelHandler(config.getDataPort(), sessions)).start();
+
+        if (config.isSecondary()) {
+            new ServerWatcherWorker(config.getWatchedHostIp(), config.getWatchedHostPort(),
+                    config.getHeartbeatInterval(), config.getMaxFailedHeartbeat(), config.getHeartbeatTimeout());
+        } else {
+            new ServerWatchedWorker(config.getWatchedHostPort());
+        }
     }
 
-    public ServerMain() throws SQLException, NoSuchAlgorithmException, IOException {
+    public ServerMain(String[] args) throws IOException {
+        config = new ServerConfig(args);
         run();
     }
 
-    public static void main(String[] args) throws SQLException, NoSuchAlgorithmException, IOException {
-        new ServerMain();
+    public static void main(String[] args) throws IOException {
+        new ServerMain(args);
     }
 }
