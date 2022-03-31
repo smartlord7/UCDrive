@@ -37,16 +37,18 @@ class ServerDataChannelConnection extends Thread {
     }
 
     public void run() {
-        try {
-            while (true) {
-                while (session.getFileMetadata() == null) ;
-                sendFileByChunks();
-                session.setFileMetadata(null);
-                out.flush();
-                out.reset();
+        while (true) {
+            try {
+                session.getSyncObj().wait(false);
+                if (session.getFileMetadata().getOp() == FileOperationEnum.DOWNLOAD) {
+                    sendFileByChunks();
+                } else {
+                    receiveFileByChunks();
+                }
+                session.getSyncObj().setActive(false);
+            } catch (InterruptedException | IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -105,7 +107,7 @@ class ServerDataChannelConnection extends Thread {
 
             if (totalRead >= fileSize) {
                 fileWriter.close();
-                fileMeta = null;
+                return;
             }
         }
     }

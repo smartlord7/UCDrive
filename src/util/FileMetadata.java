@@ -1,8 +1,11 @@
 package util;
 
+import server.FileOperationEnum;
+
 public class FileMetadata {
     private String fileName;
     private int fileSize;
+    private FileOperationEnum op;
 
     public FileMetadata() {
     }
@@ -26,5 +29,13 @@ public class FileMetadata {
 
     public void setFileSize(int fileSize) {
         this.fileSize = fileSize;
+    }
+
+    public FileOperationEnum getOp() {
+        return op;
+    }
+
+    public void setOp(FileOperationEnum op) {
+        this.op = op;
     }
 }

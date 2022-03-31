@@ -1,7 +1,6 @@
 package sync;
 
 public class SyncObj {
-    private boolean use;
     private boolean active;
 
     public SyncObj() {
@@ -19,29 +18,21 @@ public class SyncObj {
         this.active = active;
     }
 
-    public boolean isUse() {
-        return use;
-    }
-
-    public void setUse(boolean use) {
-        this.use = use;
-    }
-
     public void wait(boolean inverted) throws InterruptedException {
         synchronized (this) {
             if (inverted) {
-                while (!this.active) {
+                while (this.active) {
                     this.wait();
                 }
             } else {
-                while (this.active) {
+                while (!this.active) {
                     this.wait();
                 }
             }
         }
     }
 
-    public void broadcast() {
+    public void change() {
         synchronized (this) {
             this.active = !this.active;
             this.notifyAll();

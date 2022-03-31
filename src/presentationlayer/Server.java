@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import datalayer.enumerate.DirectoryPermissionEnum;
 import datalayer.model.User.ClientUserSession;
 import datalayer.model.User.User;
+import server.FileOperationEnum;
 import server.ServerUserSession;
 import protocol.Request;
 import protocol.Response;
@@ -34,7 +35,7 @@ public class Server {
             resp.setStatus(ResponseStatusEnum.ERROR);
             HashMap<String, String> errors = new HashMap<>();
             if (result == -1) {
-                errors.put("UserNotFound", "User with username " + user.getUserName() + " not found");
+                errors.put("UserNotFound", "User '" + user.getUserName() + "' not found");
             } else if (result == -2) {
                 errors.put("WrongPassword", "Wrong password");
             }
@@ -99,6 +100,11 @@ public class Server {
         loginResult = UserDAO.authenticate(user);
 
         checkUserCredentials(resp, user, loginResult);
+
+        if (resp.getStatus() != ResponseStatusEnum.SUCCESS) {
+            return resp;
+        }
+
         userId = user.getUserId();
         lastSessionDir = SessionLogDAO.getDirectoryFromLastSession(userId);
 
@@ -224,6 +230,8 @@ public class Server {
             fileMeta = gson.fromJson(req.getData(), FileMetadata.class);
             session.setFileMetadata(fileMeta);
             resp.setStatus(ResponseStatusEnum.SUCCESS);
+            session.getFileMetadata().setOp(FileOperationEnum.UPLOAD);
+            session.getSyncObj().change();
         } else if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.NONE){
             resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
             errors.put("NoWritePermission", "User has no permission to write in directory '" +  dir + "'");
@@ -269,6 +277,8 @@ public class Server {
             session.setFileMetadata(fileMeta);
             resp.setStatus(ResponseStatusEnum.SUCCESS);
             resp.setData(gson.toJson(fileMeta));
+            session.getFileMetadata().setOp(FileOperationEnum.DOWNLOAD);
+            session.getSyncObj().change();
         } else if (perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.NONE){
             resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
             errors.put("NoReadPermission", "User has no permission to read from directory '" +  fileName + "'");

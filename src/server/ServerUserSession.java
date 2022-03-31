@@ -1,20 +1,22 @@
 package server;
 
+import sync.SyncObj;
 import util.FileMetadata;
 
 public class ServerUserSession {
     private int userId;
     private String currentDir;
     private FileMetadata fileMetadata;
-    private Object syncObj;
-    private String other;
+    private SyncObj syncObj;
 
     public ServerUserSession() {
+        this.syncObj = new SyncObj();
     }
 
     public ServerUserSession(int userId, String lastSessionDir) {
         this.userId = userId;
         this.currentDir = lastSessionDir;
+        this.syncObj = new SyncObj();
     }
 
     public synchronized int getUserId() {
@@ -41,13 +43,11 @@ public class ServerUserSession {
         this.fileMetadata = fileMetadata;
     }
 
-    public synchronized String getOther() {
-        return other;
+    public synchronized SyncObj getSyncObj() {
+        return syncObj;
     }
 
-    public synchronized void setOther(String other) {
-        this.other = other;
+    public synchronized void setSyncObj(SyncObj syncObj) {
+        this.syncObj = syncObj;
     }
-
-
 }
