@@ -19,6 +19,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import util.Const;
@@ -146,7 +148,7 @@ public class ClientMain {
             System.out.println("User '" + user.getUserName() + "' authenticated successfully!");
             session = gson.fromJson(resp.getData(), ClientUserSession.class);
             user.setAuth(true);
-            //sessionLog.setStartDate(java.sql.Date.from(Calendar.getInstance().toInstant())));
+            sessionLog.setStartDate(new Timestamp(System.currentTimeMillis()));
         } else {
             errors = resp.getErrors();
             showErrors(errors);
@@ -154,6 +156,10 @@ public class ClientMain {
     }
 
     private void logoutUser() throws IOException, ClassNotFoundException {
+        if (!hasSession()) {
+            return;
+        }
+
         String answer;
 
         System.out.println("Are you sure you want to logout? (Y/N)");
@@ -164,13 +170,14 @@ public class ClientMain {
         }
 
         req.setMethod(RequestMethodEnum.USER_LOGOUT);
-        //res.set
+        sessionLog.setEndDate(new Timestamp(System.currentTimeMillis()));
+        req.setData(gson.toJson(session));
         outCmd.writeObject(req);
 
         resp = (Response) inCmd.readObject();
 
         if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-            System.out.println("Logged out.");
+            System.out.println("User logged out.");
             user.setAuth(false);
         } else {
             showErrors(resp.getErrors());

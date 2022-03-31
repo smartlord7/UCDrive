@@ -1,18 +1,19 @@
 package datalayer.model.SessionLog;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class SessionLog {
     private int sessionLogId;
     private int userId;
-    private Date startDate;
-    private Date endDate;
+    private Timestamp startDate;
+    private Timestamp endDate;
     private String lastDirectory;
 
     public SessionLog() {
     }
 
-    public SessionLog(int userId, Date startDate, Date endDate, String lastDirectory) {
+    public SessionLog(int userId, Timestamp startDate, Timestamp endDate, String lastDirectory) {
         this.userId = userId;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -35,19 +36,19 @@ public class SessionLog {
         this.userId = userId;
     }
 
-    public Date getStartDate() {
+    public Timestamp getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(Timestamp startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public Timestamp getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
     }
 

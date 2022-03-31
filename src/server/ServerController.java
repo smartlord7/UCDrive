@@ -5,6 +5,7 @@ import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import com.google.gson.Gson;
 import datalayer.enumerate.DirectoryPermissionEnum;
+import datalayer.model.SessionLog.SessionLog;
 import datalayer.model.User.ClientUserSession;
 import datalayer.model.User.User;
 import datalayer.enumerate.FileOperationEnum;
@@ -104,17 +105,26 @@ public class ServerController {
         }
 
         userId = user.getUserId();
-        lastSessionDir = SessionLogDAO.getDirectoryFromLastSession(userId);
-
-        if (lastSessionDir == null) {
-            lastSessionDir = Const.USERS_FOLDER_NAME + "\\" + user.getUserName();
-        }
+        lastSessionDir = Const.USERS_FOLDER_NAME + "\\" + user.getUserName();
 
         return initSession(session, userId, lastSessionDir, user, resp);
     }
 
-    public static Response logoutUser(Request req, ServerUserSession session) {
-        return null;
+    public static Response logoutUser(Request req, ServerUserSession session) throws SQLException {
+        Response resp;
+        SessionLog sessionLog;
+
+        resp = new Response();
+        sessionLog = gson.fromJson(req.getData(), SessionLog.class);
+        sessionLog.setLastDirectory(session.getCurrentDir());
+        sessionLog.setUserId(session.getUserId());
+
+        SessionLogDAO.create(sessionLog);
+        session.setUserId(0);
+        session.setFileMetadata(null);
+        resp.setStatus(ResponseStatusEnum.SUCCESS);
+
+        return resp;
     }
 
     public static Response changeUserPassword(Request req) throws NoSuchAlgorithmException {
