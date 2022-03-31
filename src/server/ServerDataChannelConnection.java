@@ -45,6 +45,8 @@ class ServerDataChannelConnection extends Thread {
                 } else {
                     receiveFileByChunks();
                 }
+                out.flush();
+                out.reset();
                 session.getSyncObj().setActive(false);
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();

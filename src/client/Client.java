@@ -341,11 +341,14 @@ public class Client {
                 fileMeta = gson.fromJson(resp.getData(), FileMetadata.class);
                 int totalRead = 0;
                 int bytesRead;
-                int fileSize = fileMeta.getFileSize();
-                byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
+                int readSize;
                 FileOutputStream fileWriter;
 
-                while ((bytesRead = inData.read(buffer,0, Const.UPLOAD_FILE_CHUNK_SIZE)) != EOF)
+                int fileSize = fileMeta.getFileSize();
+                readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
+                byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
+
+                while ((bytesRead = inData.read(buffer,0, readSize)) != EOF)
                 {
                     fileWriter = new FileOutputStream(currLocalDir + "\\" + fileMeta.getFileName());
                     byte[] finalBuffer = buffer;
