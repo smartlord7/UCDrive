@@ -1,5 +1,8 @@
 package server;
 
+import com.google.gson.Gson;
+
+import java.io.*;
 import java.sql.Connection;
 
 public class ServerConfig {
@@ -36,29 +39,24 @@ public class ServerConfig {
         this.conn = conn;
     }
 
-    public ServerConfig(String[] args) {
-        try {
-            instance = args[0];
-            database = args[1];
-            user = args[2];
-            password = args[3];
-            commandPort = Integer.parseInt(args[4]);
-            dataPort = Integer.parseInt(args[5]);
+    public static ServerConfig getFromFile(String path) throws IOException {
+        String line;
+        ServerConfig config;
+        StringBuilder configStr;
+        BufferedReader reader;
+        Gson gson;
 
-            if (args.length >= 8) {
-                isSecondary = true;
-                watchedHostIp = args[6];
-                watchedHostPort = Integer.parseInt(args[7]);
-                heartbeatInterval = Integer.parseInt(args[8]);
-                maxFailedHeartbeat = Integer.parseInt(args[9]);
-                heartbeatTimeout = Integer.parseInt(args[10]);
-            } else {
-                watchedHostPort = Integer.parseInt(args[6]);
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Error: missing argument");
-            System.exit(0);
+        gson = new Gson();
+        configStr = new StringBuilder();
+        reader = new BufferedReader(new FileReader(path));
+
+        while ((line = reader.readLine()) != null && line.length() > 0) {
+            configStr.append(line);
         }
+
+        config = gson.fromJson(configStr.toString(), ServerConfig.class);
+
+        return config;
     }
 
     public int getCommandPort() {

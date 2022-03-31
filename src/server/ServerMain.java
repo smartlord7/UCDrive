@@ -3,6 +3,7 @@ package server;
 import businesslayer.DirectoryPermission.DirectoryPermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
+import com.google.gson.Gson;
 import datalayer.enumerate.DirectoryPermissionEnum;
 import datalayer.model.User.User;
 import sync.UserSessions;
@@ -56,7 +57,7 @@ public class ServerMain {
     }
 
     public ServerMain(String[] args) throws IOException {
-        config = new ServerConfig(args);
+        config = ServerConfig.getFromFile(args[0]);
         run();
     }
 

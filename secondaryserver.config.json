@@ -1,0 +1,14 @@
+{
+  "isSecondary": true,
+  "commandPort": 8003,
+  "dataPort": 8004,
+  "watchedHostIp": "0.0.0.0",
+  "watchedHostPort": 8002,
+  "maxFailedHeartbeat": 5,
+  "heartbeatInterval": 1000,
+  "heartbeatTimeout": 5000,
+  "instance":"SQLEXPRESS02",
+  "database":"UCDriveMainServer",
+  "user":"ucdriveadmin",
+  "password":"ucdriveadmin123#"
+}
