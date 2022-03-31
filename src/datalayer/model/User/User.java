@@ -1,19 +1,19 @@
 package datalayer.model.User;
 
-import microsoft.sql.DateTimeOffset;
+import java.sql.Date;
 
 public class User {
     private int userId;
     private String userName;
     private String password;
     private String newPassword;
-    private DateTimeOffset createDate;
+    private Date createDate;
     private boolean isAuth;
 
     public User() {
     }
 
-    public User(int userId, String userName, String pasword, DateTimeOffset createDate) {
+    public User(int userId, String userName, String pasword, Date createDate) {
         this.userId = userId;
         this.userName = userName;
         this.password = pasword;
@@ -52,11 +52,11 @@ public class User {
         this.newPassword = newPassword;
     }
 
-    public DateTimeOffset getCreateDate() {
+    public Date getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(DateTimeOffset createDate) {
+    public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
 
