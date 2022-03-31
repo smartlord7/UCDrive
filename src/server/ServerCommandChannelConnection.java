@@ -1,6 +1,5 @@
 package server;
 
-import presentationlayer.Server;
 import protocol.Request;
 import protocol.RequestMethodEnum;
 import protocol.Response;
@@ -57,13 +56,13 @@ public class ServerCommandChannelConnection extends Thread {
         RequestMethodEnum method = req.getMethod();
 
         switch (method) {
-            case USER_CREATE -> resp = Server.createUser(req, session);
-            case USER_AUTHENTICATION -> resp = Server.authUser(req, session);
-            case USER_CHANGE_PASSWORD -> resp = Server.changePassword(req);
-            case USER_LIST_SERVER_FILES -> resp = Server.listDirFiles(req, session);
-            case USER_CHANGE_CWD -> resp = Server.changeWorkingDir(req, session);
-            case USER_UPLOAD_FILE -> resp = Server.uploadFiles(req, session);
-            case USER_DOWNLOAD_FILE -> resp = Server.downloadFiles(req, session);
+            case USER_CREATE -> resp = ServerController.createUser(req, session);
+            case USER_AUTHENTICATION -> resp = ServerController.authUser(req, session);
+            case USER_CHANGE_PASSWORD -> resp = ServerController.changePassword(req);
+            case USER_LIST_SERVER_FILES -> resp = ServerController.listDirFiles(req, session);
+            case USER_CHANGE_CWD -> resp = ServerController.changeWorkingDir(req, session);
+            case USER_UPLOAD_FILE -> resp = ServerController.uploadFiles(req, session);
+            case USER_DOWNLOAD_FILE -> resp = ServerController.downloadFiles(req, session);
         }
 
         return resp;

@@ -1,8 +1,6 @@
 package server;
 
-import protocol.RequestMethodEnum;
-import protocol.Response;
-import protocol.ResponseStatusEnum;
+import datalayer.enumerate.FileOperationEnum;
 import util.Const;
 import util.FileMetadata;
 import util.FileUtil;

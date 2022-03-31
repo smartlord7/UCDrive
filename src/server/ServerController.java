@@ -1,4 +1,4 @@
-package presentationlayer;
+package server;
 
 import businesslayer.DirectoryPermission.DirectoryPermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import datalayer.enumerate.DirectoryPermissionEnum;
 import datalayer.model.User.ClientUserSession;
 import datalayer.model.User.User;
-import server.FileOperationEnum;
+import datalayer.enumerate.FileOperationEnum;
 import server.ServerUserSession;
 import protocol.Request;
 import protocol.Response;
@@ -23,9 +23,8 @@ import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.HashMap;
-import static util.FileUtil.getFreeSpace;
 
-public class Server {
+public class ServerController {
     private static Gson gson = new Gson();
 
     private static void checkUserCredentials(Response resp, User user, int result) {

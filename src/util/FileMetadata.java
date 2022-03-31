@@ -1,6 +1,6 @@
 package util;
 
-import server.FileOperationEnum;
+import datalayer.enumerate.FileOperationEnum;
 
 public class FileMetadata {
     private String fileName;
