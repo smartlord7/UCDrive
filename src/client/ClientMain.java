@@ -1,8 +1,10 @@
 package client;
 
 import com.google.gson.Gson;
+import datalayer.model.SessionLog.SessionLog;
 import datalayer.model.User.User;
 import datalayer.model.User.ClientUserSession;
+import microsoft.sql.DateTimeOffset;
 import protocol.Request;
 import protocol.RequestMethodEnum;
 import protocol.Response;
@@ -16,9 +18,9 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.StringTokenizer;
+import java.sql.Date;
+import java.util.*;
+
 import util.Const;
 import util.StringUtil;
 
@@ -36,8 +38,10 @@ public class ClientMain {
     private Socket cmdSocket;
     private Socket dataSocket;
     private HashMap<String, String> errors;
+    private String line;
     private StringTokenizer st;
     private final User user = new User();
+    private final SessionLog sessionLog = new SessionLog();
     private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     private final Request req = new Request();
     private final Gson gson = new Gson();
@@ -142,6 +146,7 @@ public class ClientMain {
             System.out.println("User '" + user.getUserName() + "' authenticated successfully!");
             session = gson.fromJson(resp.getData(), ClientUserSession.class);
             user.setAuth(true);
+            //sessionLog.setStartDate(java.sql.Date.from(Calendar.getInstance().toInstant())));
         } else {
             errors = resp.getErrors();
             showErrors(errors);
@@ -159,12 +164,14 @@ public class ClientMain {
         }
 
         req.setMethod(RequestMethodEnum.USER_LOGOUT);
+        //res.set
         outCmd.writeObject(req);
 
         resp = (Response) inCmd.readObject();
 
         if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
             System.out.println("Logged out.");
+            user.setAuth(false);
         } else {
             showErrors(resp.getErrors());
         }
@@ -224,7 +231,12 @@ public class ClientMain {
 
         if (st.hasMoreTokens()) {
             dir = st.nextToken();
+            if ((dir = FileUtil.parseDir(line, dir)) == null) {
+                return;
+            }
+            dir = currLocalDir + "\\" + dir;
         }
+
 
         File file = new File(dir);
 
@@ -240,14 +252,17 @@ public class ClientMain {
             return;
         }
 
-        String targetDir = null;
+        String dir = null;
 
         if (st.hasMoreTokens()) {
-            targetDir = st.nextToken();
+            dir = st.nextToken();
+            if ((dir = FileUtil.parseDir(line, dir)) == null) {
+                return;
+            }
         }
 
         req.setMethod(RequestMethodEnum.USER_LIST_SERVER_FILES);
-        req.setData(targetDir);
+        req.setData(dir);
         outCmd.writeObject(req);
 
         resp = (Response) inCmd.readObject();
@@ -261,8 +276,19 @@ public class ClientMain {
     }
 
     private void changeLocalCWD() throws IOException {
-        String targetDir = st.nextToken();
-        currLocalDir = FileUtil.getNextCWD(targetDir, currLocalDir);
+        String dir;
+
+        try {
+            dir = st.nextToken();
+        } catch (NoSuchElementException e) {
+            System.out.println("Error: missing argument");
+            return;
+        }
+
+        if ((dir = FileUtil.parseDir(line, dir)) == null) {
+            return;
+        }
+        currLocalDir = FileUtil.getNextCWD(dir, currLocalDir);
     }
 
     private void changeRemoteCWD() throws IOException, ClassNotFoundException {
@@ -270,9 +296,21 @@ public class ClientMain {
             return;
         }
 
-        String targetDir = st.nextToken();
+        String dir;
+
+        try {
+            dir = st.nextToken();
+        } catch (NoSuchElementException e) {
+            System.out.println("Error: missing argument");
+            return;
+        }
+
+        if ((dir = FileUtil.parseDir(line, dir)) == null) {
+            return;
+        }
+
         req.setMethod(RequestMethodEnum.USER_CHANGE_CWD);
-        req.setData(targetDir);
+        req.setData(dir);
         outCmd.writeObject(req);
         resp = (Response) inCmd.readObject();
 
@@ -389,8 +427,6 @@ public class ClientMain {
     }
 
     public void run() throws IOException, ClassNotFoundException {
-        String line;
-
         System.out.print(cmdPrefix(user, currLocalDir));
         while (!(line = in.readLine()).equalsIgnoreCase("exit")) {
             line = line.strip().trim();

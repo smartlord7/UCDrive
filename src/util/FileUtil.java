@@ -55,6 +55,24 @@ public class FileUtil {
         return newArray;
     }
 
+    public static String parseDir(String line, String dir) {
+        if (dir.startsWith("'")) {
+            if (!line.strip().endsWith("'")) {
+                System.out.println("Error: malformed command '" + line + "'");
+                return null;
+            }
+
+            try {
+                dir = line.split("'")[1];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                System.out.println("Error: malformed command '" + line + "'");
+                return null;
+            }
+        }
+
+        return dir;
+    }
+
     public static void getDiskSpace(File curDir){
         long totalSpace = curDir.getTotalSpace();
         long freeSpace = curDir.getFreeSpace();

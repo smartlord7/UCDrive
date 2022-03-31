@@ -13,7 +13,7 @@ public class UserSessions {
 
     public synchronized ServerUserSession addSession(String client) {
         ServerUserSession session = new ServerUserSession();
-        sessions.putIfAbsent(client, session);
+        sessions.put(client, session);
 
         return session;
     }
