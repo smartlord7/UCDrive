@@ -2,7 +2,7 @@
   "isSecondary": false,
   "commandPort": 8000,
   "dataPort": 8001,
-  "watchedHostPort": 8002,
+  "listenedHostPort": 8002,
   "instance":"SQLEXPRESS02",
   "database":"UCDriveMainServer",
   "user":"ucdriveadmin",

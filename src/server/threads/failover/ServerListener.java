@@ -10,8 +10,8 @@ public class ServerListener implements Runnable {
     private final int timeout;
     private final int BUF_SIZE = 4096;
 
-    public ServerListener(String watchedHostIp, int watchedHostPort, int heartbeatInterval, int maxFailedHeartbeats, int timeout) throws SocketException, InterruptedException {
-        listenedHost = new InetSocketAddress(watchedHostIp, watchedHostPort);
+    public ServerListener(String listenedHostIp, int listenedHostPort, int heartbeatInterval, int maxFailedHeartbeats, int timeout) throws InterruptedException {
+        listenedHost = new InetSocketAddress(listenedHostIp, listenedHostPort);
         this.heartbeatInterval = heartbeatInterval;
         this.maxFailedHeartbeats = maxFailedHeartbeats;
         this.timeout = timeout;

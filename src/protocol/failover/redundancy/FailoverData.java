@@ -2,11 +2,11 @@ package protocol.failover.redundancy;
 
 import util.Const;
 import util.Hasher;
-
+import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class FailoverData {
+public class FailoverData implements Serializable {
     private int id;
     private byte[] checksum;
     private String content;

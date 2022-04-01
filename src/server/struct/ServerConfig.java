@@ -9,7 +9,7 @@ public class ServerConfig {
     private boolean isSecondary;
     private int commandPort;
     private int dataPort;
-    private int watchedHostPort;
+    private int listenedHostPort;
     private int maxFailedHeartbeat;
     private int heartbeatInterval;
     private int heartbeatTimeout;
@@ -17,17 +17,17 @@ public class ServerConfig {
     private String database;
     private String user;
     private String password;
-    private String watchedHostIp;
+    private String listenedHostIp;
     private Connection conn;
 
     public ServerConfig() {
     }
 
-    public ServerConfig(boolean isSecondary, int commandPort, int dataPort, int watchedHostPort, int maxFailedHeartbeat, int heartbeatInterval, int heartbeatTimeout, String instance, String database, String user, String password, String watchedHostIp, Connection conn) {
+    public ServerConfig(boolean isSecondary, int commandPort, int dataPort, int listenedHostPort, int maxFailedHeartbeat, int heartbeatInterval, int heartbeatTimeout, String instance, String database, String user, String password, String listenedHostIp, Connection conn) {
         this.isSecondary = isSecondary;
         this.commandPort = commandPort;
         this.dataPort = dataPort;
-        this.watchedHostPort = watchedHostPort;
+        this.listenedHostPort = listenedHostPort;
         this.maxFailedHeartbeat = maxFailedHeartbeat;
         this.heartbeatInterval = heartbeatInterval;
         this.heartbeatTimeout = heartbeatTimeout;
@@ -35,7 +35,7 @@ public class ServerConfig {
         this.database = database;
         this.user = user;
         this.password = password;
-        this.watchedHostIp = watchedHostIp;
+        this.listenedHostIp = listenedHostIp;
         this.conn = conn;
     }
 
@@ -131,12 +131,12 @@ public class ServerConfig {
         this.conn = conn;
     }
 
-    public int getWatchedHostPort() {
-        return watchedHostPort;
+    public int getListenedHostPort() {
+        return listenedHostPort;
     }
 
-    public void setWatchedHostPort(int watchedHostPort) {
-        this.watchedHostPort = watchedHostPort;
+    public void setListenedHostPort(int listenedHostPort) {
+        this.listenedHostPort = listenedHostPort;
     }
 
     public int getHeartbeatTimeout() {
@@ -147,12 +147,12 @@ public class ServerConfig {
         this.heartbeatTimeout = heartbeatTimeout;
     }
 
-    public String getWatchedHostIp() {
-        return watchedHostIp;
+    public String getListenedHostIp() {
+        return listenedHostIp;
     }
 
-    public void setWatchedHostIp(String watchedHostIp) {
-        this.watchedHostIp = watchedHostIp;
+    public void setListenedHostIp(String listenedHostIp) {
+        this.listenedHostIp = listenedHostIp;
     }
 
     public boolean isSecondary() {

@@ -1,5 +1,7 @@
 package protocol.failover.redundancy;
 
-public enum FailoverDataTypeEnum {
+import java.io.Serializable;
+
+public enum FailoverDataTypeEnum implements Serializable {
     FILE, DB_DML
 }

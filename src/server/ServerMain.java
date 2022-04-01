@@ -33,10 +33,10 @@ public class ServerMain {
 
     private void run() throws IOException, InterruptedException {
         if (config.isSecondary()) {
-            new ServerListener(config.getWatchedHostIp(), config.getWatchedHostPort(),
+            new ServerListener(config.getListenedHostIp(), config.getListenedHostPort(),
                     config.getHeartbeatInterval(), config.getMaxFailedHeartbeat(), config.getHeartbeatTimeout());
         } else {
-            new ServerListened(config.getWatchedHostPort());
+            new ServerListened(config.getListenedHostPort());
         }
 
         try {

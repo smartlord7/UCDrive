@@ -1,6 +1,8 @@
 package protocol.failover.redundancy;
 
-public class FailoverFeedback {
+import java.io.Serializable;
+
+public class FailoverFeedback implements Serializable {
     private int id;
     private FailoverFeedbackTypeEnum feedback;
 
