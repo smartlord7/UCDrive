@@ -328,6 +328,14 @@ public class ServerController {
         return resp;
     }
 
+    /**
+     * Method used to download files.
+     * @param req is the server request.
+     * @param session is the server session.
+     * @return the response status.
+     * @throws SQLException - whenever a database related error occurs.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     public static Response downloadFiles(Request req, ServerUserSession session) throws SQLException, IOException {
         int userId;
         String currDir;
@@ -376,6 +384,10 @@ public class ServerController {
         return resp;
     }
 
+    /**
+     * Method that prints the user menu.
+     * @return the user menu.
+     */
     public static String menu(){
         return """
                 \t\t\t\t       Client

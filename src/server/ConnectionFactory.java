@@ -15,6 +15,11 @@ public class ConnectionFactory {
     public static final String DEFAULT_DATABASE = "UCDriveMainServer";
     public static final String DEFAULT_USER = "ucdriveadmin";
 
+    /**
+     * Method that prints the connection information.
+     * @param conn is the current connection.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     private static void printConnectionData(Connection conn) throws SQLException {
         DatabaseMetaData dm = conn.getMetaData();
         System.out.println("Connected successfully!");
@@ -24,11 +29,26 @@ public class ConnectionFactory {
         System.out.println("Product version: " + dm.getDatabaseProductVersion());
     }
 
+    /**
+     * Method used to set up the connection to the database.
+     * @param instance is the current instance.
+     * @param database is the used database.
+     * @param user is the user connecting to the database.
+     * @param pass is the user password connecting to the database.
+     * @return the connection.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     public static Connection getConnection(String instance, String database, String user, String pass) throws SQLException {
         String connString = "jdbc:sqlserver://" + HOST_NAME + "\\" + instance + ";databaseName=" + database + ";" + CONNECTION_PARAMS;
         return DriverManager.getConnection(connString, user, pass);
     }
 
+    /**
+     * Method that gets the current connection.
+     * @return the current connection.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     public static Connection getConnection() throws IOException, SQLException {
         String instance;
         String database;
