@@ -26,10 +26,7 @@ public class ConnectionFactory {
 
     public static Connection getConnection(String instance, String database, String user, String pass) throws SQLException {
         String connString = "jdbc:sqlserver://" + HOST_NAME + "\\" + instance + ";databaseName=" + database + ";" + CONNECTION_PARAMS;
-        Connection conn = DriverManager.getConnection(connString, user, pass);
-        printConnectionData(conn);
-
-        return conn;
+        return DriverManager.getConnection(connString, user, pass);
     }
 
     public static Connection getConnection() throws IOException, SQLException {

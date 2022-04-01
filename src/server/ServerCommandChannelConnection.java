@@ -13,8 +13,8 @@ public class ServerCommandChannelConnection extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Socket clientSocket;
-    private ServerUserSession session;
-    private int connectionId;
+    private final ServerUserSession session;
+    private final int connectionId;
 
     public ServerCommandChannelConnection(Socket socket, int id, ServerUserSession session) {
         this.connectionId = id;

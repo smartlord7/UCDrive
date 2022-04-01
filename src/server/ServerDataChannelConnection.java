@@ -16,7 +16,7 @@ class ServerDataChannelConnection extends Thread {
     private DataInputStream in;
     private DataOutputStream out;
     private Socket clientSocket;
-    private int number;
+    private final int number;
     private final ServerUserSession session;
 
     public ServerDataChannelConnection(Socket aClientSocket, int number, ServerUserSession session) {

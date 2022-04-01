@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 public class ServerController {
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
     private static void checkUserCredentials(Response resp, User user, int result) {
         if (result == 0) {

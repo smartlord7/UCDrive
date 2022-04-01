@@ -19,12 +19,11 @@ public class ServerDataChannelHandler implements Runnable {
     @Override
     public void run() {
         try (ServerSocket listenSocket = new ServerSocket(port)) {
-            System.out.println("[DATA THREAD] Port: " + port);
-            System.out.println("[DATA THREAD] Socket: " + listenSocket);
+            System.out.println("[DATA CHANNEL] Started at port: " + port);
 
             while (true) {
                 Socket clientSocket = listenSocket.accept();
-                System.out.println("[DATA THREAD] Client: " + clientSocket);
+                System.out.println("[DATA CHANNEL] Client received: " + clientSocket);
                 number++;
                 String client = clientSocket.getInetAddress().toString();
                 new ServerDataChannelConnection(clientSocket, number, sessions.getSession(client));

@@ -19,17 +19,16 @@ public class ServerCommandChannelHandler implements Runnable {
     @Override
     public void run() {
         try (ServerSocket listenSocket = new ServerSocket(port)) {
-            System.out.println("[CMD THREAD] Port: " + port);
-            System.out.println("[CMD THREAD] Socket: " + listenSocket);
+            System.out.println("[CMD CHANNEL] Started at port: " + port);
             while(true) {
                 Socket clientSocket = listenSocket.accept();
-                System.out.println("[CMD THREAD] Client: " + clientSocket);
+                System.out.println("[CMD CHANNEL] Client received: " + clientSocket.getInetAddress());
                 number++;
                 String client = clientSocket.getInetAddress().toString();
                 new ServerCommandChannelConnection(clientSocket, number, sessions.addSession(client));
             }
         } catch(IOException e) {
-            e.printStackTrace();;
+            e.printStackTrace();
         }
     }
 }

@@ -13,9 +13,9 @@ import static sun.nio.ch.IOStatus.EOF;
 
 public class ClientDataWorker implements Runnable {
 
-    private FileMetadata fileMetadata;
-    private String currLocalDir;
-    private DataInputStream in;
+    private final FileMetadata fileMetadata;
+    private final String currLocalDir;
+    private final DataInputStream in;
 
     public ClientDataWorker(DataInputStream in, FileMetadata fileMetadata, String currLocalDir) {
         this.in = in;

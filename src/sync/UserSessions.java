@@ -5,7 +5,7 @@ import server.ServerUserSession;
 import java.util.HashMap;
 
 public class UserSessions {
-    private HashMap<String, ServerUserSession> sessions;
+    private final HashMap<String, ServerUserSession> sessions;
 
     public UserSessions() {
         this.sessions = new HashMap<String, ServerUserSession>();

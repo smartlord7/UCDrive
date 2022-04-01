@@ -23,7 +23,7 @@ public class ServerWatchedWorker implements Runnable {
         ByteArrayOutputStream byteWriter;
 
         try {
-            System.out.println("[HEARTBEAT THREAD] Port: " + watchedHostPort);
+            System.out.println("[HEARTBEAT] Started at port: " + watchedHostPort);
             socket = new DatagramSocket(watchedHostPort);
             while (true) {
                 buf = new byte[BUF_SIZE];

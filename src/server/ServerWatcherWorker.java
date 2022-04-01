@@ -10,13 +10,15 @@ public class ServerWatcherWorker implements Runnable {
     private final int timeout;
     private final int BUF_SIZE = 4096;
 
-    public ServerWatcherWorker(String watchedHostIp, int watchedHostPort, int heartbeatInterval, int maxFailedHeartbeats, int timeout) throws SocketException {
+    public ServerWatcherWorker(String watchedHostIp, int watchedHostPort, int heartbeatInterval, int maxFailedHeartbeats, int timeout) throws SocketException, InterruptedException {
         watchedHost = new InetSocketAddress(watchedHostIp, watchedHostPort);
         this.heartbeatInterval = heartbeatInterval;
         this.maxFailedHeartbeats = maxFailedHeartbeats;
         this.timeout = timeout;
 
-        new Thread(this).start();
+        Thread thisThread = new Thread(this);
+        thisThread.start();
+        thisThread.join();
     }
 
     @Override
@@ -41,7 +43,7 @@ public class ServerWatcherWorker implements Runnable {
 
         try {
             socket = new DatagramSocket();
-            System.out.println("[HEARTBEAT THREAD] Port: " + socket.getPort());
+            System.out.println("[HEARTBEAT] Started at port: " + socket.getPort());
             socket.setSoTimeout(timeout);
             while (failedHeartBeats < maxFailedHeartbeats) {
                 try {
@@ -56,11 +58,11 @@ public class ServerWatcherWorker implements Runnable {
 
                     socket.receive(packetResponse);
                     failedHeartBeats = 0;
-                    System.out.println("[HEARTBEAT THREAD] Confirmed heartbeat");
+                    System.out.println("[HEARTBEAT] Confirmed heartbeat");
                 }
                 catch (SocketTimeoutException ste) {
                     failedHeartBeats++;
-                    System.out.println("[HEARTBEAT THREAD] Failed heartbeats: " + failedHeartBeats);
+                    System.out.println("[HEARTBEAT] Failed heartbeats: " + failedHeartBeats);
                 }
 
                 Thread.sleep(heartbeatInterval);
@@ -68,5 +70,7 @@ public class ServerWatcherWorker implements Runnable {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+
+        System.out.println("[HEARTBEAT THREAD] Server " + watchedHost + " down.");
     }
 }
