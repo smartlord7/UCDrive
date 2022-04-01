@@ -15,12 +15,21 @@ public class ServerCommandChannelHandler implements Runnable {
     private final ServerUserSessions sessions;
     private final BlockingQueue<FailoverData> dataToSync;
 
+    /**
+     * Constructor method.
+     * @param port is the server port.
+     * @param sessions are the current sessions.
+     * @param dataToSync is the data to sync.
+     */
     public ServerCommandChannelHandler(int port, ServerUserSessions sessions, BlockingQueue<FailoverData> dataToSync) {
         this.port = port;
         this.sessions = sessions;
         this.dataToSync = dataToSync;
     }
 
+    /**
+     * Method that creates a thread for TCP client connection to the command channel.
+     */
     @Override
     public void run() {
         try (ServerSocket listenSocket = new ServerSocket(port)) {

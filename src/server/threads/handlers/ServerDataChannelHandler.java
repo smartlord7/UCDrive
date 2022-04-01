@@ -15,12 +15,21 @@ public class ServerDataChannelHandler implements Runnable {
     private final ServerUserSessions sessions;
     private final BlockingQueue<FailoverData> dataToSync;
 
+    /**
+     * Constructor method
+     * @param port is the server port.
+     * @param sessions are the connected sessios.
+     * @param dataToSync1 is the data to sync.
+     */
     public ServerDataChannelHandler(int port, ServerUserSessions sessions, BlockingQueue<FailoverData> dataToSync1) {
         this.port = port;
         this.sessions = sessions;
         this.dataToSync = dataToSync1;
     }
 
+    /**
+     * Method that creates a thread for TCP client connection to the data channel.
+     */
     @Override
     public void run() {
         try (ServerSocket listenSocket = new ServerSocket(port)) {
