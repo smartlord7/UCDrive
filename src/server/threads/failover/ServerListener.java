@@ -26,43 +26,35 @@ public class ServerListener implements Runnable {
         int failedHeartBeats;
         byte[] buf;
         byte[] resp;
-        InetAddress addr;
         DatagramSocket socket;
         DatagramPacket packetRequest;
         DatagramPacket packetResponse;
         ByteArrayOutputStream byteWriter;
 
         failedHeartBeats = 0;
-        addr = null;
-
-        try {
-            addr = InetAddress.getByName("localhost");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
 
         try {
             socket = new DatagramSocket();
-            System.out.println("[HEARTBEAT] Started at port: " + socket.getPort());
+            System.out.println("[HEARTBEAT] Started");
             socket.setSoTimeout(timeout);
             while (failedHeartBeats < maxFailedHeartbeats) {
                 try {
                     byteWriter = new ByteArrayOutputStream();
                     buf = byteWriter.toByteArray();
 
-                    packetRequest = new DatagramPacket(buf, buf.length, addr, listenedHost.getPort());
+                    packetRequest = new DatagramPacket(buf, buf.length, listenedHost.getAddress(), listenedHost.getPort());
                     socket.send(packetRequest);
 
                     resp = new byte[BUF_SIZE];
-                    packetResponse = new DatagramPacket(resp, resp.length);
+                    packetResponse = new DatagramPacket(resp, resp.length, listenedHost.getAddress(), listenedHost.getPort());
 
                     socket.receive(packetResponse);
                     failedHeartBeats = 0;
-                    System.out.println("[HEARTBEAT] Confirmed heartbeat");
+                    System.out.println("[HEARTBEAT] Server at " + listenedHost + " is still alive");
                 }
                 catch (SocketTimeoutException ste) {
                     failedHeartBeats++;
-                    System.out.println("[HEARTBEAT] Failed heartbeats: " + failedHeartBeats);
+                    System.out.println("[HEARTBEAT] Server at " + listenedHost + " failed " + failedHeartBeats + " heartbeats");
                 }
 
                 Thread.sleep(heartbeatInterval);
@@ -71,6 +63,6 @@ public class ServerListener implements Runnable {
             e.printStackTrace();
         }
 
-        System.out.println("[HEARTBEAT THREAD] Server " + listenedHost + " down.");
+        System.out.println("[HEARTBEAT] Server at " + listenedHost + " is down.");
     }
 }

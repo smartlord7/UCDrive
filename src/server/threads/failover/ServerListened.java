@@ -7,7 +7,6 @@ public class ServerListened implements Runnable {
     private final int port;
     private final int BUF_SIZE = 4096;
 
-
     public ServerListened(int port) {
         this.port = port;
         new Thread(this).start();

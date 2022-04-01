@@ -2,7 +2,7 @@
   "isSecondary": true,
   "commandPort": 8003,
   "dataPort": 8004,
-  "watchedHostIp": "0.0.0.0",
+  "watchedHostIp": "127.0.0.1",
   "watchedHostPort": 8002,
   "maxFailedHeartbeat": 3,
   "heartbeatInterval": 400,
