@@ -25,6 +25,19 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class ServerMain {
     private final ServerConfig config;
 
+    private void setDBConnection() {
+        try {
+            Connection conn = ConnectionFactory.getConnection(config.getInstance(),
+                    config.getDatabase(), config.getUser(), config.getPassword());
+            conn.setAutoCommit(false);
+            config.setConn(conn);
+
+        } catch (SQLException e) {
+            System.out.println("Error: could not establish connection to SQLServer instance");
+            System.exit(0);
+        }
+    }
+
     private void init() throws IOException {
         UserDAO.connection = config.getConn();
         SessionLogDAO.connection = config.getConn();
@@ -36,34 +49,28 @@ public class ServerMain {
         }
     }
 
-    private void run() throws IOException, InterruptedException {
+    private void startThreads() throws InterruptedException {
         ServerUserSessions sessions = new ServerUserSessions();
         BlockingQueue<FailoverData> dataToSync = new LinkedBlockingQueue<>();
 
         if (config.isSecondary()) {
+            new ServerSynced(config.getSyncedHostPort());
             new ServerListener(config.getListenedHostIp(), config.getListenedHostPort(),
                     config.getHeartbeatInterval(), config.getMaxFailedHeartbeat(), config.getHeartbeatTimeout());
-            new ServerSynced(config.getSyncedHostPort());
         } else {
             new ServerListened(config.getListenedHostPort());
             new ServerSyncer(config.getSyncedHostIp(), config.getSyncedHostPort(), dataToSync);
         }
 
-        try {
-            Connection conn = ConnectionFactory.getConnection(config.getInstance(),
-                    config.getDatabase(), config.getUser(), config.getPassword());
-            conn.setAutoCommit(false);
-            config.setConn(conn);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        init();
-
         new Thread(new ServerCommandChannelHandler(config.getCommandPort(), sessions, dataToSync)).start();
         new Thread(new ServerDataChannelHandler(config.getDataPort(), sessions, dataToSync)).start();
 
+    }
+
+    private void run() throws IOException, InterruptedException {
+        setDBConnection();
+        init();
+        startThreads();
     }
 
     public ServerMain(String[] args) throws IOException, InterruptedException {

@@ -10,6 +10,7 @@ import util.FileUtil;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -86,6 +87,7 @@ public class ServerDataChannelConnection extends Thread {
         int fileSize;
         int counter;
         byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
+        String bufferStr;
         FileMetadata fileMeta = null;
         FileOutputStream fileWriter = null;
 
@@ -108,13 +110,14 @@ public class ServerDataChannelConnection extends Thread {
 
             byte[] finalBuffer = buffer;
 
-            if (bytesRead > fileMeta.getFileSize()) {
+            if (bytesRead > fileSize) {
                 finalBuffer = FileUtil.substring(buffer, 0, fileSize);
             }
 
             totalRead += bytesRead;
             fileWriter.write(finalBuffer);
-            dataToSync.add(new FailoverData(counter,session.getCurrentDir() + "\\" + fileMeta.getFileName(), null, Arrays.toString(buffer), FailoverDataTypeEnum.FILE));
+            bufferStr = new String(finalBuffer, StandardCharsets.UTF_8);
+            dataToSync.add(new FailoverData(counter, bufferStr.length(), fileSize, session.getCurrentDir() + "\\" + fileMeta.getFileName(), null, bufferStr, FailoverDataTypeEnum.FILE));
 
             if (totalRead >= fileSize) {
                 fileWriter.close();

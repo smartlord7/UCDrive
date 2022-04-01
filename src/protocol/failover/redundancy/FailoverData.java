@@ -9,6 +9,8 @@ import java.util.StringJoiner;
 
 public class FailoverData implements Serializable {
     private int id;
+    private int size;
+    private int totalSize;
     private String name;
     private byte[] checksum;
     private String content;
@@ -17,8 +19,10 @@ public class FailoverData implements Serializable {
     public FailoverData() {
     }
 
-    public FailoverData(int id, String name, byte[] checksum, String content, FailoverDataTypeEnum type) {
+    public FailoverData(int id, int size, int totalSize, String name, byte[] checksum, String content, FailoverDataTypeEnum type) {
         this.id = id;
+        this.size = size;
+        this.totalSize = totalSize;
         this.name = name;
         this.checksum = checksum;
         this.content = content;
@@ -65,14 +69,32 @@ public class FailoverData implements Serializable {
         this.name = name;
     }
 
+    public int getTotalSize() {
+        return totalSize;
+    }
+
+    public void setTotalSize(int totalSize) {
+        this.totalSize = totalSize;
+    }
+
     public boolean verifyChecksum() throws NoSuchAlgorithmException {
         return Arrays.equals(this.checksum, Hasher.hashBytes(this.content, Const.CONTENT_CHECKSUM_ALGORITHM));
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 
     @Override
     public String toString() {
         return new StringJoiner(", ", FailoverData.class.getSimpleName() + "[", "]")
                 .add("id=" + id)
+                .add("size=" + size)
+                .add("totalSize=" + totalSize)
                 .add("name='" + name + "'")
                 .add("checksum=" + Arrays.toString(checksum))
                 .add("content='" + content + "'")
