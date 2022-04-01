@@ -3,7 +3,6 @@ package server.threads.failover;
 import protocol.failover.redundancy.FailoverData;
 import util.Const;
 import util.Hasher;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -13,8 +12,8 @@ import java.util.concurrent.BlockingQueue;
 
 public class ServerSyncer implements Runnable {
 
-    private InetSocketAddress syncedHost;
-    private BlockingQueue<FailoverData> dataToSync;
+    private final InetSocketAddress syncedHost;
+    private final BlockingQueue<FailoverData> dataToSync;
 
     public ServerSyncer(String syncedHostIp, int syncedHostPort, BlockingQueue<FailoverData> dataToSync) {
         this.syncedHost = new InetSocketAddress(syncedHostIp, syncedHostPort);

@@ -2,11 +2,9 @@ package server.threads.failover;
 
 import protocol.failover.redundancy.FailoverData;
 import protocol.failover.redundancy.FailoverDataTypeEnum;
-
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.nio.charset.StandardCharsets;
 
 public class ServerSynced implements Runnable{
     private final int port;
