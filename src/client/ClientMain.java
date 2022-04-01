@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import datalayer.model.SessionLog.SessionLog;
 import datalayer.model.User.User;
 import datalayer.model.User.ClientUserSession;
-import microsoft.sql.DateTimeOffset;
 import protocol.Request;
 import protocol.RequestMethodEnum;
 import protocol.Response;
@@ -18,18 +17,13 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.*;
-
 import util.Const;
 import util.StringUtil;
 
-import static sun.nio.ch.IOStatus.EOF;
-
 public class ClientMain {
-    private boolean serverConfigured = false;
+    private boolean serverConnected = false;
     private String currLocalDir = System.getProperty("user.dir");
     private ObjectOutputStream outCmd;
     private ObjectInputStream inCmd;
@@ -42,6 +36,7 @@ public class ClientMain {
     private HashMap<String, String> errors;
     private String line;
     private StringTokenizer st;
+    private final ClientConfig config = new ClientConfig();
     private final User user = new User();
     private final SessionLog sessionLog = new SessionLog();
     private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -80,8 +75,8 @@ public class ClientMain {
     }
 
     private boolean hasConnection() {
-        if (!serverConfigured) {
-            System.out.println("Error: server not configured!");
+        if (!serverConnected) {
+            System.out.println("Error: server not connected!");
             return false;
         }
 
@@ -92,7 +87,7 @@ public class ClientMain {
         return hasConnection() && hasAuth();
     }
 
-    private void configServer(String ip, int cmdPort, int dataPort) throws IOException {
+    private void connectServer_(String ip, int cmdPort, int dataPort) throws IOException {
         try {
 
             cmdSocket = new Socket(ip, cmdPort);
@@ -115,12 +110,77 @@ public class ClientMain {
 
         System.out.println("Data channel connected to " + ip + ":" + dataPort);
 
-        serverConfigured = true;
-
         outCmd = new ObjectOutputStream(new DataOutputStream(cmdSocket.getOutputStream()));
         inCmd = new ObjectInputStream(new DataInputStream(cmdSocket.getInputStream()));
         outData = new DataOutputStream(dataSocket.getOutputStream());
         inData = new DataInputStream(dataSocket.getInputStream());
+
+        serverConnected = true;
+    }
+
+    private void connectServer() throws IOException {
+        if (config.isMainServerDown()) {
+            if (!config.isSecondaryServerConfigured()) {
+                System.out.println("Error: secondary server not configured");
+                return;
+            }
+
+            connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerDataPort());
+        } else {
+            if (!config.isMainServerConfigured()) {
+                System.out.println("Error: main server not configured");
+                return;
+            }
+
+            connectServer_(config.getMainServerIp(), config.getMainServerCmdPort(), config.getMainServerDataPort());
+        }
+    }
+
+    private void disconnectServer() throws IOException {
+        if (!hasConnection()) {
+            return;
+        }
+
+        String answer;
+
+        System.out.println("Are you sure you want to disconnect? (Y/N)");
+        answer = in.readLine();
+
+        if (answer.equalsIgnoreCase("y")) {
+            serverConnected = false;
+            clean();
+        }
+    }
+
+    private void configServers() throws IOException {
+        String selectedServer;
+
+        try {
+            selectedServer = st.nextToken();
+        } catch (NoSuchElementException e) {
+            System.out.println("Error: malformed command");
+            return;
+        }
+
+        if (selectedServer.equalsIgnoreCase("m")) {
+            System.out.println("------Main server------");
+            System.out.println("IP: ");
+            config.setMainServerIp(in.readLine());
+            System.out.println("Command channel port: ");
+            config.setMainServerCmdPort(Integer.parseInt(in.readLine()));
+            System.out.println("Data channel: ");
+            config.setMainServerDataPort(Integer.parseInt(in.readLine()));
+            config.setMainServerConfigured(true);
+        } else {
+            System.out.println("------Secondary server------");
+            System.out.println("IP: ");
+            config.setSecondaryServerIp(in.readLine());
+            System.out.println("Command channel port: ");
+            config.setSecondaryServerCmdPort(Integer.parseInt(in.readLine()));
+            System.out.println("Data channel: ");
+            config.setSecondaryServerDataPort(Integer.parseInt(in.readLine()));
+            config.setSecondaryServerConfigured(true);
+        }
     }
 
     private void authUser() throws IOException, ClassNotFoundException {
@@ -415,14 +475,14 @@ public class ClientMain {
     }
 
     private void clearChannels() throws IOException {
-        if (serverConfigured) {
+        if (serverConnected) {
             outCmd.flush();
             outCmd.reset();
             outData.flush();
         }
     }
 
-    private void cleanAndExit() throws IOException {
+    private void clean() throws IOException {
         in.close();
         inCmd.close();
         inData.close();
@@ -430,7 +490,6 @@ public class ClientMain {
         outData.close();
         cmdSocket.close();
         dataSocket.close();
-        System.exit(0);
     }
 
     public void run() throws IOException, ClassNotFoundException {
@@ -439,7 +498,16 @@ public class ClientMain {
             line = line.strip().trim();
             st = new StringTokenizer(line);
             String cmd = st.nextToken();
-            if (cmd.equalsIgnoreCase("auth")) {
+
+            if (cmd.equalsIgnoreCase("config")) {
+                configServers();
+            } else if (cmd.equalsIgnoreCase("showconfig")) {
+                System.out.println(config);
+            } else if (cmd.equalsIgnoreCase("connect")){
+                connectServer();
+            } else if (cmd.equalsIgnoreCase("disconnect")){
+                disconnectServer();
+            }else if (cmd.equalsIgnoreCase("auth")) {
                 authUser();
             } else if (cmd.equalsIgnoreCase("logout")) {
                 logoutUser();
@@ -467,15 +535,15 @@ public class ClientMain {
             System.out.print(cmdPrefix(user, currLocalDir));
         }
 
-        cleanAndExit();
+        clean();
+        System.exit(0);
     }
 
-    public ClientMain(String ip, int commandPort, int dataPort) throws IOException, ClassNotFoundException {
-        configServer(ip, commandPort, dataPort);
+    public ClientMain() throws IOException, ClassNotFoundException {
         run();
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        ClientMain client = new ClientMain(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+        new ClientMain();
     }
 }

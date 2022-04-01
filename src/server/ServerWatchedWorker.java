@@ -8,7 +8,7 @@ public class ServerWatchedWorker implements Runnable {
     private final int BUF_SIZE = 4096;
 
 
-    public ServerWatchedWorker(int watchedHostPort) throws SocketException, UnknownHostException {
+    public ServerWatchedWorker(int watchedHostPort) {
         this.watchedHostPort = watchedHostPort;
         new Thread(this).start();
     }
