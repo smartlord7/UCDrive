@@ -3,6 +3,11 @@ package util;
 import java.io.*;
 
 public class FileUtil {
+    /**
+     * Method used to list the directory files.
+     * @param dir the directory of the files to be listed.
+     * @return the files in the directory.
+     */
     public static String listDirFiles(File dir) {
         String list = "";
         StringBuilder sb = new StringBuilder(list);
@@ -17,6 +22,13 @@ public class FileUtil {
         return sb.toString();
     }
 
+    /**
+     * Method to get the next directory
+     * @param targetDir the directory to go.
+     * @param currDir the current directory.
+     * @return the targeted directory as the current directory.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     public static String getNextCWD(String targetDir, String currDir) throws IOException {
         boolean validDir = false;
         if (targetDir.contains("..")) {

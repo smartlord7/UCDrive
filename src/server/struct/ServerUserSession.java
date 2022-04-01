@@ -9,16 +9,24 @@ public class ServerUserSession {
     private FileMetadata fileMetadata;
     private SyncObj syncObj;
 
+    /**
+     * Constructor method.
+     */
     public ServerUserSession() {
         this.syncObj = new SyncObj();
     }
 
+    /**
+     * Constructor method
+     * @param userId is the user id.
+     * @param lastSessionDir is the last session accessed directory.
+     */
     public ServerUserSession(int userId, String lastSessionDir) {
         this.userId = userId;
         this.currentDir = lastSessionDir;
         this.syncObj = new SyncObj();
     }
-
+    // region Getters and Setters
     public synchronized int getUserId() {
         return userId;
     }
@@ -50,4 +58,5 @@ public class ServerUserSession {
     public synchronized void setSyncObj(SyncObj syncObj) {
         this.syncObj = syncObj;
     }
+    // endregion Getters and Setters
 }

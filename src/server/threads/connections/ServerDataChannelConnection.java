@@ -26,6 +26,13 @@ public class ServerDataChannelConnection extends Thread {
     private Socket clientSocket;
     private final BlockingQueue<FailoverData> dataToSync;
 
+    /**
+     * Constructor method.
+     * @param aClientSocket is the client socket.
+     * @param connectionId is the connection Id.
+     * @param session is the current session.
+     * @param dataToSync is the data to sync.
+     */
     public ServerDataChannelConnection(Socket aClientSocket, int connectionId, ServerUserSession session, BlockingQueue<FailoverData> dataToSync) {
         this.connectionId = connectionId;
         this.session = session;
@@ -40,6 +47,10 @@ public class ServerDataChannelConnection extends Thread {
         }
     }
 
+    /**
+     * Method that awaits the command thread notification in order to perform an upload/download operation.
+     */
+    @Override
     public void run() {
         while (true) {
             try {
@@ -56,6 +67,10 @@ public class ServerDataChannelConnection extends Thread {
         }
     }
 
+    /**
+     * Method used to send the selected upload file by chunks.
+     @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     private void sendFileByChunks() throws IOException {
         int fileSize;
         int readSize;
@@ -79,7 +94,10 @@ public class ServerDataChannelConnection extends Thread {
 
         fileReader.close();
     }
-
+    /**
+     * Method used to receive the selected download file by chunks.
+     @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     private void receiveFileByChunks() throws IOException {
         int totalRead;
         int bytesRead;

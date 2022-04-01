@@ -22,6 +22,13 @@ public class ServerCommandChannelConnection extends Thread {
     private final BlockingQueue<FailoverData> dataToSync;
     private Socket clientSocket;
 
+    /**
+     * Constructor method.
+     * @param socket is the socket.
+     * @param id is the connection id.
+     * @param session is the current session.
+     * @param dataToSync is the data to sync.
+     */
     public ServerCommandChannelConnection(Socket socket, int id, ServerUserSession session, BlockingQueue<FailoverData> dataToSync) {
         this.connectionId = id;
         this.session = session;
@@ -38,6 +45,9 @@ public class ServerCommandChannelConnection extends Thread {
         }
     }
 
+    /**
+     * Method that sends a request and writes the response to the client.
+     */
     @Override
     public void run() {
         while(true) {
@@ -58,6 +68,15 @@ public class ServerCommandChannelConnection extends Thread {
         }
     }
 
+    /**
+     *  Method that handles the request.
+     * @param req is the request sent to the server.
+     * @return the server response.
+     * @throws SQLException - whenever a database related error occurs.
+     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
+     */
     private Response handleRequest(Request req) throws SQLException, NoSuchAlgorithmException, IOException, InterruptedException {
         Response resp = null;
         RequestMethodEnum method = req.getMethod();

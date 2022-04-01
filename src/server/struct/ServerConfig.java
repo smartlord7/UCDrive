@@ -24,9 +24,18 @@ public class ServerConfig {
     private String password;
     private Connection conn;
 
+    /**
+     * Constructor method.
+     */
     public ServerConfig() {
     }
 
+    /**
+     * Method to read from the file.
+     * @param path is the file path.
+     * @return the config red from the file.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     public static ServerConfig getFromFile(String path) throws IOException {
         String line;
         ServerConfig config;
@@ -47,6 +56,7 @@ public class ServerConfig {
         return config;
     }
 
+    // region Getters and Setters
     public int getCommandPort() {
         return commandPort;
     }
@@ -166,4 +176,6 @@ public class ServerConfig {
     public void setSyncedHostIp(String syncedHostIp) {
         this.syncedHostIp = syncedHostIp;
     }
+
+    // endregion Getters and Setters
 }

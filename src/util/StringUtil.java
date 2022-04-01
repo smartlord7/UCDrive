@@ -1,6 +1,11 @@
 package util;
 
 public class StringUtil {
+    /**
+     * Method that converts bytes to hexadecimal.
+     * @param bytes are the bytes to be converted
+     * @return the converted bytes to hex.
+     */
     public static String bytesToHex(byte[] bytes) {
         StringBuilder hexString = new StringBuilder(2 * bytes.length);
         for (byte aByte : bytes) {
@@ -13,6 +18,12 @@ public class StringUtil {
         return hexString.toString();
     }
 
+    /**
+     * Method that builds the string by appending the parts of it.
+     * @param str is the str to be built
+     * @param times number of times needed to complete the string
+     * @return the built string.
+     */
     public static String repeat(String str, int times) {
         StringBuilder sb = new StringBuilder();
 
