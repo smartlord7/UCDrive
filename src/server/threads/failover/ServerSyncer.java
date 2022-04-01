@@ -7,12 +7,18 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class ServerSyncer implements Runnable {
 
     private InetSocketAddress syncedHost;
-    private BlockingQueue<FailoverData> dataToSync = new LinkedBlockingQueue<>();
+    private BlockingQueue<FailoverData> dataToSync;
+
+    public ServerSyncer(String syncedHostIp, int syncedHostPort, BlockingQueue<FailoverData> dataToSync) {
+        this.syncedHost = new InetSocketAddress(syncedHostIp, syncedHostPort);
+        this.dataToSync = dataToSync;
+
+        new Thread(this).start();
+    }
 
     @Override
     public void run() {
@@ -28,8 +34,8 @@ public class ServerSyncer implements Runnable {
             socket = new DatagramSocket();
 
             System.out.println("[SYNCER] Started");
-            while ((data = dataToSync.poll()) != null) {
                 while (true) {
+                    data = dataToSync.take();
                     byteWriter = new ByteArrayOutputStream();
                     objWriter = new ObjectOutputStream(byteWriter);
                     objWriter.writeObject(data);
@@ -39,8 +45,7 @@ public class ServerSyncer implements Runnable {
                     //packetRequest = new DatagramPacket(buf, buf.length, syncedHost.getAddress(), syncedHost.getPort());
                     //socket.send(packetRequest);
                 }
-            }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

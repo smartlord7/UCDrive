@@ -1,6 +1,8 @@
 package server.threads.connections;
 
 import datalayer.enumerate.FileOperationEnum;
+import protocol.failover.redundancy.FailoverData;
+import protocol.failover.redundancy.FailoverDataTypeEnum;
 import server.struct.ServerUserSession;
 import util.Const;
 import util.FileMetadata;
@@ -11,18 +13,23 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.concurrent.BlockingQueue;
+
 import static sun.nio.ch.IOStatus.EOF;
 
 public class ServerDataChannelConnection extends Thread {
+    private final int connectionId;
+    private final ServerUserSession session;
     private DataInputStream in;
     private DataOutputStream out;
     private Socket clientSocket;
-    private final int number;
-    private final ServerUserSession session;
+    private final BlockingQueue<FailoverData> dataToSync;
 
-    public ServerDataChannelConnection(Socket aClientSocket, int number, ServerUserSession session) {
-        this.number = number;
+    public ServerDataChannelConnection(Socket aClientSocket, int connectionId, ServerUserSession session, BlockingQueue<FailoverData> dataToSync) {
+        this.connectionId = connectionId;
         this.session = session;
+        this.dataToSync = dataToSync;
         try {
             clientSocket = aClientSocket;
             in = new DataInputStream(clientSocket.getInputStream());
@@ -65,7 +72,6 @@ public class ServerDataChannelConnection extends Thread {
 
         readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
         buffer = new byte[readSize];
-
         while ((read = fileReader.read(buffer, 0, readSize)) != -1) {
             out.write(buffer);
             out.flush();
@@ -75,14 +81,19 @@ public class ServerDataChannelConnection extends Thread {
     }
 
     private void receiveFileByChunks() throws IOException {
-        int totalRead = 0;
+        int totalRead;
         int bytesRead;
-        int fileSize = 0;
+        int fileSize;
+        int counter;
         byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
         FileMetadata fileMeta = null;
         FileOutputStream fileWriter = null;
 
         bytesRead = 0;
+        counter = 0;
+        fileSize = 0;
+        totalRead = 0;
+
         while ((bytesRead = in.read(buffer,0, Const.UPLOAD_FILE_CHUNK_SIZE)) != EOF)
         {
             if (fileMeta == null) {
@@ -103,6 +114,7 @@ public class ServerDataChannelConnection extends Thread {
 
             totalRead += bytesRead;
             fileWriter.write(finalBuffer);
+            dataToSync.add(new FailoverData(counter, session.getFileMetadata().getFileName(), null, Arrays.toString(buffer), FailoverDataTypeEnum.FILE));
 
             if (totalRead >= fileSize) {
                 fileWriter.close();

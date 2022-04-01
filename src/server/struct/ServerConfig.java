@@ -6,37 +6,25 @@ import java.io.*;
 import java.sql.Connection;
 
 public class ServerConfig {
+    //TODO field validations and separation in two configs (Main and Secondary server)
+
     private boolean isSecondary;
     private int commandPort;
     private int dataPort;
     private int listenedHostPort;
+    private int syncedHostPort;
     private int maxFailedHeartbeat;
     private int heartbeatInterval;
     private int heartbeatTimeout;
+    private String listenedHostIp;
+    private String syncedHostIp;
     private String instance;
     private String database;
     private String user;
     private String password;
-    private String listenedHostIp;
     private Connection conn;
 
     public ServerConfig() {
-    }
-
-    public ServerConfig(boolean isSecondary, int commandPort, int dataPort, int listenedHostPort, int maxFailedHeartbeat, int heartbeatInterval, int heartbeatTimeout, String instance, String database, String user, String password, String listenedHostIp, Connection conn) {
-        this.isSecondary = isSecondary;
-        this.commandPort = commandPort;
-        this.dataPort = dataPort;
-        this.listenedHostPort = listenedHostPort;
-        this.maxFailedHeartbeat = maxFailedHeartbeat;
-        this.heartbeatInterval = heartbeatInterval;
-        this.heartbeatTimeout = heartbeatTimeout;
-        this.instance = instance;
-        this.database = database;
-        this.user = user;
-        this.password = password;
-        this.listenedHostIp = listenedHostIp;
-        this.conn = conn;
     }
 
     public static ServerConfig getFromFile(String path) throws IOException {
@@ -161,5 +149,21 @@ public class ServerConfig {
 
     public void setSecondary(boolean secondary) {
         isSecondary = secondary;
+    }
+
+    public int getSyncedHostPort() {
+        return syncedHostPort;
+    }
+
+    public void setSyncedHostPort(int syncedHostPort) {
+        this.syncedHostPort = syncedHostPort;
+    }
+
+    public String getSyncedHostIp() {
+        return syncedHostIp;
+    }
+
+    public void setSyncedHostIp(String syncedHostIp) {
+        this.syncedHostIp = syncedHostIp;
     }
 }

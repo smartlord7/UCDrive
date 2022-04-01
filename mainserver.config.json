@@ -3,6 +3,8 @@
   "commandPort": 8000,
   "dataPort": 8001,
   "listenedHostPort": 8002,
+  "syncedHostIp": "127.0.0.1",
+  "syncedHostPort": "8005",
   "instance":"SQLEXPRESS02",
   "database":"UCDriveMainServer",
   "user":"ucdriveadmin",

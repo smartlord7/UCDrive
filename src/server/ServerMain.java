@@ -3,9 +3,11 @@ package server;
 import businesslayer.DirectoryPermission.DirectoryPermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
+import protocol.failover.redundancy.FailoverData;
 import server.threads.failover.ServerListened;
 import server.threads.failover.ServerListener;
 import server.struct.ServerConfig;
+import server.threads.failover.ServerSyncer;
 import server.threads.handlers.ServerCommandChannelHandler;
 import server.threads.handlers.ServerDataChannelHandler;
 import server.struct.ServerUserSessions;
@@ -16,6 +18,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ServerMain {
     private final ServerConfig config;
@@ -32,11 +36,15 @@ public class ServerMain {
     }
 
     private void run() throws IOException, InterruptedException {
+        ServerUserSessions sessions = new ServerUserSessions();
+        BlockingQueue<FailoverData> dataToSync = new LinkedBlockingQueue<>();
+
         if (config.isSecondary()) {
             new ServerListener(config.getListenedHostIp(), config.getListenedHostPort(),
                     config.getHeartbeatInterval(), config.getMaxFailedHeartbeat(), config.getHeartbeatTimeout());
         } else {
             new ServerListened(config.getListenedHostPort());
+            new ServerSyncer(config.getSyncedHostIp(), config.getSyncedHostPort(), dataToSync);
         }
 
         try {
@@ -50,10 +58,9 @@ public class ServerMain {
         }
 
         init();
-        ServerUserSessions sessions = new ServerUserSessions();
 
-        new Thread(new ServerCommandChannelHandler(config.getCommandPort(), sessions)).start();
-        new Thread(new ServerDataChannelHandler(config.getDataPort(), sessions)).start();
+        new Thread(new ServerCommandChannelHandler(config.getCommandPort(), sessions, dataToSync)).start();
+        new Thread(new ServerDataChannelHandler(config.getDataPort(), sessions, dataToSync)).start();
 
     }
 

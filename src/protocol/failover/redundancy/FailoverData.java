@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 public class FailoverData implements Serializable {
     private int id;
+    private String name;
     private byte[] checksum;
     private String content;
     private FailoverDataTypeEnum type;
@@ -15,8 +16,9 @@ public class FailoverData implements Serializable {
     public FailoverData() {
     }
 
-    public FailoverData(int id, byte[] checksum, String content, FailoverDataTypeEnum type) {
+    public FailoverData(int id, String name, byte[] checksum, String content, FailoverDataTypeEnum type) {
         this.id = id;
+        this.name = name;
         this.checksum = checksum;
         this.content = content;
         this.type = type;
@@ -52,6 +54,14 @@ public class FailoverData implements Serializable {
 
     public void setType(FailoverDataTypeEnum type) {
         this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public boolean verifyChecksum() throws NoSuchAlgorithmException {

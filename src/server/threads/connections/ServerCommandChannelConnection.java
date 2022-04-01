@@ -3,6 +3,7 @@ package server.threads.connections;
 import protocol.clientserver.Request;
 import protocol.clientserver.RequestMethodEnum;
 import protocol.clientserver.Response;
+import protocol.failover.redundancy.FailoverData;
 import server.ServerController;
 import server.struct.ServerUserSession;
 
@@ -11,17 +12,20 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.concurrent.BlockingQueue;
 
 public class ServerCommandChannelConnection extends Thread {
+    private final int connectionId;
+    private final ServerUserSession session;
     private ObjectInputStream in;
     private ObjectOutputStream out;
+    private final BlockingQueue<FailoverData> dataToSync;
     private Socket clientSocket;
-    private final ServerUserSession session;
-    private final int connectionId;
 
-    public ServerCommandChannelConnection(Socket socket, int id, ServerUserSession session) {
+    public ServerCommandChannelConnection(Socket socket, int id, ServerUserSession session, BlockingQueue<FailoverData> dataToSync) {
         this.connectionId = id;
         this.session = session;
+        this.dataToSync = dataToSync;
         try {
             clientSocket = socket;
             in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
