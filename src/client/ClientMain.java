@@ -25,7 +25,6 @@ import util.StringUtil;
 import static sun.nio.ch.IOStatus.EOF;
 
 public class ClientMain {
-    private boolean serverConnected = false;
     private String currLocalDir = System.getProperty("user.dir");
     private ObjectOutputStream outCmd;
     private ObjectInputStream inCmd;
@@ -38,7 +37,7 @@ public class ClientMain {
     private StringTokenizer st;
     private ClientUserSession session = null;
     private Response resp = new Response();
-    private final ClientConfig config = new ClientConfig();
+    private final ClientStateConfig config = new ClientStateConfig();
     private final User user = new User();
     private final SessionLog sessionLog = new SessionLog();
     private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -70,6 +69,7 @@ public class ClientMain {
     private boolean hasAuth() {
         if (!user.isAuth()) {
             System.out.println("Error: user not logged in.");
+
             return false;
         }
 
@@ -77,8 +77,9 @@ public class ClientMain {
     }
 
     private boolean hasConnection() {
-        if (!serverConnected) {
+        if (!config.isServerConnected()) {
             System.out.println("Error: server not connected.");
+
             return false;
         }
 
@@ -86,11 +87,11 @@ public class ClientMain {
     }
 
     private boolean hasSession() {
-        return hasConnection() && hasAuth();
+        return hasConnection() && hasAuth() && session != null;
     }
 
     private void switchToSecondaryServer() throws IOException {
-        serverConnected = false;
+        config.setServerConnected(false);
         user.setAuth(false);
 
         if (config.isMainServerDown()) {
@@ -112,10 +113,10 @@ public class ClientMain {
         resp.setValid(false);
         sendRequest();
 
-        if (serverConnected) {
+        if (config.isServerConnected()) {
             receiveResponse();
 
-            if (serverConnected) {
+            if (config.isServerConnected()) {
                 resp.setValid(true);
             }
         }
@@ -125,11 +126,17 @@ public class ClientMain {
         try {
             outCmd.writeObject(req);
         } catch (SocketException e) {
-            config.setMainServerDown(true);
-            switchToSecondaryServer();
+            if (!config.isMainServerDown()) {
+                config.setMainServerDown(true);
+                switchToSecondaryServer();
 
-            if (serverConnected) {
-                outCmd.writeObject(req);
+                if (config.isServerConnected()) {
+                    outCmd.writeObject(req);
+                }
+            } else {
+                System.out.println("Error: secondary server down. Nothing more you can do.");
+                config.setServerConnected(false);
+                user.setAuth(false);
             }
         } catch (IOException e) {
             System.out.println("Error: could not send request.");
@@ -140,8 +147,14 @@ public class ClientMain {
         try {
             outData.write(data);
         } catch (SocketException e) {
-            config.setMainServerDown(true);
-            switchToSecondaryServer();
+            if (!config.isMainServerDown()) {
+                config.setMainServerDown(true);
+                switchToSecondaryServer();
+            } else {
+                System.out.println("Error: secondary server down. Nothing more you can do.");
+                config.setServerConnected(false);
+                user.setAuth(false);
+            }
         } catch (IOException e) {
             System.out.println("Error: could not send data.");
         }
@@ -151,8 +164,14 @@ public class ClientMain {
         try {
            resp = (Response) inCmd.readObject();
         } catch (SocketException e) {
-            config.setMainServerDown(true);
-            switchToSecondaryServer();
+            if (!config.isMainServerDown()) {
+                config.setMainServerDown(true);
+                switchToSecondaryServer();
+            } else {
+                System.out.println("Error: secondary server down. Nothing more you can do.");
+                config.setServerConnected(false);
+                user.setAuth(false);
+            }
         } catch (IOException e) {
             System.out.println("Error: could not receive response.");
         }
@@ -162,8 +181,14 @@ public class ClientMain {
         try {
             return inData.read(buffer, 0, readSize);
         } catch (SocketException e) {
-            config.setMainServerDown(true);
-            switchToSecondaryServer();
+            if (!config.isMainServerDown()) {
+                config.setMainServerDown(true);
+                switchToSecondaryServer();
+            } else {
+                System.out.println("Error: secondary server down. Nothing more you can do.");
+                config.setServerConnected(false);
+                user.setAuth(false);
+            }
         } catch (IOException e) {
             System.out.println("Error: could not receive response.");
         }
@@ -173,7 +198,6 @@ public class ClientMain {
 
     private void connectServer_(String ip, int cmdPort, int dataPort) throws IOException {
         try {
-
             cmdSocket = new Socket(ip, cmdPort);
         } catch (SocketException | UnknownHostException e) {
             System.out.println("Error: cmd host " + ip + ":" + cmdPort + " unreachable.");
@@ -196,7 +220,7 @@ public class ClientMain {
         outData = new DataOutputStream(dataSocket.getOutputStream());
         inData = new DataInputStream(dataSocket.getInputStream());
 
-        serverConnected = true;
+        config.setServerConnected(true);
     }
 
     private void connectServer() throws IOException {
@@ -207,6 +231,7 @@ public class ClientMain {
             }
 
             connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerDataPort());
+
         } else {
             if (!config.isMainServerConfigured()) {
                 System.out.println("Error: main server not configured.");
@@ -214,6 +239,16 @@ public class ClientMain {
             }
 
             connectServer_(config.getMainServerIp(), config.getMainServerCmdPort(), config.getMainServerDataPort());
+
+            if (!config.isServerConnected()) {
+                System.out.println("Error: main server is down.");
+                System.out.println("Switching to secondary server...");
+                connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerCmdPort());
+
+                if (!config.isServerConnected()) {
+                    System.out.println("Error: secondary server down. Nothing more you can do.");
+                }
+            }
         }
     }
 
@@ -229,7 +264,7 @@ public class ClientMain {
 
         if (answer.equalsIgnoreCase("y")) {
             user.setAuth(false);
-            serverConnected = false;
+            config.setServerConnected(false);
             clean();
         }
     }
@@ -259,7 +294,7 @@ public class ClientMain {
             config.setSecondaryServerIp(in.readLine());
             System.out.print("Command channel port: ");
             config.setSecondaryServerCmdPort(Integer.parseInt(in.readLine()));
-            System.out.println("Data channel: ");
+            System.out.print("Data channel: ");
             config.setSecondaryServerDataPort(Integer.parseInt(in.readLine()));
             config.setSecondaryServerConfigured(true);
         }
@@ -608,7 +643,7 @@ public class ClientMain {
     }
 
     private void clearChannels() throws IOException {
-        if (serverConnected) {
+        if (config.isServerConnected()) {
             outCmd.flush();
             try {
                 outCmd.reset();

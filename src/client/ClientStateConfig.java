@@ -2,7 +2,7 @@ package client;
 
 import java.util.StringJoiner;
 
-public class ClientConfig {
+public class ClientStateConfig {
     private int mainServerCmdPort;
     private int mainServerDataPort;
     private int secondaryServerCmdPort;
@@ -12,12 +12,13 @@ public class ClientConfig {
     private boolean isMainServerDown;
     private boolean isMainServerConfigured;
     private boolean isSecondaryServerConfigured;
-    private boolean isValidResponse;
+    private boolean isSecondaryServerDown;
+    private boolean isServerConnected;
 
-    public ClientConfig() {
+    public ClientStateConfig() {
     }
 
-    public ClientConfig(int mainServerCmdPort, int mainServerDataPort, int secondaryServerCmdPort, int secondaryServerDataPort, String mainServerIp, String secondaryServerIp) {
+    public ClientStateConfig(int mainServerCmdPort, int mainServerDataPort, int secondaryServerCmdPort, int secondaryServerDataPort, String mainServerIp, String secondaryServerIp) {
         this.mainServerCmdPort = mainServerCmdPort;
         this.mainServerDataPort = mainServerDataPort;
         this.secondaryServerCmdPort = secondaryServerCmdPort;
@@ -98,17 +99,25 @@ public class ClientConfig {
         isSecondaryServerConfigured = secondaryServerConfigured;
     }
 
-    public boolean isValidResponse() {
-        return isValidResponse;
+    public boolean isSecondaryServerDown() {
+        return isSecondaryServerDown;
     }
 
-    public void setValidResponse(boolean validResponse) {
-        isValidResponse = validResponse;
+    public void setSecondaryServerDown(boolean secondaryServerDown) {
+        isSecondaryServerDown = secondaryServerDown;
+    }
+
+    public boolean isServerConnected() {
+        return isServerConnected;
+    }
+
+    public void setServerConnected(boolean serverConnected) {
+        isServerConnected = serverConnected;
     }
 
     @Override
     public String toString() {
-        return new StringJoiner("| ", ClientConfig.class.getSimpleName() + "[\n", "]")
+        return new StringJoiner("| ", ClientStateConfig.class.getSimpleName() + "[\n", "]")
                 .add("mainServerCmdPort=" + mainServerCmdPort + "\n")
                 .add("mainServerDataPort=" + mainServerDataPort + "\n")
                 .add("secondaryServerCmdPort=" + secondaryServerCmdPort + "\n")
@@ -118,6 +127,8 @@ public class ClientConfig {
                 .add("isMainServerDown=" + isMainServerDown + "\n")
                 .add("isMainServerConfigured=" + isMainServerConfigured + "\n")
                 .add("isSecondaryServerConfigured=" + isSecondaryServerConfigured + "\n")
+                .add("isSecondaryServerDown=" + isSecondaryServerDown + "\n")
+                .add("isServerConnected=" + isServerConnected() + "\n")
                 .toString();
     }
 }
