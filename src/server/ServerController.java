@@ -127,10 +127,11 @@ public class ServerController {
      * @throws SQLException - whenever a database related error occurs.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      */
-    public static Response authUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException {
+    public static Response authUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException, IOException {
         int loginResult;
         int userId;
-        String lastSessionDir;
+        String currentDir;
+        Path p;
         User user;
         Response resp;
 
@@ -145,9 +146,14 @@ public class ServerController {
         }
 
         userId = user.getUserId();
-        lastSessionDir = Const.USERS_FOLDER_NAME + "\\" + user.getUserName();
+        currentDir = Const.USERS_FOLDER_NAME + "\\" + user.getUserName();
+        p = Paths.get(currentDir);
 
-        return initSession(session, userId, lastSessionDir, user, resp);
+        if (!Files.exists(Paths.get(currentDir))) {
+            Files.createDirectory(p);
+        }
+
+        return initSession(session, userId, currentDir, user, resp);
     }
 
     /**

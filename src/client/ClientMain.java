@@ -225,30 +225,20 @@ public class ClientMain {
     }
 
     private void connectServer() throws IOException {
-        if (config.isMainServerDown()) {
-            if (!config.isSecondaryServerConfigured()) {
-                System.out.println("Error: secondary server not configured.");
-                return;
-            }
+        if (!config.isMainServerConfigured()) {
+            System.out.println("Error: main server not configured.");
+            return;
+        }
 
-            connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerDataPort());
+        connectServer_(config.getMainServerIp(), config.getMainServerCmdPort(), config.getMainServerDataPort());
 
-        } else {
-            if (!config.isMainServerConfigured()) {
-                System.out.println("Error: main server not configured.");
-                return;
-            }
-
-            connectServer_(config.getMainServerIp(), config.getMainServerCmdPort(), config.getMainServerDataPort());
+        if (!config.isServerConnected()) {
+            System.out.println("Error: main server is down.");
+            System.out.println("Switching to secondary server...");
+            connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerCmdPort());
 
             if (!config.isServerConnected()) {
-                System.out.println("Error: main server is down.");
-                System.out.println("Switching to secondary server...");
-                connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerCmdPort());
-
-                if (!config.isServerConnected()) {
-                    System.out.println("Error: secondary server down. Nothing more you can do.");
-                }
+                System.out.println("Error: secondary server down. Nothing more you can do.");
             }
         }
     }

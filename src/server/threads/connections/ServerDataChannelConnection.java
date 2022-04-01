@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
 import static sun.nio.ch.IOStatus.EOF;
@@ -88,7 +87,9 @@ public class ServerDataChannelConnection extends Thread {
         int counter;
         byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
         String bufferStr;
+        String filePath;
         FileMetadata fileMeta = null;
+        File file;
         FileOutputStream fileWriter = null;
 
         bytesRead = 0;
@@ -105,7 +106,8 @@ public class ServerDataChannelConnection extends Thread {
                 }
 
                 fileSize = fileMeta.getFileSize();
-                fileWriter = new FileOutputStream(session.getCurrentDir() + "\\" + fileMeta.getFileName());
+                filePath = session.getCurrentDir() + "\\" + fileMeta.getFileName();
+                fileWriter = new FileOutputStream(filePath);
             }
 
             byte[] finalBuffer = buffer;
