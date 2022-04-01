@@ -42,8 +42,8 @@ public class ServerSyncer implements Runnable {
                     objWriter.flush();
                     buf = byteWriter.toByteArray();
 
-                    //packetRequest = new DatagramPacket(buf, buf.length, syncedHost.getAddress(), syncedHost.getPort());
-                    //socket.send(packetRequest);
+                    packetRequest = new DatagramPacket(buf, buf.length, syncedHost.getAddress(), syncedHost.getPort());
+                    socket.send(packetRequest);
                 }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

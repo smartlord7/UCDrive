@@ -5,6 +5,7 @@ import util.Hasher;
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 public class FailoverData implements Serializable {
     private int id;
@@ -66,5 +67,16 @@ public class FailoverData implements Serializable {
 
     public boolean verifyChecksum() throws NoSuchAlgorithmException {
         return Arrays.equals(this.checksum, Hasher.hashBytes(this.content, Const.CONTENT_CHECKSUM_ALGORITHM));
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", FailoverData.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("name='" + name + "'")
+                .add("checksum=" + Arrays.toString(checksum))
+                .add("content='" + content + "'")
+                .add("type=" + type)
+                .toString();
     }
 }

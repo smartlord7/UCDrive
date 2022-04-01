@@ -7,6 +7,7 @@ import protocol.failover.redundancy.FailoverData;
 import server.threads.failover.ServerListened;
 import server.threads.failover.ServerListener;
 import server.struct.ServerConfig;
+import server.threads.failover.ServerSynced;
 import server.threads.failover.ServerSyncer;
 import server.threads.handlers.ServerCommandChannelHandler;
 import server.threads.handlers.ServerDataChannelHandler;
@@ -42,6 +43,7 @@ public class ServerMain {
         if (config.isSecondary()) {
             new ServerListener(config.getListenedHostIp(), config.getListenedHostPort(),
                     config.getHeartbeatInterval(), config.getMaxFailedHeartbeat(), config.getHeartbeatTimeout());
+            new ServerSynced(config.getSyncedHostPort());
         } else {
             new ServerListened(config.getListenedHostPort());
             new ServerSyncer(config.getSyncedHostIp(), config.getSyncedHostPort(), dataToSync);

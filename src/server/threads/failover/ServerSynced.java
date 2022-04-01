@@ -1,9 +1,49 @@
 package server.threads.failover;
 
-public class ServerSynced implements Runnable{
+import protocol.failover.redundancy.FailoverData;
 
+import java.io.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
+public class ServerSynced implements Runnable{
+    private final int port;
+    private final int BUF_SIZE = 4096;
+
+    public ServerSynced(int port) {
+        this.port = port;
+        new Thread(this).start();
+    }
+
+
+    //TODO: Multiple instances of this thread
+    // could be called with the use of a BlockingQueue in order to enhance the redundancy process efficiency
     @Override
     public void run() {
+        byte[] buf;
+        byte[] resp;
+        FailoverData data;
+        DatagramSocket socket;
+        DatagramPacket packetRequest;
+        DatagramPacket packetResponse;
+        ByteArrayOutputStream byteWriter;
+        ByteArrayInputStream byteReader;
+        ObjectInputStream objectReader;
 
+        try {
+            System.out.println("[SYNCED] Started at port: " + port);
+            socket = new DatagramSocket(port);
+            while (true) {
+                buf = new byte[BUF_SIZE];
+                packetRequest = new DatagramPacket(buf, buf.length);
+                socket.receive(packetRequest);
+                byteReader = new ByteArrayInputStream(buf);
+                objectReader = new ObjectInputStream(byteReader);
+                data = (FailoverData) objectReader.readObject();
+                System.out.println("[SYNCED] Received: " + port);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
