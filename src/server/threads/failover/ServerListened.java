@@ -7,11 +7,18 @@ public class ServerListened implements Runnable {
     private final int port;
     private final int BUF_SIZE = 4096;
 
+    /**
+     * Constructor method.
+     * @param port is the server port.
+     */
     public ServerListened(int port) {
         this.port = port;
         new Thread(this).start();
     }
 
+    /**
+     * Method associated to the thread that sends the heartbeats relative to the main server.
+     */
     @Override
     public void run() {
         byte[] buf;

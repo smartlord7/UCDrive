@@ -10,12 +10,18 @@ public class ServerSynced implements Runnable{
     private final int port;
     private final int BUF_SIZE = 4096;
 
+    /**
+     * Constructor method.
+     * @param port is the server port.
+     */
     public ServerSynced(int port) {
         this.port = port;
         new Thread(this).start();
     }
 
-
+    /**
+     * Method used to await new data from the main server to sync locally.
+     */
     //TODO: Multiple instances of this thread
     // could be called with the use of a BlockingQueue in order to enhance the redundancy process efficiency
     @Override

@@ -10,6 +10,15 @@ public class ServerListener implements Runnable {
     private final int timeout;
     private final int BUF_SIZE = 4096;
 
+    /**
+     * Constructor method.
+     * @param listenedHostIp is the listened host ip
+     * @param listenedHostPort is the listened host port
+     * @param heartbeatInterval is the heartbeat interval.
+     * @param maxFailedHeartbeats is number of heartbeats before total failure.
+     * @param timeout is the timeout used to verify if a heartbeat has failed.
+     * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
+     */
     public ServerListener(String listenedHostIp, int listenedHostPort, int heartbeatInterval, int maxFailedHeartbeats, int timeout) throws InterruptedException {
         listenedHost = new InetSocketAddress(listenedHostIp, listenedHostPort);
         this.heartbeatInterval = heartbeatInterval;
@@ -21,6 +30,9 @@ public class ServerListener implements Runnable {
         thisThread.join();
     }
 
+    /**
+     * Method used to listen to the main server heartbeats.
+     */
     @Override
     public void run() {
         int failedHeartBeats;

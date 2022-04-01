@@ -15,6 +15,12 @@ public class ServerSyncer implements Runnable {
     private final InetSocketAddress syncedHost;
     private final BlockingQueue<FailoverData> dataToSync;
 
+    /**
+     * Constructor method.
+     * @param syncedHostIp is the host ip.
+     * @param syncedHostPort is the host port.
+     * @param dataToSync is the data to sync.
+     */
     public ServerSyncer(String syncedHostIp, int syncedHostPort, BlockingQueue<FailoverData> dataToSync) {
         this.syncedHost = new InetSocketAddress(syncedHostIp, syncedHostPort);
         this.dataToSync = dataToSync;
@@ -22,6 +28,9 @@ public class ServerSyncer implements Runnable {
         new Thread(this).start();
     }
 
+    /**
+     * Method used to await new data from threads to sync with the secondary server.
+     */
     @Override
     public void run() {
         byte[] buf;
