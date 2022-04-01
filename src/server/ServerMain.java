@@ -25,6 +25,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class ServerMain {
     private final ServerConfig config;
 
+    /**
+     * Method used to establish the Database connection.
+     */
     private void setDBConnection() {
         try {
             Connection conn = ConnectionFactory.getConnection(config.getInstance(),
@@ -38,17 +41,29 @@ public class ServerMain {
         }
     }
 
-    private void init() throws IOException {
-        UserDAO.connection = config.getConn();
-        SessionLogDAO.connection = config.getConn();
-        DirectoryPermissionDAO.connection = config.getConn();
+    /**
+     *  Method that initializes the directory.
+     */
+    private void init() {
+        try {
 
-        Path p = Paths.get(Const.USERS_FOLDER_NAME);
-        if (!Files.exists(p)) {
-            Files.createDirectory(p);
+            UserDAO.connection = config.getConn();
+            SessionLogDAO.connection = config.getConn();
+            DirectoryPermissionDAO.connection = config.getConn();
+
+            Path p = Paths.get(Const.USERS_FOLDER_NAME);
+            if (!Files.exists(p)) {
+                Files.createDirectory(p);
+            }
+        } catch (IOException i) {
+            System.out.println("Error: the input/output operation has failed.");
         }
     }
 
+    /**
+     * Method used to start the synced threads.
+     * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
+     */
     private void startThreads() throws InterruptedException {
         ServerUserSessions sessions = new ServerUserSessions();
         BlockingQueue<FailoverData> dataToSync = new LinkedBlockingQueue<>();
@@ -67,17 +82,34 @@ public class ServerMain {
 
     }
 
+    /**
+     * Method that runs all the methods needed for the program startup.
+     * @throws IOException - whenever an input or output operation is failed or interpreted
+     * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
+     */
     private void run() throws IOException, InterruptedException {
         setDBConnection();
         init();
         startThreads();
     }
 
+    /**
+     *  Server Main method.
+     * @param args main arguments.
+     * @throws IOException - whenever an input or output operation is failed or interpreted
+     * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
+     */
     public ServerMain(String[] args) throws IOException, InterruptedException {
         config = ServerConfig.getFromFile(args[0]);
         run();
     }
 
+    /**
+     * Main method.
+     * @param args main arguments
+     * @throws IOException - whenever an input or output operation is failed or interpreted
+     * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
+     */
     public static void main(String[] args) throws IOException, InterruptedException {
         new ServerMain(args);
     }

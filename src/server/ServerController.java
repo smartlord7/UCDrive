@@ -28,6 +28,12 @@ import java.util.HashMap;
 public class ServerController {
     private static final Gson gson = new Gson();
 
+    /**
+     * Method that verifies the user login credentials.
+     * @param resp is the response status.
+     * @param user user login name.
+     * @param result is the checking result.
+     */
     private static void checkUserCredentials(Response resp, User user, int result) {
         if (result == 0) {
             resp.setStatus(ResponseStatusEnum.SUCCESS);
@@ -43,6 +49,13 @@ public class ServerController {
         }
     }
 
+    /**
+     * Method that checks if a directory exists or not.
+     * @param resp is the response status.
+     * @param dir the chosen directory to be verified.
+     * @param f is the file name.
+     * @return true if everything executed sucefully and false if there was an error.
+     */
     private static boolean directoryExists(Response resp, String dir, File f) {
         if (!f.exists() || !f.isDirectory()) {
             resp.setStatus(ResponseStatusEnum.ERROR);
@@ -56,6 +69,15 @@ public class ServerController {
         return true;
     }
 
+    /**
+     * Method used to set up the Server-client session.
+     * @param session is the current user connected session.
+     * @param userId is the user id.
+     * @param initialDir is the initial user dir.
+     * @param user is the user login name.
+     * @param resp is the response status
+     * @return the final response status.
+     */
     private static Response initSession(ServerUserSession session, int userId, String initialDir, User user, Response resp) {
         ClientUserSession userSession;
         userSession = new ClientUserSession(userId, initialDir);
@@ -69,6 +91,15 @@ public class ServerController {
         return resp;
     }
 
+    /**
+     * Method used to register a user.
+     * @param req is the request sent to the server.
+     * @param session is the current server session.
+     * @return the logged in now registered user.
+     * @throws SQLException - whenever a database related error occurs.
+     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     public static Response createUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException, IOException {
         int userId;
         String initialDir;
@@ -88,6 +119,14 @@ public class ServerController {
         return initSession(session, userId, initialDir, user, resp);
     }
 
+    /**
+     * Method used to authenticate the user.
+     * @param req is the request sent to the server.
+     * @param session is the current server session.
+     * @return the now authenticated user.
+     * @throws SQLException - whenever a database related error occurs.
+     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
+     */
     public static Response authUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException {
         int loginResult;
         int userId;
@@ -111,6 +150,13 @@ public class ServerController {
         return initSession(session, userId, lastSessionDir, user, resp);
     }
 
+    /**
+     * Method used to logout the user.
+     * @param req is the server request.
+     * @param session is the current server session.
+     * @return the response status.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     public static Response logoutUser(Request req, ServerUserSession session) throws SQLException {
         Response resp;
         SessionLog sessionLog;
@@ -128,6 +174,12 @@ public class ServerController {
         return resp;
     }
 
+    /**
+     * Method used to change the user password.
+     * @param req is the server request.
+     * @return the response status.
+     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
+     */
     public static Response changeUserPassword(Request req) throws NoSuchAlgorithmException {
         Response resp = new Response();
         User user = gson.fromJson(req.getContent(), User.class);
@@ -138,6 +190,13 @@ public class ServerController {
         return resp;
     }
 
+    /**
+     * Method used to list the directory files.
+     * @param req is the server request.
+     * @param session is the current server session.
+     * @return the response status.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     public static Response listDirFiles(Request req, ServerUserSession session) throws SQLException {
         boolean validDir = true;
         DirectoryPermissionEnum perm;
@@ -178,6 +237,14 @@ public class ServerController {
         return resp;
     }
 
+    /**
+     * Method used to change the working directory.
+     * @param req is the server request.
+     * @param session is the server current session.
+     * @return the response status.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     public static Response changeWorkingDir(Request req, ServerUserSession session) throws IOException, SQLException {
         boolean validDir;
         String targetDir;
@@ -225,6 +292,13 @@ public class ServerController {
         return resp;
     }
 
+    /**
+     * Method used to upload files.
+     * @param req is the server request.
+     * @param session is the server session.
+     * @return the response status.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     public static Response uploadFiles(Request req, ServerUserSession session) throws SQLException {
         int userId;
         String dir;
