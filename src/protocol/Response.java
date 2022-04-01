@@ -7,6 +7,7 @@ public class Response implements Serializable {
     private ResponseStatusEnum status;
     private HashMap<String, String> errors;
     private String data;
+    private boolean isValid;
 
     public Response() {
     }
@@ -39,5 +40,13 @@ public class Response implements Serializable {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public void setValid(boolean valid) {
+        isValid = valid;
     }
 }

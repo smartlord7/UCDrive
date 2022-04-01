@@ -22,6 +22,8 @@ import java.util.*;
 import util.Const;
 import util.StringUtil;
 
+import static sun.nio.ch.IOStatus.EOF;
+
 public class ClientMain {
     private boolean serverConnected = false;
     private String currLocalDir = System.getProperty("user.dir");
@@ -29,13 +31,13 @@ public class ClientMain {
     private ObjectInputStream inCmd;
     private DataOutputStream outData;
     private DataInputStream inData;
-    private Response resp;
-    private ClientUserSession session = null;
     private Socket cmdSocket;
     private Socket dataSocket;
     private HashMap<String, String> errors;
     private String line;
     private StringTokenizer st;
+    private ClientUserSession session = null;
+    private Response resp = new Response();
     private final ClientConfig config = new ClientConfig();
     private final User user = new User();
     private final SessionLog sessionLog = new SessionLog();
@@ -67,7 +69,7 @@ public class ClientMain {
 
     private boolean hasAuth() {
         if (!user.isAuth()) {
-            System.out.println("Error: user not logged in!");
+            System.out.println("Error: user not logged in.");
             return false;
         }
 
@@ -76,7 +78,7 @@ public class ClientMain {
 
     private boolean hasConnection() {
         if (!serverConnected) {
-            System.out.println("Error: server not connected!");
+            System.out.println("Error: server not connected.");
             return false;
         }
 
@@ -87,25 +89,104 @@ public class ClientMain {
         return hasConnection() && hasAuth();
     }
 
+    private void switchToSecondaryServer() throws IOException {
+        serverConnected = false;
+        user.setAuth(false);
+
+        if (config.isMainServerDown()) {
+            System.out.println("Error: main server is down.");
+
+            if (config.isSecondaryServerConfigured()) {
+                System.out.println("Switching to secondary server...");
+                connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerDataPort());
+            } else {
+                System.out.println("Error: can't switch to secondary server since it is not configured. After configuring it, you have to connect manually to it.");
+            }
+
+        } else {
+            System.out.println("Error: secondary server down. Nothing more you can do.");
+        }
+    }
+    
+    private void exchangeReqResp() throws IOException, ClassNotFoundException {
+        resp.setValid(false);
+        sendRequest();
+
+        if (serverConnected) {
+            receiveResponse();
+
+            if (serverConnected) {
+                resp.setValid(true);
+            }
+        }
+    }
+    
+    private void sendRequest() throws IOException {
+        try {
+            outCmd.writeObject(req);
+        } catch (SocketException e) {
+            config.setMainServerDown(true);
+            switchToSecondaryServer();
+
+            if (serverConnected) {
+                outCmd.writeObject(req);
+            }
+        } catch (IOException e) {
+            System.out.println("Error: could not send request.");
+        }
+    }
+
+    private void sendData(byte[] data) throws IOException {
+        try {
+            outData.write(data);
+        } catch (SocketException e) {
+            config.setMainServerDown(true);
+            switchToSecondaryServer();
+        } catch (IOException e) {
+            System.out.println("Error: could not send data.");
+        }
+    }
+
+    private void receiveResponse() throws IOException, ClassNotFoundException {
+        try {
+           resp = (Response) inCmd.readObject();
+        } catch (SocketException e) {
+            config.setMainServerDown(true);
+            switchToSecondaryServer();
+        } catch (IOException e) {
+            System.out.println("Error: could not receive response.");
+        }
+    }
+
+    private int receiveData(byte[] buffer, int readSize) throws IOException {
+        try {
+            return inData.read(buffer, 0, readSize);
+        } catch (SocketException e) {
+            config.setMainServerDown(true);
+            switchToSecondaryServer();
+        } catch (IOException e) {
+            System.out.println("Error: could not receive response.");
+        }
+
+        return EOF;
+    }
+
     private void connectServer_(String ip, int cmdPort, int dataPort) throws IOException {
         try {
 
             cmdSocket = new Socket(ip, cmdPort);
         } catch (SocketException | UnknownHostException e) {
-            e.printStackTrace();
-            System.out.println("Error: cmd host " + ip + ":" + cmdPort + " unreachable");
-            System.exit(-1);
+            System.out.println("Error: cmd host " + ip + ":" + cmdPort + " unreachable.");
+            return;
         }
 
         System.out.println("Command channel connected to " + ip + ":" + cmdPort);
 
-
         try {
             dataSocket = new Socket(ip, dataPort);
         } catch (SocketException | UnknownHostException e) {
-            e.printStackTrace();
-            System.out.println("Error: data host " + ip + ":" + dataPort + " unreachable");
-            System.exit(-1);
+            System.out.println("Error: data host " + ip + ":" + dataPort + " unreachable.");
+            return;
         }
 
         System.out.println("Data channel connected to " + ip + ":" + dataPort);
@@ -121,14 +202,14 @@ public class ClientMain {
     private void connectServer() throws IOException {
         if (config.isMainServerDown()) {
             if (!config.isSecondaryServerConfigured()) {
-                System.out.println("Error: secondary server not configured");
+                System.out.println("Error: secondary server not configured.");
                 return;
             }
 
             connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerDataPort());
         } else {
             if (!config.isMainServerConfigured()) {
-                System.out.println("Error: main server not configured");
+                System.out.println("Error: main server not configured.");
                 return;
             }
 
@@ -143,10 +224,11 @@ public class ClientMain {
 
         String answer;
 
-        System.out.println("Are you sure you want to disconnect? (Y/N)");
+        System.out.println("Are you sure you want to disconnect? (Y/N).");
         answer = in.readLine();
 
         if (answer.equalsIgnoreCase("y")) {
+            user.setAuth(false);
             serverConnected = false;
             clean();
         }
@@ -158,24 +240,24 @@ public class ClientMain {
         try {
             selectedServer = st.nextToken();
         } catch (NoSuchElementException e) {
-            System.out.println("Error: malformed command");
+            System.out.println("Error: malformed command.");
             return;
         }
 
         if (selectedServer.equalsIgnoreCase("m")) {
             System.out.println("------Main server------");
-            System.out.println("IP: ");
+            System.out.print("IP: ");
             config.setMainServerIp(in.readLine());
-            System.out.println("Command channel port: ");
+            System.out.print("Command channel port: ");
             config.setMainServerCmdPort(Integer.parseInt(in.readLine()));
-            System.out.println("Data channel: ");
+            System.out.print("Data channel: ");
             config.setMainServerDataPort(Integer.parseInt(in.readLine()));
             config.setMainServerConfigured(true);
         } else {
             System.out.println("------Secondary server------");
-            System.out.println("IP: ");
+            System.out.print("IP: ");
             config.setSecondaryServerIp(in.readLine());
-            System.out.println("Command channel port: ");
+            System.out.print("Command channel port: ");
             config.setSecondaryServerCmdPort(Integer.parseInt(in.readLine()));
             System.out.println("Data channel: ");
             config.setSecondaryServerDataPort(Integer.parseInt(in.readLine()));
@@ -185,7 +267,7 @@ public class ClientMain {
 
     private void authUser() throws IOException, ClassNotFoundException {
         if (user.isAuth()) {
-            System.out.println("Error: user already logged in!");
+            System.out.println("Error: user already logged in.");
             return;
         }
 
@@ -193,25 +275,26 @@ public class ClientMain {
             return;
         }
 
-        System.out.println("Username: ");
+        System.out.print("Username: ");
         user.setUserName(in.readLine());
-        System.out.println("Password: ");
+        System.out.print("Password: ");
         user.setPassword(in.readLine());
 
         req.setMethod(RequestMethodEnum.USER_AUTHENTICATION);
         req.setData(gson.toJson(user));
-        outCmd.writeObject(req);
 
-        resp = (Response) inCmd.readObject();
+        exchangeReqResp();
 
-        if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-            System.out.println("User '" + user.getUserName() + "' authenticated successfully!");
-            session = gson.fromJson(resp.getData(), ClientUserSession.class);
-            user.setAuth(true);
-            sessionLog.setStartDate(new Timestamp(System.currentTimeMillis()));
-        } else {
-            errors = resp.getErrors();
-            showErrors(errors);
+        if (resp.isValid()) {
+            if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                System.out.println("User '" + user.getUserName() + "' authenticated successfully.");
+                session = gson.fromJson(resp.getData(), ClientUserSession.class);
+                user.setAuth(true);
+                sessionLog.setStartDate(new Timestamp(System.currentTimeMillis()));
+            } else {
+                errors = resp.getErrors();
+                showErrors(errors);
+            }
         }
     }
 
@@ -232,15 +315,16 @@ public class ClientMain {
         req.setMethod(RequestMethodEnum.USER_LOGOUT);
         sessionLog.setEndDate(new Timestamp(System.currentTimeMillis()));
         req.setData(gson.toJson(session));
-        outCmd.writeObject(req);
 
-        resp = (Response) inCmd.readObject();
+        exchangeReqResp();
 
-        if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-            System.out.println("User logged out.");
-            user.setAuth(false);
-        } else {
-            showErrors(resp.getErrors());
+        if (resp.isValid()) {
+            if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                System.out.println("User logged out.");
+                user.setAuth(false);
+            } else {
+                showErrors(resp.getErrors());
+            }
         }
     }
 
@@ -249,24 +333,25 @@ public class ClientMain {
             return;
         }
 
-        System.out.println("Username: ");
+        System.out.print("Username: ");
         user.setUserName(in.readLine());
-        System.out.println("Password: ");
+        System.out.print("Password: ");
         user.setPassword(in.readLine());
 
         req.setMethod(RequestMethodEnum.USER_CREATE);
         req.setData(gson.toJson(user));
-        outCmd.writeObject(req);
 
-        resp = (Response) inCmd.readObject();
+        exchangeReqResp();
 
-        if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-            System.out.println("User '" + user.getUserName() + "' created successfully!");
-            session = gson.fromJson(resp.getData(), ClientUserSession.class);
-            user.setAuth(true);
-        } else {
-            errors = resp.getErrors();
-            showErrors(errors);
+        if (resp.isValid()) {
+            if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                System.out.println("User '" + user.getUserName() + "' created successfully!");
+                session = gson.fromJson(resp.getData(), ClientUserSession.class);
+                user.setAuth(true);
+            } else {
+                errors = resp.getErrors();
+                showErrors(errors);
+            }
         }
     }
 
@@ -274,22 +359,23 @@ public class ClientMain {
         if (!hasSession()) {
             return;
         }
-        System.out.println("Old password: ");
+        System.out.print("Old password: ");
         user.setPassword(in.readLine());
-        System.out.println("New password: ");
+        System.out.print("New password: ");
         user.setNewPassword(in.readLine());
 
         req.setMethod(RequestMethodEnum.USER_CHANGE_PASSWORD);
         req.setData(gson.toJson(user));
-        outCmd.writeObject(req);
 
-        resp = (Response) inCmd.readObject();
+        exchangeReqResp();
 
-        if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-            System.out.println("Password changed successfully!");
-        } else {
-            errors = resp.getErrors();
-            showErrors(errors);
+        if (resp.isValid()) {
+            if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                System.out.println("Password changed successfully!");
+            } else {
+                errors = resp.getErrors();
+                showErrors(errors);
+            }
         }
     }
 
@@ -308,7 +394,7 @@ public class ClientMain {
         File file = new File(dir);
 
         if (!file.isDirectory() || !file.exists()) {
-            System.out.println("Error: no directory '" + dir + "' found!");
+            System.out.println("Error: no directory '" + dir + "' found.");
         } else {
             System.out.println(FileUtil.listDirFiles(file));
         }
@@ -330,15 +416,16 @@ public class ClientMain {
 
         req.setMethod(RequestMethodEnum.USER_LIST_SERVER_FILES);
         req.setData(dir);
-        outCmd.writeObject(req);
 
-        resp = (Response) inCmd.readObject();
+        exchangeReqResp();
 
-        if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-            System.out.println(resp.getData());
-        } else {
-            errors = resp.getErrors();
-            showErrors(errors);
+        if (resp.isValid()) {
+            if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                System.out.println(resp.getData());
+            } else {
+                errors = resp.getErrors();
+                showErrors(errors);
+            }
         }
     }
 
@@ -348,13 +435,14 @@ public class ClientMain {
         try {
             dir = st.nextToken();
         } catch (NoSuchElementException e) {
-            System.out.println("Error: missing argument");
+            System.out.println("Error: missing argument.");
             return;
         }
 
         if ((dir = FileUtil.parseDir(line, dir)) == null) {
             return;
         }
+
         currLocalDir = FileUtil.getNextCWD(dir, currLocalDir);
     }
 
@@ -368,7 +456,7 @@ public class ClientMain {
         try {
             dir = st.nextToken();
         } catch (NoSuchElementException e) {
-            System.out.println("Error: missing argument");
+            System.out.println("Error: missing argument.");
             return;
         }
 
@@ -378,14 +466,16 @@ public class ClientMain {
 
         req.setMethod(RequestMethodEnum.USER_CHANGE_CWD);
         req.setData(dir);
-        outCmd.writeObject(req);
-        resp = (Response) inCmd.readObject();
 
-        if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-            session.setCurrentDir(resp.getData());
-        } else {
-            errors = resp.getErrors();
-            showErrors(errors);
+        exchangeReqResp();
+
+        if (resp.isValid()) {
+            if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                session.setCurrentDir(resp.getData());
+            } else {
+                errors = resp.getErrors();
+                showErrors(errors);
+            }
         }
     }
 
@@ -409,13 +499,13 @@ public class ClientMain {
                 path = Paths.get(fileName);
 
                 if (!Files.exists(path)) {
-                    System.out.println("Error: file '" + fileName + "' does not exist!");
+                    System.out.println("Error: file '" + fileName + "' does not exist.");
                     return;
                 }
             }
 
             if (Files.size(path) == 0) {
-                System.out.println("Error: file '" + fileName + "' is empty!");
+                System.out.println("Error: file '" + fileName + "' is empty.");
                 return;
             }
 
@@ -427,25 +517,26 @@ public class ClientMain {
             FileMetadata info = new FileMetadata(p.getName(p.getNameCount() - 1).toString(), (int) Files.size(Paths.get(file)));
             req.setMethod(RequestMethodEnum.USER_UPLOAD_FILE);
             req.setData(gson.toJson(info));
-            outCmd.writeObject(req);
 
-            resp = (Response) inCmd.readObject();
+            exchangeReqResp();
 
-            if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                fileReader = new DataInputStream(new FileInputStream(file));
-                int fileSize = info.getFileSize();
-                byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
+            if (resp.isValid()) {
+                if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                    fileReader = new DataInputStream(new FileInputStream(file));
+                    int fileSize = info.getFileSize();
+                    byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
 
-                int readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
+                    int readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
 
-                while (fileReader.read(buffer, 0, readSize) != -1) {
-                    outData.write(buffer);
-                    outData.flush();
+                    while (fileReader.read(buffer, 0, readSize) != -1) {
+                        outData.write(buffer);
+                        outData.flush();
+                    }
+
+                    fileReader.close();
+                } else if (resp.getStatus() == ResponseStatusEnum.UNAUTHORIZED) {
+                    showErrors(resp.getErrors());
                 }
-
-                fileReader.close();
-            } else if (resp.getStatus() == ResponseStatusEnum.UNAUTHORIZED){
-                showErrors(resp.getErrors());
             }
         }
     }
@@ -462,14 +553,56 @@ public class ClientMain {
             fileMeta = new FileMetadata();
             fileMeta.setFileName(st.nextToken());
             req.setData(gson.toJson(fileMeta));
-            outCmd.writeObject(req);
-            resp = (Response) inCmd.readObject();
 
-            if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                fileMeta = gson.fromJson(resp.getData(), FileMetadata.class);
-               new Thread(new ClientDataWorker(inData, fileMeta, currLocalDir)).start();
-            } else {
-                showErrors(resp.getErrors());
+            exchangeReqResp();
+
+            if (resp.isValid()) {
+                if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                    fileMeta = gson.fromJson(resp.getData(), FileMetadata.class);
+                    FileMetadata finalFileMeta = fileMeta;
+                    new Runnable() {
+
+                        @Override
+                        public void run() {
+                            try {
+                                readFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        private void readFile() throws IOException {
+                            int totalRead = 0;
+                            int bytesRead;
+                            int readSize;
+                            FileOutputStream fileWriter;
+
+                            int fileSize = finalFileMeta.getFileSize();
+                            readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
+                            byte[] buffer = new byte[readSize];
+                            fileWriter = new FileOutputStream(currLocalDir + "\\" + finalFileMeta.getFileName());
+
+                            while ((bytesRead = receiveData(buffer, readSize)) != EOF) {
+                                byte[] finalBuffer = buffer;
+
+                                if (bytesRead > finalFileMeta.getFileSize()) {
+                                    finalBuffer = FileUtil.substring(buffer, 0, fileSize);
+                                }
+
+                                totalRead += bytesRead;
+                                fileWriter.write(finalBuffer);
+
+                                if (totalRead >= fileSize) {
+                                    fileWriter.close();
+                                    System.out.println("File '" + finalFileMeta.getFileName() + "' downloaded.");
+                                    return;
+                                }
+                            }
+                        }
+                    };
+                } else {
+                    showErrors(resp.getErrors());
+                }
             }
         }
     }
@@ -477,19 +610,24 @@ public class ClientMain {
     private void clearChannels() throws IOException {
         if (serverConnected) {
             outCmd.flush();
-            outCmd.reset();
+            try {
+                outCmd.reset();
+            } catch (SocketException ignored) {
+
+            }
             outData.flush();
         }
     }
 
     private void clean() throws IOException {
-        in.close();
-        inCmd.close();
-        inData.close();
-        outCmd.close();
-        outData.close();
-        cmdSocket.close();
-        dataSocket.close();
+        if (config.isMainServerConfigured() || config.isSecondaryServerConfigured()) {
+            inCmd.close();
+            inData.close();
+            outCmd.close();
+            outData.close();
+            cmdSocket.close();
+            dataSocket.close();
+        }
     }
 
     public void run() throws IOException, ClassNotFoundException {
@@ -528,7 +666,7 @@ public class ClientMain {
             } else if (cmd.equalsIgnoreCase("download")) {
                 downloadFiles();
             } else {
-                System.out.println("Unknown command '" + line + "'");
+                System.out.println("Error: unknown command '" + line + "'.");
             }
 
             clearChannels();

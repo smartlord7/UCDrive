@@ -12,6 +12,7 @@ public class ClientConfig {
     private boolean isMainServerDown;
     private boolean isMainServerConfigured;
     private boolean isSecondaryServerConfigured;
+    private boolean isValidResponse;
 
     public ClientConfig() {
     }
@@ -95,6 +96,14 @@ public class ClientConfig {
 
     public void setSecondaryServerConfigured(boolean secondaryServerConfigured) {
         isSecondaryServerConfigured = secondaryServerConfigured;
+    }
+
+    public boolean isValidResponse() {
+        return isValidResponse;
+    }
+
+    public void setValidResponse(boolean validResponse) {
+        isValidResponse = validResponse;
     }
 
     @Override
