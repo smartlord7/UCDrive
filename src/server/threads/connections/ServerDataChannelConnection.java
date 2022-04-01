@@ -85,7 +85,7 @@ public class ServerDataChannelConnection extends Thread {
         p = Paths.get(fileToSend);
         fileSize = (int) Files.size(p);
 
-        readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
+        readSize = Math.min(fileSize, Const.DOWNLOAD_FILE_CHUNK_SIZE);
         buffer = new byte[readSize];
         while ((read = fileReader.read(buffer, 0, readSize)) != -1) {
             out.write(buffer);
@@ -107,7 +107,6 @@ public class ServerDataChannelConnection extends Thread {
         String bufferStr;
         String filePath;
         FileMetadata fileMeta = null;
-        File file;
         FileOutputStream fileWriter = null;
 
         bytesRead = 0;
@@ -115,7 +114,7 @@ public class ServerDataChannelConnection extends Thread {
         fileSize = 0;
         totalRead = 0;
 
-        while ((bytesRead = in.read(buffer,0, Const.UPLOAD_FILE_CHUNK_SIZE)) != EOF)
+        while ((bytesRead = in.read(buffer,0, Const.DOWNLOAD_FILE_CHUNK_SIZE)) != EOF)
         {
             if (fileMeta == null) {
                 fileMeta = session.getFileMetadata();

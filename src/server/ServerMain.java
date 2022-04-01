@@ -42,7 +42,7 @@ public class ServerMain {
     }
 
     /**
-     *  Method that initializes the directory.
+     *  Method that initializes the DAO's connections and the users directory.
      */
     private void init() {
         try {
@@ -61,7 +61,7 @@ public class ServerMain {
     }
 
     /**
-     * Method used to start the synced threads.
+     * Method used to start the failsafe/redundancy related threads.
      * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
      */
     private void startThreads() throws InterruptedException {
@@ -84,10 +84,9 @@ public class ServerMain {
 
     /**
      * Method that runs all the methods needed for the program startup.
-     * @throws IOException - whenever an input or output operation is failed or interpreted
      * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
      */
-    private void run() throws IOException, InterruptedException {
+    private void run() throws InterruptedException {
         setDBConnection();
         init();
         startThreads();

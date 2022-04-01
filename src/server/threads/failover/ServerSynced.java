@@ -69,29 +69,24 @@ public class ServerSynced implements Runnable{
                     currSize += temp.getSize();
 
                     // if it's a packet for the same file
-                    if (data != null && temp.getName().equals(data.getName())) {
-                        fileWriter.write(content);
-
-                        if (currTotalSize >= currSize) {
-                            fileWriter.close();
-                            currSize = 0;
-                        }
-                    } else {
-                    // if it's the first file or a different one
+                    if (data == null || !temp.getName().equals(data.getName())) {
+                        // if it's the first file or a different one
                         filePath = System.getProperty("user.dir") + "\\" + temp.getName();
                         p = Paths.get(filePath).getParent();
+
                         if (!Files.exists(p)) {
                             Files.createDirectory(p);
                         }
+
                         fileWriter = new BufferedWriter(new FileWriter(filePath));
                         data = temp;
 
-                        fileWriter.write(content);
+                    }
+                    fileWriter.write(content);
 
-                        if (currTotalSize >= currSize) {
-                            fileWriter.close();
-                            currSize = 0;
-                        }
+                    if (currTotalSize >= currSize) {
+                        fileWriter.close();
+                        currSize = 0;
                     }
                 } else if (temp.getType() == FailoverDataTypeEnum.DB_DML) {
 

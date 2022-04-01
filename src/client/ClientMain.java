@@ -604,7 +604,7 @@ public class ClientMain {
                             FileOutputStream fileWriter;
 
                             int fileSize = finalFileMeta.getFileSize();
-                            readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
+                            readSize = Math.min(fileSize, Const.DOWNLOAD_FILE_CHUNK_SIZE);
                             byte[] buffer = new byte[readSize];
                             fileWriter = new FileOutputStream(currLocalDir + "\\" + finalFileMeta.getFileName());
 
