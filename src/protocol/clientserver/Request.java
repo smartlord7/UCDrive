@@ -4,14 +4,14 @@ import java.io.Serializable;
 
 public class Request implements Serializable {
     private RequestMethodEnum method;
-    private String data;
+    private String content;
 
     public Request() {
     }
 
-    public Request(RequestMethodEnum method, String data) {
+    public Request(RequestMethodEnum method, String content) {
         this.method = method;
-        this.data = data;
+        this.content = content;
     }
 
     public RequestMethodEnum getMethod() {
@@ -22,11 +22,11 @@ public class Request implements Serializable {
         this.method = method;
     }
 
-    public String getData() {
-        return data;
+    public String getContent() {
+        return content;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setContent(String content) {
+        this.content = content;
     }
 }

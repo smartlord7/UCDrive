@@ -1,12 +1,10 @@
 package businesslayer.User;
 
 import datalayer.model.User.User;
-import microsoft.sql.DateTimeOffset;
-import util.SHA256Hasher;
+import util.Const;
+import util.Hasher;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.util.Calendar;
-import java.util.Date;
 
 public class UserDAO {
     public static Connection connection;
@@ -16,7 +14,7 @@ public class UserDAO {
         try {
             stmt = connection.prepareStatement("INSERT INTO [User] (UserName, PasswordHash, CreateDate) VALUES (?, ?, CURRENT_TIMESTAMP)");
             stmt.setString(1, user.getUserName());
-            stmt.setString(2, SHA256Hasher.hash(user.getPassword()));
+            stmt.setString(2, Hasher.hashString(user.getPassword(), Const.PASSWORD_HASH_ALGORITHM));
 
             stmt.executeUpdate();
             connection.commit();
@@ -52,13 +50,13 @@ public class UserDAO {
                 return -1;
             }
 
-            if (!SHA256Hasher.hash(user.getPassword()).equals(passwordHash)) {
+            if (!Hasher.hashString(user.getPassword(), Const.PASSWORD_HASH_ALGORITHM).equals(passwordHash)) {
                 // Wrong password
                 return -2;
             }
 
             stmt = connection.prepareStatement("UPDATE [User] SET PasswordHash = ? WHERE UserId = ?");
-            stmt.setString(1, SHA256Hasher.hash(user.getNewPassword()));
+            stmt.setString(1, Hasher.hashString(user.getNewPassword(), Const.PASSWORD_HASH_ALGORITHM));
             stmt.setInt(2, userId);
             stmt.executeUpdate();
             connection.commit();
@@ -97,7 +95,7 @@ public class UserDAO {
             return -1;
         }
 
-        if (!SHA256Hasher.hash(user.getPassword()).equals(passwordHash)) {
+        if (!Hasher.hashString(user.getPassword(), Const.PASSWORD_HASH_ALGORITHM).equals(passwordHash)) {
             // Wrong password
             return -2;
         }

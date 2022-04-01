@@ -1,4 +1,5 @@
 package protocol.failover.redundancy;
 
-public class FailoverDataTypeEnum {
+public enum FailoverDataTypeEnum {
+    FILE, DB_DML
 }

@@ -64,7 +64,7 @@ public class ServerController {
         userSession.setUserId(user.getUserId());
         userSession.setCurrentDir(initialDir);
         resp.setStatus(ResponseStatusEnum.SUCCESS);
-        resp.setData(gson.toJson(userSession));
+        resp.setContent(gson.toJson(userSession));
 
         return resp;
     }
@@ -76,7 +76,7 @@ public class ServerController {
         Response resp;
 
         resp = new Response();
-        user = gson.fromJson(req.getData(), User.class);
+        user = gson.fromJson(req.getContent(), User.class);
         UserDAO.create(user);
         UserDAO.authenticate(user);
         userId = user.getUserId();
@@ -96,7 +96,7 @@ public class ServerController {
         Response resp;
 
         resp = new Response();
-        user = gson.fromJson(req.getData(), User.class);
+        user = gson.fromJson(req.getContent(), User.class);
         loginResult = UserDAO.authenticate(user);
 
         checkUserCredentials(resp, user, loginResult);
@@ -116,7 +116,7 @@ public class ServerController {
         SessionLog sessionLog;
 
         resp = new Response();
-        sessionLog = gson.fromJson(req.getData(), SessionLog.class);
+        sessionLog = gson.fromJson(req.getContent(), SessionLog.class);
         sessionLog.setLastDirectory(session.getCurrentDir());
         sessionLog.setUserId(session.getUserId());
 
@@ -130,7 +130,7 @@ public class ServerController {
 
     public static Response changeUserPassword(Request req) throws NoSuchAlgorithmException {
         Response resp = new Response();
-        User user = gson.fromJson(req.getData(), User.class);
+        User user = gson.fromJson(req.getContent(), User.class);
         int result = UserDAO.changePassword(user);
 
         checkUserCredentials(resp, user, result);
@@ -141,7 +141,7 @@ public class ServerController {
     public static Response listDirFiles(Request req, ServerUserSession session) throws SQLException {
         boolean validDir = true;
         DirectoryPermissionEnum perm;
-        String dir = req.getData();
+        String dir = req.getContent();
         Response resp = new Response();
         HashMap<String, String> errors = null;
         File f;
@@ -165,7 +165,7 @@ public class ServerController {
 
             if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE) {
                 resp.setStatus(ResponseStatusEnum.SUCCESS);
-                resp.setData(FileUtil.listDirFiles(f));
+                resp.setContent(FileUtil.listDirFiles(f));
             } else {
                 resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
                 errors = new HashMap<>();
@@ -188,7 +188,7 @@ public class ServerController {
 
         validDir = true;
         resp = new Response();
-        targetDir = req.getData();
+        targetDir = req.getContent();
 
         if (targetDir != null && targetDir.length() != 0) {
             f = new File(targetDir);
@@ -207,7 +207,7 @@ public class ServerController {
                 if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE) {
                     session.setCurrentDir(nextCWD);
                     resp.setStatus(ResponseStatusEnum.SUCCESS);
-                    resp.setData(nextCWD);
+                    resp.setContent(nextCWD);
                 } else {
                     resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
                     errors = new HashMap<>();
@@ -240,7 +240,7 @@ public class ServerController {
         errors = new HashMap<>();
 
         if (perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.READ_WRITE){
-            fileMeta = gson.fromJson(req.getData(), FileMetadata.class);
+            fileMeta = gson.fromJson(req.getContent(), FileMetadata.class);
             session.setFileMetadata(fileMeta);
             resp.setStatus(ResponseStatusEnum.SUCCESS);
             session.getFileMetadata().setOp(FileOperationEnum.UPLOAD);
@@ -270,7 +270,7 @@ public class ServerController {
         resp = new Response();
         errors = new HashMap<>();
 
-        fileMeta = gson.fromJson(req.getData(), FileMetadata.class);
+        fileMeta = gson.fromJson(req.getContent(), FileMetadata.class);
         fileName = fileMeta.getFileName();
         filePath = System.getProperty("user.dir") + "\\" + currDir + "\\" + fileMeta.getFileName();
         p = Paths.get(filePath);
@@ -290,7 +290,7 @@ public class ServerController {
         if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE){
             session.setFileMetadata(fileMeta);
             resp.setStatus(ResponseStatusEnum.SUCCESS);
-            resp.setData(gson.toJson(fileMeta));
+            resp.setContent(gson.toJson(fileMeta));
             session.getFileMetadata().setOp(FileOperationEnum.DOWNLOAD);
             session.getSyncObj().change();
         } else if (perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.NONE){

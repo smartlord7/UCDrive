@@ -6,16 +6,16 @@ import java.util.HashMap;
 public class Response implements Serializable {
     private ResponseStatusEnum status;
     private HashMap<String, String> errors;
-    private String data;
+    private String content;
     private boolean isValid;
 
     public Response() {
     }
 
-    public Response(ResponseStatusEnum status, HashMap<String, String> errors, String data) {
+    public Response(ResponseStatusEnum status, HashMap<String, String> errors, String content) {
         this.status = status;
         this.errors = errors;
-        this.data = data;
+        this.content = content;
     }
 
     public ResponseStatusEnum getStatus() {
@@ -34,12 +34,12 @@ public class Response implements Serializable {
         this.errors = errors;
     }
 
-    public String getData() {
-        return data;
+    public String getContent() {
+        return content;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public boolean isValid() {

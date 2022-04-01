@@ -1,4 +1,5 @@
 package protocol.failover.redundancy;
 
-public class FailoverFeedbackTypeEnum {
+public enum FailoverFeedbackTypeEnum {
+    ACK, NACK, REPEATED
 }

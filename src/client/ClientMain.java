@@ -317,14 +317,14 @@ public class ClientMain {
         user.setPassword(in.readLine());
 
         req.setMethod(RequestMethodEnum.USER_AUTHENTICATION);
-        req.setData(gson.toJson(user));
+        req.setContent(gson.toJson(user));
 
         exchangeReqResp();
 
         if (resp.isValid()) {
             if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
                 System.out.println("User '" + user.getUserName() + "' authenticated successfully.");
-                session = gson.fromJson(resp.getData(), ClientUserSession.class);
+                session = gson.fromJson(resp.getContent(), ClientUserSession.class);
                 user.setAuth(true);
                 sessionLog.setStartDate(new Timestamp(System.currentTimeMillis()));
             } else {
@@ -350,7 +350,7 @@ public class ClientMain {
 
         req.setMethod(RequestMethodEnum.USER_LOGOUT);
         sessionLog.setEndDate(new Timestamp(System.currentTimeMillis()));
-        req.setData(gson.toJson(session));
+        req.setContent(gson.toJson(session));
 
         exchangeReqResp();
 
@@ -375,14 +375,14 @@ public class ClientMain {
         user.setPassword(in.readLine());
 
         req.setMethod(RequestMethodEnum.USER_CREATE);
-        req.setData(gson.toJson(user));
+        req.setContent(gson.toJson(user));
 
         exchangeReqResp();
 
         if (resp.isValid()) {
             if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
                 System.out.println("User '" + user.getUserName() + "' created successfully!");
-                session = gson.fromJson(resp.getData(), ClientUserSession.class);
+                session = gson.fromJson(resp.getContent(), ClientUserSession.class);
                 user.setAuth(true);
             } else {
                 errors = resp.getErrors();
@@ -401,7 +401,7 @@ public class ClientMain {
         user.setNewPassword(in.readLine());
 
         req.setMethod(RequestMethodEnum.USER_CHANGE_PASSWORD);
-        req.setData(gson.toJson(user));
+        req.setContent(gson.toJson(user));
 
         exchangeReqResp();
 
@@ -451,13 +451,13 @@ public class ClientMain {
         }
 
         req.setMethod(RequestMethodEnum.USER_LIST_SERVER_FILES);
-        req.setData(dir);
+        req.setContent(dir);
 
         exchangeReqResp();
 
         if (resp.isValid()) {
             if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                System.out.println(resp.getData());
+                System.out.println(resp.getContent());
             } else {
                 errors = resp.getErrors();
                 showErrors(errors);
@@ -501,13 +501,13 @@ public class ClientMain {
         }
 
         req.setMethod(RequestMethodEnum.USER_CHANGE_CWD);
-        req.setData(dir);
+        req.setContent(dir);
 
         exchangeReqResp();
 
         if (resp.isValid()) {
             if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                session.setCurrentDir(resp.getData());
+                session.setCurrentDir(resp.getContent());
             } else {
                 errors = resp.getErrors();
                 showErrors(errors);
@@ -552,7 +552,7 @@ public class ClientMain {
             Path p = Paths.get(file);
             FileMetadata info = new FileMetadata(p.getName(p.getNameCount() - 1).toString(), (int) Files.size(Paths.get(file)));
             req.setMethod(RequestMethodEnum.USER_UPLOAD_FILE);
-            req.setData(gson.toJson(info));
+            req.setContent(gson.toJson(info));
 
             exchangeReqResp();
 
@@ -588,13 +588,13 @@ public class ClientMain {
             req.setMethod(RequestMethodEnum.USER_DOWNLOAD_FILE);
             fileMeta = new FileMetadata();
             fileMeta.setFileName(st.nextToken());
-            req.setData(gson.toJson(fileMeta));
+            req.setContent(gson.toJson(fileMeta));
 
             exchangeReqResp();
 
             if (resp.isValid()) {
                 if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                    fileMeta = gson.fromJson(resp.getData(), FileMetadata.class);
+                    fileMeta = gson.fromJson(resp.getContent(), FileMetadata.class);
                     FileMetadata finalFileMeta = fileMeta;
                     new Runnable() {
 
