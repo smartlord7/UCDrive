@@ -1,6 +1,6 @@
 package server;
 
-import businesslayer.DirectoryPermission.DirectoryPermissionDAO;
+import businesslayer.FilePermission.FilePermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import protocol.failover.redundancy.FailoverData;
@@ -49,7 +49,7 @@ public class ServerMain {
 
             UserDAO.connection = config.getConn();
             SessionLogDAO.connection = config.getConn();
-            DirectoryPermissionDAO.connection = config.getConn();
+            FilePermissionDAO.connection = config.getConn();
 
             Path p = Paths.get(Const.USERS_FOLDER_NAME);
             if (!Files.exists(p)) {

@@ -1,10 +1,10 @@
 package server;
 
-import businesslayer.DirectoryPermission.DirectoryPermissionDAO;
+import businesslayer.FilePermission.FilePermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import com.google.gson.Gson;
-import datalayer.enumerate.DirectoryPermissionEnum;
+import datalayer.enumerate.FilePermissionEnum;
 import datalayer.model.SessionLog.SessionLog;
 import datalayer.model.User.ClientUserSession;
 import datalayer.model.User.User;
@@ -114,7 +114,7 @@ public class ServerController {
 
         initialDir = Const.USERS_FOLDER_NAME + "\\" + user.getUserName();
         Files.createDirectory(Paths.get(initialDir));
-        DirectoryPermissionDAO.create(userId, initialDir, DirectoryPermissionEnum.READ_WRITE);
+        FilePermissionDAO.create(userId, initialDir, FilePermissionEnum.READ_WRITE);
 
         return initSession(session, userId, initialDir, user, resp);
     }
@@ -205,7 +205,7 @@ public class ServerController {
      */
     public static Response listDirFiles(Request req, ServerUserSession session) throws SQLException {
         boolean validDir = true;
-        DirectoryPermissionEnum perm;
+        FilePermissionEnum perm;
         String dir = req.getContent();
         Response resp = new Response();
         HashMap<String, String> errors = null;
@@ -226,9 +226,9 @@ public class ServerController {
         }
 
         if (validDir) {
-            perm = DirectoryPermissionDAO.getPermission(session.getUserId(), dir);
+            perm = FilePermissionDAO.getPermission(session.getUserId(), dir);
 
-            if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE) {
+            if (perm == FilePermissionEnum.READ || perm == FilePermissionEnum.READ_WRITE) {
                 resp.setStatus(ResponseStatusEnum.SUCCESS);
                 resp.setContent(FileUtil.listDirFiles(f));
             } else {
@@ -254,7 +254,7 @@ public class ServerController {
     public static Response changeWorkingDir(Request req, ServerUserSession session) throws IOException, SQLException {
         boolean validDir;
         String targetDir;
-        DirectoryPermissionEnum perm;
+        FilePermissionEnum perm;
         Response resp;
         HashMap<String, String> errors = null;
         File f;
@@ -275,9 +275,9 @@ public class ServerController {
 
             if (validDir) {
                 String nextCWD = FileUtil.getNextCWD(targetDir, session.getCurrentDir());
-                perm = DirectoryPermissionDAO.getPermission(session.getUserId(), nextCWD);
+                perm = FilePermissionDAO.getPermission(session.getUserId(), nextCWD);
 
-                if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE) {
+                if (perm == FilePermissionEnum.READ || perm == FilePermissionEnum.READ_WRITE) {
                     session.setCurrentDir(nextCWD);
                     resp.setStatus(ResponseStatusEnum.SUCCESS);
                     resp.setContent(nextCWD);
@@ -308,24 +308,24 @@ public class ServerController {
     public static Response uploadFiles(Request req, ServerUserSession session) throws SQLException {
         int userId;
         String dir;
-        DirectoryPermissionEnum perm;
+        FilePermissionEnum perm;
         Response resp;
         HashMap<String, String> errors;
         FileMetadata fileMeta;
 
         userId = session.getUserId();
         dir = session.getCurrentDir();
-        perm = DirectoryPermissionDAO.getPermission(userId, dir);
+        perm = FilePermissionDAO.getPermission(userId, dir);
         resp = new Response();
         errors = new HashMap<>();
 
-        if (perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.READ_WRITE){
+        if (perm == FilePermissionEnum.WRITE || perm == FilePermissionEnum.READ_WRITE){
             fileMeta = gson.fromJson(req.getContent(), FileMetadata.class);
             session.setFileMetadata(fileMeta);
             resp.setStatus(ResponseStatusEnum.SUCCESS);
             session.getFileMetadata().setOp(FileOperationEnum.UPLOAD);
             session.getSyncObj().change();
-        } else if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.NONE){
+        } else if (perm == FilePermissionEnum.READ || perm == FilePermissionEnum.NONE){
             resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
             errors.put("NoWritePermission", "User has no permission to write in directory '" +  dir + "'");
             resp.setErrors(errors);
@@ -348,7 +348,7 @@ public class ServerController {
         String fileName;
         String filePath;
         Path p;
-        DirectoryPermissionEnum perm;
+        FilePermissionEnum perm;
         Response resp;
         HashMap<String, String> errors;
         FileMetadata fileMeta;
@@ -373,17 +373,17 @@ public class ServerController {
         fileMeta.setFileSize((int) Files.size(p));
 
 
-        perm = DirectoryPermissionDAO.getPermission(userId, currDir);
+        perm = FilePermissionDAO.getPermission(userId, currDir + "\\" + fileMeta.getFileName());
 
-        if (perm == DirectoryPermissionEnum.READ || perm == DirectoryPermissionEnum.READ_WRITE){
+        if (perm == FilePermissionEnum.READ || perm == FilePermissionEnum.READ_WRITE){
             session.setFileMetadata(fileMeta);
             resp.setStatus(ResponseStatusEnum.SUCCESS);
             resp.setContent(gson.toJson(fileMeta));
             session.getFileMetadata().setOp(FileOperationEnum.DOWNLOAD);
             session.getSyncObj().change();
-        } else if (perm == DirectoryPermissionEnum.WRITE || perm == DirectoryPermissionEnum.NONE){
+        } else if (perm == FilePermissionEnum.WRITE || perm == FilePermissionEnum.NONE){
             resp.setStatus(ResponseStatusEnum.UNAUTHORIZED);
-            errors.put("NoReadPermission", "User has no permission to read from directory '" +  fileName + "'");
+            errors.put("NoReadPermission", "User has no permission to read file '" +  fileName + "'");
             resp.setErrors(errors);
         }
 

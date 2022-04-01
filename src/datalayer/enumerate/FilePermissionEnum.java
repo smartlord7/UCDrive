@@ -1,9 +1,9 @@
 package datalayer.enumerate;
 
-public enum DirectoryPermissionEnum {
+public enum FilePermissionEnum {
     READ, WRITE, READ_WRITE, NONE;
 
-    public static DirectoryPermissionEnum toEnum(int value) {
+    public static FilePermissionEnum toEnum(int value) {
         return switch (value) {
             case 0 -> READ;
             case 1 -> WRITE;
