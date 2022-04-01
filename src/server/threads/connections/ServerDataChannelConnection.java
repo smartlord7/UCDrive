@@ -1,6 +1,7 @@
-package server;
+package server.threads.connections;
 
 import datalayer.enumerate.FileOperationEnum;
+import server.struct.ServerUserSession;
 import util.Const;
 import util.FileMetadata;
 import util.FileUtil;
@@ -12,7 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import static sun.nio.ch.IOStatus.EOF;
 
-class ServerDataChannelConnection extends Thread {
+public class ServerDataChannelConnection extends Thread {
     private DataInputStream in;
     private DataOutputStream out;
     private Socket clientSocket;

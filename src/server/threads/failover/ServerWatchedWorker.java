@@ -1,4 +1,4 @@
-package server;
+package server.threads.failover;
 
 import java.io.*;
 import java.net.*;

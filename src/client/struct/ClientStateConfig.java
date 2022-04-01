@@ -1,4 +1,4 @@
-package client;
+package client.struct;
 
 import java.util.StringJoiner;
 

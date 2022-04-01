@@ -1,13 +1,14 @@
 package client;
 
+import client.struct.ClientStateConfig;
 import com.google.gson.Gson;
 import datalayer.model.SessionLog.SessionLog;
 import datalayer.model.User.User;
 import datalayer.model.User.ClientUserSession;
-import protocol.Request;
-import protocol.RequestMethodEnum;
-import protocol.Response;
-import protocol.ResponseStatusEnum;
+import protocol.clientserver.Request;
+import protocol.clientserver.RequestMethodEnum;
+import protocol.clientserver.Response;
+import protocol.clientserver.ResponseStatusEnum;
 import util.FileMetadata;
 import util.FileUtil;
 import java.io.*;

@@ -1,4 +1,4 @@
-package protocol;
+package protocol.clientserver;
 
 import java.io.Serializable;
 import java.util.HashMap;

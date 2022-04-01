@@ -1,5 +1,6 @@
-package server;
+package server.threads.handlers;
 
+import server.threads.connections.ServerCommandChannelConnection;
 import sync.UserSessions;
 
 import java.io.IOException;

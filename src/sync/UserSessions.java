@@ -1,6 +1,6 @@
 package sync;
 
-import server.ServerUserSession;
+import server.struct.ServerUserSession;
 
 import java.util.HashMap;
 

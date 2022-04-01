@@ -1,8 +1,11 @@
-package server;
+package server.threads.connections;
 
-import protocol.Request;
-import protocol.RequestMethodEnum;
-import protocol.Response;
+import protocol.clientserver.Request;
+import protocol.clientserver.RequestMethodEnum;
+import protocol.clientserver.Response;
+import server.ServerController;
+import server.struct.ServerUserSession;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;

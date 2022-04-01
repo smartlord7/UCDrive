@@ -1,4 +1,4 @@
-package server;
+package server.struct;
 
 import com.google.gson.Gson;
 

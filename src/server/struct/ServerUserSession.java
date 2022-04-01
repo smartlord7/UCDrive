@@ -1,4 +1,4 @@
-package server;
+package server.struct;
 
 import sync.SyncObj;
 import util.FileMetadata;
