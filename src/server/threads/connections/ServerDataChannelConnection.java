@@ -142,6 +142,8 @@ public class ServerDataChannelConnection extends Thread {
                 fileWriter.close();
                 return;
             }
+
+            counter++;
         }
     }
 }

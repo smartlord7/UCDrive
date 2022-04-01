@@ -1,11 +1,11 @@
 package server.threads.failover;
 
+import util.Const;
 import java.io.*;
 import java.net.*;
 
 public class ServerListened implements Runnable {
     private final int port;
-    private final int BUF_SIZE = 4096;
 
     /**
      * Constructor method.
@@ -33,7 +33,7 @@ public class ServerListened implements Runnable {
             System.out.println("[HEARTBEAT] Started at port: " + port);
             socket = new DatagramSocket(port);
             while (true) {
-                buf = new byte[BUF_SIZE];
+                buf = new byte[Const.UDP_BUFFER_SIZE];
                 packetRequest = new DatagramPacket(buf, buf.length);
                 socket.receive(packetRequest);
                 byteWriter = new ByteArrayOutputStream();

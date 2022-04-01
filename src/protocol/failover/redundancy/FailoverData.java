@@ -78,7 +78,7 @@ public class FailoverData implements Serializable {
     }
 
     public boolean verifyChecksum() throws NoSuchAlgorithmException {
-        return Arrays.equals(this.checksum, Hasher.hashBytes(this.content, Const.CONTENT_CHECKSUM_ALGORITHM));
+        return Arrays.equals(this.checksum, Hasher.hashBytes(this.content, Const.FILE_CONTENT_CHECKSUM_ALGORITHM));
     }
 
     public int getSize() {
@@ -97,7 +97,6 @@ public class FailoverData implements Serializable {
                 .add("totalSize=" + totalSize)
                 .add("name='" + name + "'")
                 .add("checksum=" + Arrays.toString(checksum))
-                .add("content='" + content + "'")
                 .add("type=" + type)
                 .toString();
     }

@@ -1,5 +1,7 @@
 package server.threads.failover;
 
+import util.Const;
+
 import java.io.*;
 import java.net.*;
 
@@ -8,7 +10,6 @@ public class ServerListener implements Runnable {
     private final int heartbeatInterval;
     private final int maxFailedHeartbeats;
     private final int timeout;
-    private final int BUF_SIZE = 4096;
 
     /**
      * Constructor method.
@@ -57,7 +58,7 @@ public class ServerListener implements Runnable {
                     packetRequest = new DatagramPacket(buf, buf.length, listenedHost.getAddress(), listenedHost.getPort());
                     socket.send(packetRequest);
 
-                    resp = new byte[BUF_SIZE];
+                    resp = new byte[Const.UDP_BUFFER_SIZE];
                     packetResponse = new DatagramPacket(resp, resp.length, listenedHost.getAddress(), listenedHost.getPort());
 
                     socket.receive(packetResponse);

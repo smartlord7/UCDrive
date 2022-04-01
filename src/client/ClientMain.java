@@ -235,6 +235,11 @@ public class ClientMain {
         if (!config.isServerConnected()) {
             System.out.println("Error: main server is down.");
             System.out.println("Switching to secondary server...");
+
+            if (!config.isSecondaryServerConfigured()) {
+                System.out.println("Error: can't switch to secondary server since it is not configured. After configuring it, you have to connect manually to it.");
+                return;
+            }
             connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerCmdPort());
 
             if (!config.isServerConnected()) {
