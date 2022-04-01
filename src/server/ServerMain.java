@@ -3,12 +3,12 @@ package server;
 import businesslayer.DirectoryPermission.DirectoryPermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
-import server.threads.failover.ServerWatchedWorker;
-import server.threads.failover.ServerWatcherWorker;
+import server.threads.failover.ServerListened;
+import server.threads.failover.ServerListener;
 import server.struct.ServerConfig;
 import server.threads.handlers.ServerCommandChannelHandler;
 import server.threads.handlers.ServerDataChannelHandler;
-import sync.UserSessions;
+import server.struct.ServerUserSessions;
 import util.Const;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,10 +33,10 @@ public class ServerMain {
 
     private void run() throws IOException, InterruptedException {
         if (config.isSecondary()) {
-            new ServerWatcherWorker(config.getWatchedHostIp(), config.getWatchedHostPort(),
+            new ServerListener(config.getWatchedHostIp(), config.getWatchedHostPort(),
                     config.getHeartbeatInterval(), config.getMaxFailedHeartbeat(), config.getHeartbeatTimeout());
         } else {
-            new ServerWatchedWorker(config.getWatchedHostPort());
+            new ServerListened(config.getWatchedHostPort());
         }
 
         try {
@@ -50,7 +50,7 @@ public class ServerMain {
         }
 
         init();
-        UserSessions sessions = new UserSessions();
+        ServerUserSessions sessions = new ServerUserSessions();
 
         new Thread(new ServerCommandChannelHandler(config.getCommandPort(), sessions)).start();
         new Thread(new ServerDataChannelHandler(config.getDataPort(), sessions)).start();

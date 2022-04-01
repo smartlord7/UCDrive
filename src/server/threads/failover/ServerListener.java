@@ -3,15 +3,15 @@ package server.threads.failover;
 import java.io.*;
 import java.net.*;
 
-public class ServerWatcherWorker implements Runnable {
-    private final InetSocketAddress watchedHost;
+public class ServerListener implements Runnable {
+    private final InetSocketAddress listenedHost;
     private final int heartbeatInterval;
     private final int maxFailedHeartbeats;
     private final int timeout;
     private final int BUF_SIZE = 4096;
 
-    public ServerWatcherWorker(String watchedHostIp, int watchedHostPort, int heartbeatInterval, int maxFailedHeartbeats, int timeout) throws SocketException, InterruptedException {
-        watchedHost = new InetSocketAddress(watchedHostIp, watchedHostPort);
+    public ServerListener(String watchedHostIp, int watchedHostPort, int heartbeatInterval, int maxFailedHeartbeats, int timeout) throws SocketException, InterruptedException {
+        listenedHost = new InetSocketAddress(watchedHostIp, watchedHostPort);
         this.heartbeatInterval = heartbeatInterval;
         this.maxFailedHeartbeats = maxFailedHeartbeats;
         this.timeout = timeout;
@@ -50,7 +50,7 @@ public class ServerWatcherWorker implements Runnable {
                     byteWriter = new ByteArrayOutputStream();
                     buf = byteWriter.toByteArray();
 
-                    packetRequest = new DatagramPacket(buf, buf.length, addr, watchedHost.getPort());
+                    packetRequest = new DatagramPacket(buf, buf.length, addr, listenedHost.getPort());
                     socket.send(packetRequest);
 
                     resp = new byte[BUF_SIZE];
@@ -71,6 +71,6 @@ public class ServerWatcherWorker implements Runnable {
             e.printStackTrace();
         }
 
-        System.out.println("[HEARTBEAT THREAD] Server " + watchedHost + " down.");
+        System.out.println("[HEARTBEAT THREAD] Server " + listenedHost + " down.");
     }
 }

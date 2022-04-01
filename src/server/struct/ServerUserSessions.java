@@ -1,14 +1,12 @@
-package sync;
-
-import server.struct.ServerUserSession;
+package server.struct;
 
 import java.util.HashMap;
 
-public class UserSessions {
+public class ServerUserSessions {
     private final HashMap<String, ServerUserSession> sessions;
 
-    public UserSessions() {
-        this.sessions = new HashMap<String, ServerUserSession>();
+    public ServerUserSessions() {
+        this.sessions = new HashMap<>();
     }
 
     public synchronized ServerUserSession addSession(String client) {

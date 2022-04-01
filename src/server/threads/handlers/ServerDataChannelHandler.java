@@ -1,7 +1,7 @@
 package server.threads.handlers;
 
 import server.threads.connections.ServerDataChannelConnection;
-import sync.UserSessions;
+import server.struct.ServerUserSessions;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,9 +10,9 @@ import java.net.Socket;
 public class ServerDataChannelHandler implements Runnable {
     private int number = 0;
     private final int port;
-    private final UserSessions sessions;
+    private final ServerUserSessions sessions;
 
-    public ServerDataChannelHandler(int port, UserSessions sessions) {
+    public ServerDataChannelHandler(int port, ServerUserSessions sessions) {
         this.port = port;
         this.sessions = sessions;
     }
