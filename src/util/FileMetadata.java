@@ -7,14 +7,22 @@ public class FileMetadata {
     private int fileSize;
     private FileOperationEnum op;
 
+    /**
+     * Constructor method.
+     */
     public FileMetadata() {
     }
 
+    /**
+     * Constructor method
+     * @param fileName is the file name.
+     * @param fileSize is the file size.
+     */
     public FileMetadata(String fileName, int fileSize) {
         this.fileName = fileName;
         this.fileSize = fileSize;
     }
-
+    // region Getters and Setters
     public String getFileName() {
         return fileName;
     }
@@ -38,4 +46,5 @@ public class FileMetadata {
     public void setOp(FileOperationEnum op) {
         this.op = op;
     }
+    // endregion Getters and Setters
 }

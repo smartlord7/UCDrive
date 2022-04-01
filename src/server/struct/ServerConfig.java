@@ -8,6 +8,7 @@ import java.sql.Connection;
 public class ServerConfig {
     //TODO field validations and separation in two configs (Main and Secondary server)
 
+    // region Private properties
     private boolean isSecondary;
     private int commandPort;
     private int dataPort;
@@ -23,6 +24,8 @@ public class ServerConfig {
     private String user;
     private String password;
     private Connection conn;
+
+    // endregion Private properties
 
     /**
      * Constructor method.

@@ -1,6 +1,7 @@
 package util;
 
 import java.io.*;
+import java.util.PropertyPermission;
 
 public class FileUtil {
     /**
@@ -57,6 +58,13 @@ public class FileUtil {
         return currDir;
     }
 
+    /**
+     * Method used to store the substrings.
+     * @param array is the array where the substrings will be stored.
+     * @param start is the start of the string
+     * @param end is the end of the string.
+     * @return the array with the substrings.
+     */
     public static byte[] substring(byte[] array, int start, int end) {
         assert end > start;
         int length = (end - start);
@@ -67,6 +75,12 @@ public class FileUtil {
         return newArray;
     }
 
+    /**
+     * Method to parse the directories.
+     * @param line is the line containing the directory.
+     * @param dir is the directory to be parsed.
+     * @return the parsed directory.
+     */
     public static String parseDir(String line, String dir) {
         if (dir.startsWith("'")) {
             if (!line.strip().endsWith("'")) {
@@ -85,6 +99,10 @@ public class FileUtil {
         return dir;
     }
 
+    /**
+     * Method used to get the free,total and used disk space.
+     * @param curDir the current directory.
+     */
     public static void getDiskSpace(File curDir){
         long totalSpace = curDir.getTotalSpace();
         long freeSpace = curDir.getFreeSpace();
@@ -94,6 +112,11 @@ public class FileUtil {
         System.out.println("Used space: "+usedSpace);
     }
 
+    /**
+     * Method used to get the total space from a directory.
+     * @param curDir is the current directory.
+     * @return the total space of the current directory.
+     */
     public static long getTotalSpace(File curDir){
         long totalSpace = curDir.getTotalSpace();
 
@@ -102,6 +125,11 @@ public class FileUtil {
         return totalSpace;
     }
 
+    /**
+     * Method used to get the used space of the current directory.
+     * @param curDir is the current directory.
+     * @return the used space of the current directory.
+     */
     public static long getUsedSpace(File curDir){
         long totalSpace = curDir.getTotalSpace();
         long freeSpace = curDir.getFreeSpace();
@@ -111,6 +139,11 @@ public class FileUtil {
         return usedSpace;
     }
 
+    /**
+     * Method used to get the free space of the directory.
+     * @param dir is the current directory.
+     * @return the free space of the current directory.
+     */
     public static long getFreeSpace(File dir){
         if (!dir.exists() || !dir.isDirectory()) {
             return -1;
