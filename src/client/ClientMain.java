@@ -586,7 +586,7 @@ public class ClientMain {
                 if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
                     fileMeta = gson.fromJson(resp.getContent(), FileMetadata.class);
                     FileMetadata finalFileMeta = fileMeta;
-                    new Runnable() {
+                    new Thread(new Runnable() {
 
                         @Override
                         public void run() {
@@ -625,7 +625,7 @@ public class ClientMain {
                                 }
                             }
                         }
-                    };
+                    }).start();
                 } else {
                     showErrors(resp.getErrors());
                 }
