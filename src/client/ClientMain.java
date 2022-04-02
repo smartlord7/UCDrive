@@ -77,7 +77,7 @@ public class ClientMain {
     }
 
     /**
-     * Method that shows the user local directory.
+     * Method that shows a bash like display.
      * @param user the logged user.
      * @param currLocalDir the current local directory.
      * @return the cmd prefix.
@@ -87,10 +87,11 @@ public class ClientMain {
         String prefix;
 
         userName = user.getUserName();
-        prefix = (user.isAuth() ? userName + "@" : "") + Const.APP_NAME + "-local~\\" + currLocalDir + "\n";
+        prefix = (config.isServerConnected() ? "Connected to " + cmdSocket.getInetAddress().getHostAddress() + "\n" : "");
+        prefix += (user.isAuth() ? userName + "@" : "") + Const.APP_NAME + "-local~\\" + currLocalDir + "\n";
 
         if (user.isAuth()) {
-            prefix += StringUtil.repeat(" ", userName.length()) + "@" + Const.APP_NAME + "-remote~\\" + session.getCurrentDir() + "\n$ ";
+            prefix +=  StringUtil.repeat(" ", userName.length()) + "@" + Const.APP_NAME + "-remote~\\" + session.getCurrentDir() + Const.CMD_SYMBOL;
         } else {
             prefix = Const.COLOR_YELLOW + prefix + Const.COLOR_RESET + Const.CMD_SYMBOL;
         }
