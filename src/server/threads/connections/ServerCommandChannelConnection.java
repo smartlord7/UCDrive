@@ -98,7 +98,7 @@ public class ServerCommandChannelConnection extends Thread {
      * @return the server response.
      * @throws SQLException - whenever a database related error occurs.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
      */
     private Response handleRequest(Request req) throws SQLException, NoSuchAlgorithmException, IOException, InterruptedException {

@@ -42,8 +42,7 @@ import static sun.nio.ch.IOStatus.EOF;
 public class ClientMain {
 
     // region Private properties
-    public static final String RESET = "\033[0m";
-    public static final String BLUE = "\033[0;34m";
+
     private String currLocalDir = System.getProperty("user.dir");
     private ObjectOutputStream outCmd;
     private ObjectInputStream inCmd;
@@ -93,7 +92,7 @@ public class ClientMain {
         if (user.isAuth()) {
             prefix += StringUtil.repeat(" ", userName.length()) + "@" + Const.APP_NAME + "-remote~\\" + session.getCurrentDir() + "\n$ ";
         } else {
-            prefix += "$ ";
+            prefix = Const.COLOR_YELLOW + prefix + Const.COLOR_RESET +  Const.COLOR_GREEN + "$ " + Const.COLOR_RESET;
         }
 
         return prefix;
@@ -137,7 +136,7 @@ public class ClientMain {
 
     /**
      * Method that switches to the secondary server.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void switchToSecondaryServer() throws IOException {
         config.setServerConnected(false);
@@ -160,7 +159,7 @@ public class ClientMain {
 
     /**
      * Method that exchanges the request and the response.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void exchangeReqResp() throws IOException, ClassNotFoundException {
@@ -178,7 +177,7 @@ public class ClientMain {
 
     /**
      * Method that sends the requests.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void sendRequest() throws IOException {
         try {
@@ -204,7 +203,7 @@ public class ClientMain {
     /**
      * Method that sends the data.
      * @param data is the data to be sent.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void sendData(byte[] data) throws IOException {
         try {
@@ -225,7 +224,7 @@ public class ClientMain {
 
     /**
      * Method that receives the response.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void receiveResponse() throws IOException, ClassNotFoundException {
@@ -250,7 +249,7 @@ public class ClientMain {
      * @param buffer is the buffer containing the data.
      * @param readSize is the buffer read size.
      * @return the end when the buffer reaches the end.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private int receiveData(byte[] buffer, int readSize) throws IOException {
         try {
@@ -276,7 +275,7 @@ public class ClientMain {
      * @param ip is the connection ip
      * @param cmdPort is the command handler port.
      * @param dataPort is the data handler port.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void connectServer_(String ip, int cmdPort, int dataPort) throws IOException {
         try {
@@ -307,7 +306,7 @@ public class ClientMain {
 
     /**
      * Method used to connect to the server and if down,tries to connect to the secondary.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void connectServer() throws IOException {
         if (!config.isMainServerConfigured()) {
@@ -335,7 +334,7 @@ public class ClientMain {
 
     /**
      * Method used to disconnect from the server.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void disconnectServer() throws IOException {
         if (!hasConnection()) {
@@ -356,7 +355,7 @@ public class ClientMain {
 
     /**
      * Method used to configure the server.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void configServers() throws IOException {
         String selectedServer;
@@ -391,7 +390,7 @@ public class ClientMain {
 
     /**
      * Method used to authenticate the user.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void authUser() throws IOException, ClassNotFoundException {
@@ -429,7 +428,7 @@ public class ClientMain {
 
     /**
      * Method used to logout the user.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void logoutUser() throws IOException, ClassNotFoundException {
@@ -464,7 +463,7 @@ public class ClientMain {
 
     /**
      * Method used to register the user.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void registerUser() throws IOException, ClassNotFoundException {
@@ -496,7 +495,7 @@ public class ClientMain {
 
     /**
      * Method used to change the user password.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void changeUserPassword() throws IOException, ClassNotFoundException {
@@ -549,7 +548,7 @@ public class ClientMain {
 
     /**
      * Method used to list the remote directory.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void listRemoteDir() throws IOException, ClassNotFoundException {
@@ -583,7 +582,7 @@ public class ClientMain {
 
     /**
      * Method that changes the local current working directory.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void changeLocalCWD() throws IOException {
         String dir;
@@ -604,7 +603,7 @@ public class ClientMain {
 
     /**
      * Method that changes the remote current working directory.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void changeRemoteCWD() throws IOException, ClassNotFoundException {
@@ -642,7 +641,7 @@ public class ClientMain {
 
     /**
      * Method to upload the files.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void uploadFiles() throws IOException, ClassNotFoundException {
@@ -709,7 +708,7 @@ public class ClientMain {
 
     /**
      * Method to download the files.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void downloadFiles() throws IOException, ClassNotFoundException {
@@ -800,27 +799,29 @@ public class ClientMain {
      * Method that prints the Menu.
      */
     private void showMenu() {
-        System.out.println(BLUE + """
-                |--------------------------------------------------------------------------------------|
-                |    ||       ||  |||||||||   |||||||     ||||||||     ||   ||        ||   |||||||||   |
-                |    ||       ||  ||          ||     ||   ||     ||    ||    ||      ||    ||          |
-                |    ||       ||  ||          ||      ||  |||||||||    ||     ||    ||     |||||||||   |
-                |    ||       ||  ||          ||     ||   ||  \\\\       ||      ||  ||      ||          |
-                |    |||||||||||  |||||||||   ||||||||    ||     \\\\    ||        ||        |||||||||   |
-                |--------------------------------------------------------------------------------------|
+        System.out.println(Const.COLOR_BLUE + """
+                |---------------------------------------------------------------------------------------|
+                |    ||       ||  |||||||||   |||||||     ||||||||     ||   ||        ||   |||||||||    |
+                |    ||       ||  ||          ||     ||   ||     ||    ||    ||      ||    ||           |
+                |    ||       ||  ||          ||      ||  |||||||||    ||     ||    ||     |||||||||    |
+                |    ||       ||  ||          ||     ||   ||  \\\\       ||      ||  ||      ||           |
+                |    |||||||||||  |||||||||   ||||||||    ||     \\\\    ||        ||        |||||||||    |
+                |---------------------------------------------------------------------------------------|
+                |-----------------------------------------Client----------------------------------------|
+                
                 
                 @By Sancho Simões
                 @By Tiago Ventura
                 Bachelor in Computer Science and Engineering, University of Coimbra
                 2021/2022 - 3rd year, 2nd semester - Distributed Systems
                 
-                Type ? or 'help' to view the available commands
-                """ + RESET);
+                Type '?' or 'help' to view the available commands
+                """ + Const.COLOR_RESET);
     }
 
     /**
      * Method that clears the channels.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void clearChannels() throws IOException {
         if (config.isServerConnected()) {
@@ -836,7 +837,7 @@ public class ClientMain {
 
     /**
      * Method used to close the threads.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void clean() throws IOException {
         if (config.isMainServerConfigured() || config.isSecondaryServerConfigured()) {
@@ -851,7 +852,7 @@ public class ClientMain {
 
     /**
      * Main method to run the choosen method by the client in the cmd.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
 
@@ -912,7 +913,7 @@ public class ClientMain {
 
     /**
      * Main method.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     public ClientMain() throws IOException, ClassNotFoundException {
@@ -922,7 +923,7 @@ public class ClientMain {
     /**
      * Main method.
      * @param args are the main arguments.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     public static void main(String[] args) throws IOException, ClassNotFoundException {

@@ -71,7 +71,7 @@ public class ConnectionFactory {
     /**
      * Method that gets the current connection.
      * @return the current connection.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws SQLException - whenever a database related error occurs.
      */
     public static Connection getConnection() throws IOException, SQLException {

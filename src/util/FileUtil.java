@@ -45,7 +45,7 @@ public class FileUtil {
      * @param targetDir the directory to go.
      * @param currDir the current directory.
      * @return the targeted directory as the current directory.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     public static String getNextCWD(String targetDir, String currDir) throws IOException {
         boolean validDir = false;

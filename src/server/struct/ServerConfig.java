@@ -54,7 +54,7 @@ public class ServerConfig {
      * Method to read from the file.
      * @param path is the file path.
      * @return the config red from the file.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     public static ServerConfig getFromFile(String path) throws IOException {
         String line;

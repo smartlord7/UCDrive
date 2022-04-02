@@ -77,6 +77,8 @@ public class ServerMain {
             if (!Files.exists(p)) {
                 Files.createDirectory(p);
             }
+
+            ServerController.showMenu(config.isSecondary());
         } catch (IOException i) {
             System.out.println("Error: the input/output operation has failed.");
         }
@@ -121,7 +123,7 @@ public class ServerMain {
     /**
      *  Server Main method.
      * @param args main arguments.
-     * @throws IOException - whenever an input or output operation is failed or interpreted
+     * @throws IOException - whenever an input or output operation is failed or interrupted
      * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
      */
     public ServerMain(String[] args) throws IOException, InterruptedException {
@@ -132,10 +134,14 @@ public class ServerMain {
     /**
      * Main method.
      * @param args main arguments
-     * @throws IOException - whenever an input or output operation is failed or interpreted
+     * @throws IOException - whenever an input or output operation is failed or interrupted
      * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
      */
     public static void main(String[] args) throws IOException, InterruptedException {
+        if (args.length < 1) {
+            System.out.println("Error: a config file must be provided as an argument.");
+            return;
+        }
         new ServerMain(args);
     }
 

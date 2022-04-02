@@ -20,6 +20,11 @@ public class Const {
 
     public static final String APP_NAME = "UCDrive";
     public static final String APP_VERSION = "1.0";
+    public static final String COLOR_RESET = "\033[0m";
+    public static final String COLOR_BLUE = "\033[0;34m";
+    public static final String COLOR_RED = "\u001B[31m";
+    public static final String COLOR_GREEN = "\u001B[32m";
+    public static final String COLOR_YELLOW = "\u001B[33m";
     public static final String USERS_FOLDER_NAME = "users";
     public static final String PASSWORD_HASH_ALGORITHM = "SHA-256";
     public static final String FILE_CONTENT_CHECKSUM_ALGORITHM = "MD5";
@@ -27,6 +32,6 @@ public class Const {
     public static final int DOWNLOAD_FILE_CHUNK_SIZE = 512;
     public static final int UDP_BUFFER_SIZE = 4096;
 
-    // Const
+    // endregion Const
 
 }

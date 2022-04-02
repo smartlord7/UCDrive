@@ -141,7 +141,7 @@ public class ServerSynced implements Runnable{
      * @param response is the response status.
      * @param socket is the handler socket.
      * @param packetRequest is the packet request.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void sendFeedback(FailoverFeedback response, DatagramSocket socket, DatagramPacket packetRequest) throws IOException {
         byte[] buf;

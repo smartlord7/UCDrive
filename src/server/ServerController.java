@@ -123,7 +123,7 @@ public class ServerController {
      * @return the logged in now registered user.
      * @throws SQLException - whenever a database related error occurs.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     public static Response createUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException, IOException {
         int userId;
@@ -273,7 +273,7 @@ public class ServerController {
      * @param req is the server request.
      * @param session is the server current session.
      * @return the response status.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws SQLException - whenever a database related error occurs.
      */
     public static Response changeWorkingDir(Request req, ServerUserSession session) throws IOException, SQLException {
@@ -365,7 +365,7 @@ public class ServerController {
      * @param session is the server session.
      * @return the response status.
      * @throws SQLException - whenever a database related error occurs.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     public static Response downloadFiles(Request req, ServerUserSession session) throws SQLException, IOException {
         int userId;
@@ -416,26 +416,27 @@ public class ServerController {
     }
 
     /**
-     * Method that prints the user menu.
-     * @return the user menu.
+     * Method that prints the Menu.
      */
-    public static String menu(){
-        return """
-                \t\t\t\t       Client
-                \t\t\t\t\t   MENU
-                \t\t\t ________________________________
-                \t\t\t|                                |
-                \t\t\t|1 -> REGISTER  |
-                \t\t\t|                                |
-                \t\t\t|2 -> LOGIN    |
-                \t\t\t|                                |
-                \t\t\t|3 -> UPLOAD                 |
-                \t\t\t|                                |
-                \t\t\t|4 -> DOWNLOAD        |
-                \t\t\t|________________________________|
-                \s
-                \t\t\t5 - EXIT
-                                    \s""";
+    public static void showMenu(boolean isSecondary) {
+        System.out.println((isSecondary ? Const.COLOR_GREEN : Const.COLOR_RED) + """
+                |---------------------------------------------------------------------------------------|
+                |    ||       ||  |||||||||   |||||||     ||||||||     ||   ||        ||   |||||||||    |
+                |    ||       ||  ||          ||     ||   ||     ||    ||    ||      ||    ||           |
+                |    ||       ||  ||          ||      ||  |||||||||    ||     ||    ||     |||||||||    |
+                |    ||       ||  ||          ||     ||   ||  \\\\       ||      ||  ||      ||           |
+                |    |||||||||||  |||||||||   ||||||||    ||     \\\\    ||        ||        |||||||||    |
+                |---------------------------------------------------------------------------------------|
+                """ + (isSecondary ? "|----------------------------------Secondary Server-------------------------------------|" : "|--------------------------------------Main Server--------------------------------------|") +
+                """
+                
+                
+                @By Sancho Simões
+                @By Tiago Ventura
+                Bachelor in Computer Science and Engineering, University of Coimbra
+                2021/2022 - 3rd year, 2nd semester - Distributed Systems
+                
+                """ + (Const.COLOR_RESET));
     }
 
     // endregion Public methods

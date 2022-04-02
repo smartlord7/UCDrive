@@ -94,7 +94,7 @@ public class ServerDataChannelConnection extends Thread {
 
     /**
      * Method used to send the selected upload file by chunks.
-     @throws IOException - whenever an input or output operation is failed or interpreted.
+     @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void sendFileByChunks() throws IOException {
         int fileSize;
@@ -121,7 +121,7 @@ public class ServerDataChannelConnection extends Thread {
     }
     /**
      * Method used to receive the selected download file by chunks.
-     @throws IOException - whenever an input or output operation is failed or interpreted.
+     @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void receiveFileByChunks() throws IOException {
         int totalRead;
