@@ -2,6 +2,8 @@ package protocol.failover.redundancy;
 
 import util.Const;
 import util.Hasher;
+import util.StringUtil;
+
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -13,13 +15,13 @@ public class FailoverData implements Serializable {
     private int totalSize;
     private String name;
     private byte[] checksum;
-    private String content;
+    private byte[] content;
     private FailoverDataTypeEnum type;
 
     public FailoverData() {
     }
 
-    public FailoverData(int id, int size, int totalSize, String name, byte[] checksum, String content, FailoverDataTypeEnum type) {
+    public FailoverData(int id, int size, int totalSize, String name, byte[] checksum, byte[] content, FailoverDataTypeEnum type) {
         this.id = id;
         this.size = size;
         this.totalSize = totalSize;
@@ -45,11 +47,11 @@ public class FailoverData implements Serializable {
         this.checksum = checksum;
     }
 
-    public String getContent() {
+    public byte[] getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(byte[] content) {
         this.content = content;
     }
 
@@ -78,7 +80,7 @@ public class FailoverData implements Serializable {
     }
 
     public boolean verifyChecksum() throws NoSuchAlgorithmException {
-        return Arrays.equals(this.checksum, Hasher.hashBytes(this.content, Const.FILE_CONTENT_CHECKSUM_ALGORITHM));
+        return Arrays.equals(this.checksum, Hasher.hashBytes(StringUtil.bytesToHex(this.content), Const.FILE_CONTENT_CHECKSUM_ALGORITHM));
     }
 
     public int getSize() {

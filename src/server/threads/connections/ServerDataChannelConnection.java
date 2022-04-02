@@ -135,8 +135,7 @@ public class ServerDataChannelConnection extends Thread {
 
             totalRead += bytesRead;
             fileWriter.write(finalBuffer);
-            bufferStr = new String(finalBuffer, StandardCharsets.UTF_8);
-            dataToSync.add(new FailoverData(counter, bufferStr.length(), fileSize, session.getCurrentDir() + "\\" + fileMeta.getFileName(), null, bufferStr, FailoverDataTypeEnum.FILE));
+            dataToSync.add(new FailoverData(counter, finalBuffer.length, fileSize, session.getCurrentDir() + "\\" + fileMeta.getFileName(), null, finalBuffer.clone(), FailoverDataTypeEnum.FILE));
 
             if (totalRead >= fileSize) {
                 fileWriter.close();

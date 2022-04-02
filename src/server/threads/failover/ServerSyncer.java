@@ -5,6 +5,7 @@ import protocol.failover.redundancy.FailoverFeedback;
 import protocol.failover.redundancy.FailoverFeedbackTypeEnum;
 import util.Const;
 import util.Hasher;
+import util.StringUtil;
 
 import java.io.*;
 import java.net.*;
@@ -54,7 +55,7 @@ public class ServerSyncer implements Runnable {
 
                 while (true) {
                     request = dataToSync.take();
-                    request.setChecksum(Hasher.hashBytes(request.getContent(), Const.FILE_CONTENT_CHECKSUM_ALGORITHM));
+                    request.setChecksum(Hasher.hashBytes(StringUtil.bytesToHex(request.getContent()), Const.FILE_CONTENT_CHECKSUM_ALGORITHM));
                     byteWriter = new ByteArrayOutputStream();
                     objWriter = new ObjectOutputStream(byteWriter);
                     objWriter.writeObject(request);
@@ -69,19 +70,19 @@ public class ServerSyncer implements Runnable {
 
                     try {
                         socket.receive(packetResponse);
+                        byteReader = new ByteArrayInputStream(resp);
+                        objectReader = new ObjectInputStream(byteReader);
+                        response = (FailoverFeedback) objectReader.readObject();
+
+                        if (response.getFeedback() == FailoverFeedbackTypeEnum.NACK) {
+                            System.out.println("[SYNCER] Packet " + request.getId() + " NACK.");
+
+                            socket.send(packetRequest);
+                        }
                     } catch (SocketTimeoutException e) {
                         System.out.println("[SYNCER] Packet " + request.getId() + " timeout.");
                     }
 
-                    byteReader = new ByteArrayInputStream(resp);
-                    objectReader = new ObjectInputStream(byteReader);
-                    response = (FailoverFeedback) objectReader.readObject();
-
-                    if (response.getFeedback() == FailoverFeedbackTypeEnum.NACK) {
-                        System.out.println("[SYNCER] Packet " + request.getId() + " NACK.");
-
-                        socket.send(packetRequest);
-                    }
                     socket.setSoTimeout(0);
                 }
         } catch (IOException | InterruptedException | NoSuchAlgorithmException | ClassNotFoundException e) {

@@ -36,7 +36,7 @@ public class ServerSynced implements Runnable{
         int currTotalSize;
         int currSize;
         byte[] buf;
-        String content;
+        byte[] content;
         String filePath;
         Path p;
         FailoverData request;
@@ -46,7 +46,7 @@ public class ServerSynced implements Runnable{
         DatagramPacket packetRequest;
         ByteArrayInputStream byteReader;
         ObjectInputStream objectReader;
-        BufferedWriter fileWriter;
+        FileOutputStream fileWriter;
 
         currTotalSize = 0;
         currSize = 0;
@@ -88,7 +88,7 @@ public class ServerSynced implements Runnable{
                                 Files.createDirectory(p);
                             }
 
-                            fileWriter = new BufferedWriter(new FileWriter(filePath));
+                            fileWriter = new FileOutputStream(filePath);
                             request = temp;
 
                         }
