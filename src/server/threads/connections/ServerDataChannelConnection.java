@@ -34,6 +34,7 @@ import static sun.nio.ch.IOStatus.EOF;
 /**
  * Class that has the most methods to handle the server data channel connection.
  */
+
 public class ServerDataChannelConnection extends Thread {
 
     // region Private properties
@@ -48,6 +49,10 @@ public class ServerDataChannelConnection extends Thread {
 
     // region Private methods
 
+    /**
+     * Method used to print the log exception.
+     * @param e is the exception.
+     */
     private void logException(java.lang.Exception e) {
         DAOResult result = null;
         try {
@@ -142,6 +147,7 @@ public class ServerDataChannelConnection extends Thread {
 
         fileReader.close();
     }
+
     /**
      * Method used to receive the selected download file by chunks.
      @throws IOException - whenever an input or output operation is failed or interrupted.

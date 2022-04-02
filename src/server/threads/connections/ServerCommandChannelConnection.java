@@ -13,7 +13,6 @@ package server.threads.connections;
 
 import businesslayer.Exception.ExceptionDAO;
 import businesslayer.base.DAOResult;
-import com.microsoft.sqlserver.jdbc.SQLServerException;
 import datalayer.model.Exception.Exception;
 import protocol.clientserver.Request;
 import protocol.clientserver.RequestMethodEnum;
@@ -22,7 +21,6 @@ import protocol.clientserver.ResponseStatusEnum;
 import server.ServerController;
 import server.struct.ServerUserSession;
 import server.threads.failover.FailoverDataHelper;
-
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
@@ -33,6 +31,7 @@ import java.util.HashMap;
 /**
  * Class that has the most methods to handle the server command channel connection.
  */
+
 public class ServerCommandChannelConnection extends Thread {
 
     // region Private properties
@@ -49,6 +48,10 @@ public class ServerCommandChannelConnection extends Thread {
 
     // region Private methods
 
+    /**
+     * Method used to print the log exception.
+     * @param e is the exception.
+     */
     private void logException(java.lang.Exception e) {
         DAOResult result = null;
         try {
@@ -68,12 +71,21 @@ public class ServerCommandChannelConnection extends Thread {
         }
     }
 
+    /**
+     * Method used to send the response.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     private void sendResponse() throws IOException {
         out.writeObject(resp);
         out.flush();
         out.reset();
     }
 
+    /**
+     * Method used to send the error.
+     * @param e is the exception.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     private void sendError(java.lang.Exception e) throws IOException {
         resp = new Response();
         HashMap<String, String> errors = new HashMap<>();
@@ -81,6 +93,28 @@ public class ServerCommandChannelConnection extends Thread {
         resp.setStatus(ResponseStatusEnum.ERROR);
         resp.setErrors(errors);
         sendResponse();
+    }
+
+    /**
+     *  Method that handles the request.
+     * @throws SQLException - whenever a database related error occurs.
+     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
+     */
+    private void handleRequest() throws SQLException, NoSuchAlgorithmException, IOException, NoSuchMethodException, ClassNotFoundException {
+        req = (Request) in.readObject();
+        RequestMethodEnum method = req.getMethod();
+
+        switch (method) {
+            case USER_CREATE -> resp = ServerController.createUser(req, session);
+            case USER_AUTHENTICATION -> resp = ServerController.authUser(req, session);
+            case USER_LOGOUT -> resp = ServerController.logoutUser(req, session);
+            case USER_CHANGE_PASSWORD -> resp = ServerController.changeUserPassword(req);
+            case USER_LIST_SERVER_FILES -> resp = ServerController.listDirFiles(req, session);
+            case USER_CHANGE_CWD -> resp = ServerController.changeWorkingDir(req, session);
+            case USER_UPLOAD_FILE -> resp = ServerController.uploadFiles(req, session);
+            case USER_DOWNLOAD_FILE -> resp = ServerController.downloadFiles(req, session);
+        }
     }
 
     // endregion Private methods
@@ -135,31 +169,5 @@ public class ServerCommandChannelConnection extends Thread {
     }
 
     // endregion Public methods
-
-    // region Private methods
-
-    /**
-     *  Method that handles the request.
-     * @throws SQLException - whenever a database related error occurs.
-     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
-     * @throws IOException - whenever an input or output operation is failed or interrupted.
-     */
-    private void handleRequest() throws SQLException, NoSuchAlgorithmException, IOException, NoSuchMethodException, ClassNotFoundException {
-        req = (Request) in.readObject();
-        RequestMethodEnum method = req.getMethod();
-
-        switch (method) {
-            case USER_CREATE -> resp = ServerController.createUser(req, session);
-            case USER_AUTHENTICATION -> resp = ServerController.authUser(req, session);
-            case USER_LOGOUT -> resp = ServerController.logoutUser(req, session);
-            case USER_CHANGE_PASSWORD -> resp = ServerController.changeUserPassword(req);
-            case USER_LIST_SERVER_FILES -> resp = ServerController.listDirFiles(req, session);
-            case USER_CHANGE_CWD -> resp = ServerController.changeWorkingDir(req, session);
-            case USER_UPLOAD_FILE -> resp = ServerController.uploadFiles(req, session);
-            case USER_DOWNLOAD_FILE -> resp = ServerController.downloadFiles(req, session);
-        }
-    }
-
-    // endregion Private methods
 
 }
