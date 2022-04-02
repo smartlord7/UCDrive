@@ -9,7 +9,7 @@
  Coimbra, 2nd April 2022
  ---------------------------------------------------------------------------*/
 
-package server.threads.failover;
+package util;
 
 import businesslayer.base.DAOResult;
 import protocol.failover.redundancy.FailoverData;

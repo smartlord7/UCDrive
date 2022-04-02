@@ -26,7 +26,7 @@ import protocol.clientserver.Request;
 import protocol.clientserver.Response;
 import protocol.clientserver.ResponseStatusEnum;
 import server.struct.ServerUserSession;
-import server.threads.failover.FailoverDataHelper;
+import util.FailoverDataHelper;
 import util.Const;
 import util.FileMetadata;
 import util.FileUtil;

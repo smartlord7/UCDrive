@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact name="UCDriveServer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/UCDriveServer_jar</output-path>
+    <root id="root">
+      <element id="archive" name="UCDriveServer.jar">
+        <element id="module-output" name="UCDrive" />
+      </element>
+      <element id="file-copy" path="$PROJECT_DIR$/dependencies/mssql-jdbc-10.2.0.jre17.jar" />
+      <element id="library" level="project" name="google.code.gson" />
+    </root>
+  </artifact>
+</component>

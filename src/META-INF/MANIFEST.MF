@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: server.ServerMain
+Class-Path: mssql-jdbc-10.2.0.jre17.jar gson-2.9.0.jar
+

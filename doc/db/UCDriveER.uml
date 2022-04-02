@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>9a4a3ac9-2c7c-474e-87a3-c54ee8737708.DATABASE:UCDriveSecondaryServer</OriginalElement>
+  <nodes>
+    <node x="0.0" y="171.0">9a4a3ac9-2c7c-474e-87a3-c54ee8737708.TABLE:UCDriveSecondaryServer.dbo.SessionLog</node>
+    <node x="0.0" y="359.0">9a4a3ac9-2c7c-474e-87a3-c54ee8737708.TABLE:UCDriveSecondaryServer.dbo.Exception</node>
+    <node x="102.75" y="0.0">9a4a3ac9-2c7c-474e-87a3-c54ee8737708.TABLE:UCDriveSecondaryServer.dbo.User</node>
+    <node x="196.0" y="182.0">9a4a3ac9-2c7c-474e-87a3-c54ee8737708.TABLE:UCDriveSecondaryServer.dbo.FilePermission</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="9a4a3ac9-2c7c-474e-87a3-c54ee8737708.TABLE:UCDriveSecondaryServer.dbo.FilePermission" target="9a4a3ac9-2c7c-474e-87a3-c54ee8737708.TABLE:UCDriveSecondaryServer.dbo.User" relationship="REFERENCES">
+      <point x="0.0" y="-60.5" />
+      <point x="291.5" y="146.0" />
+      <point x="189.75" y="146.0" />
+      <point x="0.0" y="60.5" />
+    </edge>
+    <edge source="9a4a3ac9-2c7c-474e-87a3-c54ee8737708.TABLE:UCDriveSecondaryServer.dbo.SessionLog" target="9a4a3ac9-2c7c-474e-87a3-c54ee8737708.TABLE:UCDriveSecondaryServer.dbo.User" relationship="REFERENCES">
+      <point x="0.0" y="-71.5" />
+      <point x="88.0" y="146.0" />
+      <point x="189.75" y="146.0" />
+      <point x="0.0" y="60.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="1.0" showDependencies="false" x="193.5" y="273.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Comments</Category>
+    <Category>Key columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+

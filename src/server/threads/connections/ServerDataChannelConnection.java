@@ -18,7 +18,7 @@ import datalayer.model.Exception.Exception;
 import protocol.failover.redundancy.FailoverData;
 import protocol.failover.redundancy.FailoverDataTypeEnum;
 import server.struct.ServerUserSession;
-import server.threads.failover.FailoverDataHelper;
+import util.FailoverDataHelper;
 import util.Const;
 import util.FileMetadata;
 import util.FileUtil;

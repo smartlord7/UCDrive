@@ -21,7 +21,7 @@ import protocol.clientserver.Response;
 import protocol.clientserver.ResponseStatusEnum;
 import server.ServerController;
 import server.struct.ServerUserSession;
-import server.threads.failover.FailoverDataHelper;
+import util.FailoverDataHelper;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
