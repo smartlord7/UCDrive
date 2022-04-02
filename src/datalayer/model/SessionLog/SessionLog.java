@@ -3,12 +3,22 @@ package datalayer.model.SessionLog;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+/**
+ * Class that has the Session log methods.
+ */
 public class SessionLog {
+
+    // region Private properties
+
     private int sessionLogId;
     private int userId;
     private Timestamp startDate;
     private Timestamp endDate;
     private String lastDirectory;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -29,6 +39,8 @@ public class SessionLog {
         this.endDate = endDate;
         this.lastDirectory = lastDirectory;
     }
+
+    // endregion Public methods
 
     // region Getters and Setters
 
