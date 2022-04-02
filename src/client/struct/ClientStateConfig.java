@@ -16,6 +16,7 @@ import java.util.StringJoiner;
 /**
  * Class that has the client state configuration methods.
  */
+
 public class ClientStateConfig {
 
     // region Private properties

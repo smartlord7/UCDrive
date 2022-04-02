@@ -39,6 +39,7 @@ import static sun.nio.ch.IOStatus.EOF;
 /**
  * Class that has the client main methods.
  */
+
 public class ClientMain {
 
     // region Private properties
@@ -864,16 +865,15 @@ public class ClientMain {
         }
     }
 
-    /**
-     * Main method to run the choosen method by the client in the cmd.
-     * @throws IOException - whenever an input or output operation is failed or interrupted.
-     * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
-     */
-
     // endregion Private methods
 
     // region Public methods
 
+    /**
+     * Main method to run the chosen method by the client in the cmd.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
+     * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
+     */
     public void run() throws IOException, ClassNotFoundException {
         String cmd = null;
 

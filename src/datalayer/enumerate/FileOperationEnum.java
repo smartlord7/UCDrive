@@ -18,6 +18,7 @@ package datalayer.enumerate;
  * UPLOAD - Uploading a file.
  * DOWNLOAD - Downloading a file.
  */
+
 public enum FileOperationEnum {
     UPLOAD, DOWNLOAD
 }

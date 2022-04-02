@@ -20,6 +20,7 @@ package datalayer.enumerate;
  * READ_WRITE - Read and Write permission.
  * NONE - No permissions.
  */
+
 public enum FilePermissionEnum {
     READ, WRITE, READ_WRITE, NONE;
 

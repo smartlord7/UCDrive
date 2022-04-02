@@ -11,11 +11,9 @@
 
 package businesslayer.SessionLog;
 
-import businesslayer.FilePermission.FilePermissionDAO;
 import businesslayer.base.BaseDAO;
 import businesslayer.base.DAOResult;
 import businesslayer.base.DAOResultStatusEnum;
-import datalayer.model.FilePermission.FilePermission;
 import datalayer.model.SessionLog.SessionLog;
 import java.io.Serializable;
 import java.sql.Connection;
@@ -26,6 +24,7 @@ import java.sql.SQLException;
 /**
  * Class that has the session log DAO methods.
  */
+
 public class SessionLogDAO implements BaseDAO, Serializable {
 
     // region Public properties

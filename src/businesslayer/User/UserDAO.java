@@ -24,6 +24,7 @@ import java.sql.*;
 /**
  * Class that has the user DAO methods.
  */
+
 public class UserDAO implements BaseDAO, Serializable{
 
     // region Public properties

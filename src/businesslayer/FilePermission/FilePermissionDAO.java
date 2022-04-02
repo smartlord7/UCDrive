@@ -5,16 +5,33 @@ import businesslayer.base.DAOResult;
 import businesslayer.base.DAOResultStatusEnum;
 import datalayer.enumerate.FilePermissionEnum;
 import datalayer.model.FilePermission.FilePermission;
-
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class that has the file permission DAO methods.
+ */
+
 public class FilePermissionDAO implements BaseDAO, Serializable {
+
+    // region Public properties
+
     public static Connection connection;
 
+    // endregion Public properties
+
+    // region Public methods
+
+    /**
+     * Method that creates the DAO result.
+     * @param filePerm are the file permissions.
+     * @return the created DAO result.
+     * @throws NoSuchMethodException - when a particular method cannot be found.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     public static DAOResult create(FilePermission filePerm) throws NoSuchMethodException, SQLException {
         String sql;
         PreparedStatement stmt;
@@ -39,6 +56,12 @@ public class FilePermissionDAO implements BaseDAO, Serializable {
                 FilePermissionDAO.class, FilePermission.class, FilePermissionDAO.class.getMethod("create", FilePermission.class).getName());
     }
 
+    /**
+     * Method that gets the file permissions.
+     * @param filePerm are the file permissions.
+     * @return the file permissions.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     public static FilePermissionEnum getPermission(FilePermission filePerm) throws SQLException {
         FilePermissionEnum permission;
         PreparedStatement stmt;
@@ -58,4 +81,7 @@ public class FilePermissionDAO implements BaseDAO, Serializable {
 
         return permission;
     }
+
+    // endregion Public methods
+
 }
