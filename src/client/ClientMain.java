@@ -15,7 +15,7 @@ import client.struct.ClientStateConfig;
 import com.google.gson.Gson;
 import datalayer.model.SessionLog.SessionLog;
 import datalayer.model.User.User;
-import datalayer.model.User.ClientUserSession;
+import client.struct.ClientUserSession;
 import protocol.clientserver.Request;
 import protocol.clientserver.RequestMethodEnum;
 import protocol.clientserver.Response;

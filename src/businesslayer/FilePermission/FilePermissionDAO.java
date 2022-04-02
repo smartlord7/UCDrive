@@ -1,6 +1,7 @@
 package businesslayer.FilePermission;
 
 import datalayer.enumerate.FilePermissionEnum;
+import datalayer.model.FilePermission.FilePermission;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,20 +11,20 @@ import java.sql.SQLException;
 public class FilePermissionDAO {
     public static Connection connection;
 
-    public static void create(int userId, String directory, FilePermissionEnum permission) {
+    public static void create(FilePermission filePerm) {
         PreparedStatement stmt;
 
         try {
-            if (permission == FilePermissionEnum.NONE) {
+            if (filePerm.getPermission() == FilePermissionEnum.NONE) {
                 return;
             }
 
             stmt = connection.prepareStatement(
                     "INSERT INTO FilePermission (Directory, PermissionType, UserId)" +
                             "VALUES (?, ?, ?)");
-            stmt.setString(1, directory);
-            stmt.setInt(2, permission.ordinal());
-            stmt.setInt(3, userId);
+            stmt.setString(1, filePerm.getDirectory());
+            stmt.setInt(2, filePerm.getPermission().ordinal());
+            stmt.setInt(3, filePerm.getUserId());
             stmt.executeUpdate();
 
             connection.commit();
@@ -39,7 +40,7 @@ public class FilePermissionDAO {
 
     }
 
-    public static FilePermissionEnum getPermission(int userId, String directory) throws SQLException {
+    public static FilePermissionEnum getPermission(FilePermission filePerm) throws SQLException {
         FilePermissionEnum permission;
         PreparedStatement stmt;
 
@@ -48,8 +49,8 @@ public class FilePermissionDAO {
                 "SELECT PermissionType FROM FilePermission" +
                         " WHERE UserId = ? AND ? LIKE Directory + '%'");
 
-        stmt.setInt(1, userId);
-        stmt.setString(2, directory);
+        stmt.setInt(1, filePerm.getUserId());
+        stmt.setString(2, filePerm.getDirectory());
         ResultSet res = stmt.executeQuery();
 
         while (res.next()) {

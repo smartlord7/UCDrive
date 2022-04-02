@@ -9,7 +9,7 @@
  Coimbra, 2nd April 2022
  ---------------------------------------------------------------------------*/
 
-package datalayer.model.User;
+package client.struct;
 
 import java.io.Serializable;
 

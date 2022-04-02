@@ -16,8 +16,9 @@ import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
 import com.google.gson.Gson;
 import datalayer.enumerate.FilePermissionEnum;
+import datalayer.model.FilePermission.FilePermission;
 import datalayer.model.SessionLog.SessionLog;
-import datalayer.model.User.ClientUserSession;
+import client.struct.ClientUserSession;
 import datalayer.model.User.User;
 import datalayer.enumerate.FileOperationEnum;
 import protocol.clientserver.Request;
@@ -147,7 +148,7 @@ public class ServerController {
 
         initialDir = Const.USERS_FOLDER_NAME + "\\" + user.getUserName();
         Files.createDirectory(Paths.get(initialDir));
-        FilePermissionDAO.create(userId, initialDir, FilePermissionEnum.READ_WRITE);
+        FilePermissionDAO.create(new FilePermission(userId, initialDir, FilePermissionEnum.READ_WRITE));
 
         return initSession(session, userId, initialDir, user, resp);
     }
@@ -264,7 +265,7 @@ public class ServerController {
         }
 
         if (validDir) {
-            perm = FilePermissionDAO.getPermission(session.getUserId(), dir);
+            perm = FilePermissionDAO.getPermission(new FilePermission(session.getUserId(), dir, null));
 
             if (perm == FilePermissionEnum.READ || perm == FilePermissionEnum.READ_WRITE) {
                 resp.setStatus(ResponseStatusEnum.SUCCESS);
@@ -313,7 +314,7 @@ public class ServerController {
 
             if (validDir) {
                 String nextCWD = FileUtil.getNextCWD(targetDir, getSessionCurrentDir(session, req));
-                perm = FilePermissionDAO.getPermission(session.getUserId(), nextCWD);
+                perm = FilePermissionDAO.getPermission(new FilePermission(session.getUserId(), nextCWD, null));
 
                 if (perm == FilePermissionEnum.READ || perm == FilePermissionEnum.READ_WRITE) {
                     session.setCurrentDir(nextCWD);
@@ -353,7 +354,7 @@ public class ServerController {
 
         userId = session.getUserId();
         dir = getSessionCurrentDir(session, req);
-        perm = FilePermissionDAO.getPermission(userId, dir);
+        perm = FilePermissionDAO.getPermission(new FilePermission(session.getUserId(), dir, null));
         resp = new Response();
         errors = new HashMap<>();
 
@@ -411,7 +412,7 @@ public class ServerController {
         fileMeta.setFileSize((int) Files.size(p));
 
 
-        perm = FilePermissionDAO.getPermission(userId, currDir + "\\" + fileMeta.getFileName());
+        perm = FilePermissionDAO.getPermission(new FilePermission(userId, currDir + "\\" + fileMeta.getFileName(), null));
 
         if (perm == FilePermissionEnum.READ || perm == FilePermissionEnum.READ_WRITE){
             session.setFileMetadata(fileMeta);

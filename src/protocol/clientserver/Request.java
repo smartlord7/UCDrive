@@ -11,7 +11,7 @@
 
 package protocol.clientserver;
 
-import datalayer.model.User.ClientUserSession;
+import client.struct.ClientUserSession;
 
 import java.io.Serializable;
 
