@@ -1,7 +1,17 @@
 package sync;
 
+/**
+ * Class that defines the SyncObj and its methods.
+ */
 public class SyncObj {
+
+    // region Private properties
+
     private boolean active;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -61,4 +71,7 @@ public class SyncObj {
             this.notifyAll();
         }
     }
+
+    // endregion Public methods
+
 }

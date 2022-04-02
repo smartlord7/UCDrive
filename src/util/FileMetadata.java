@@ -4,7 +4,7 @@ import datalayer.enumerate.FileOperationEnum;
 
 
 /**
- * Class that has the file metadata and it's attributes.
+ * Class that has the file metadata and it's properties.
  */
 public class FileMetadata {
 
