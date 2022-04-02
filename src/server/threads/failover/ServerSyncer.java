@@ -17,10 +17,8 @@ import protocol.failover.redundancy.FailoverFeedbackTypeEnum;
 import util.Const;
 import util.Hasher;
 import util.StringUtil;
-
 import java.io.*;
 import java.net.*;
-import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -105,7 +103,8 @@ public class ServerSyncer implements Runnable {
 
                     socket.setSoTimeout(0);
                 }
-        } catch (IOException | InterruptedException | NoSuchAlgorithmException | ClassNotFoundException e) {
+        } catch (Exception e) {
+            System.out.println("Error: could not send sync data");
             e.printStackTrace();
         }
     }

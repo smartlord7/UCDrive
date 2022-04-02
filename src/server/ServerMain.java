@@ -15,16 +15,16 @@ import businesslayer.Exception.ExceptionDAO;
 import businesslayer.FilePermission.FilePermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
+import datalayer.model.Exception.Exception;
 import protocol.failover.redundancy.FailoverData;
-import server.threads.failover.ServerListened;
-import server.threads.failover.ServerListener;
+import server.threads.failover.*;
 import server.struct.ServerConfig;
-import server.threads.failover.ServerSynced;
-import server.threads.failover.ServerSyncer;
 import server.threads.handlers.ServerCommandChannelHandler;
 import server.threads.handlers.ServerDataChannelHandler;
 import server.struct.ServerUserSessions;
 import util.Const;
+import util.StringUtil;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,11 +41,25 @@ public class ServerMain {
 
     // region Private properties
 
-    private final ServerConfig config;
+    private ServerConfig config = new ServerConfig();
 
     // endregion Private properties
 
     // region Private methods
+
+    private void logException(java.lang.Exception e, Connection c) {
+        if (c != null) {
+            try {
+                ExceptionDAO.create(new Exception(e, -1,
+                        "SERVER INIT", null));
+            } catch (SQLException | NoSuchMethodException ex) {
+                System.out.println("Error: could not log exception.");
+                ex.printStackTrace();
+            }
+        } else {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Method used to establish the Database connection.
@@ -67,23 +81,18 @@ public class ServerMain {
     /**
      *  Method that initializes the DAO's connections and the users directory.
      */
-    private void init() {
-        try {
+    private void init() throws IOException {
+        UserDAO.connection = config.getConn();
+        SessionLogDAO.connection = config.getConn();
+        FilePermissionDAO.connection = config.getConn();
+        ExceptionDAO.connection = config.getConn();
 
-            UserDAO.connection = config.getConn();
-            SessionLogDAO.connection = config.getConn();
-            FilePermissionDAO.connection = config.getConn();
-            ExceptionDAO.connection = config.getConn();
-
-            Path p = Paths.get(Const.USERS_FOLDER_NAME);
-            if (!Files.exists(p)) {
-                Files.createDirectory(p);
-            }
-
-            ServerController.showMenu(config.isSecondary());
-        } catch (IOException i) {
-            System.out.println("Error: the input/output operation has failed.");
+        Path p = Paths.get(Const.USERS_FOLDER_NAME);
+        if (!Files.exists(p)) {
+            Files.createDirectory(p);
         }
+
+        ServerController.showMenu(config.isSecondary());
     }
 
     /**
@@ -112,7 +121,7 @@ public class ServerMain {
      * Method that runs all the methods needed for the program startup.
      * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
      */
-    private void run() throws InterruptedException {
+    private void run() throws InterruptedException, IOException {
         setDBConnection();
         init();
         startThreads();
@@ -125,21 +134,23 @@ public class ServerMain {
     /**
      *  Server Main method.
      * @param args main arguments.
-     * @throws IOException - whenever an input or output operation is failed or interrupted
-     * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
      */
-    public ServerMain(String[] args) throws IOException, InterruptedException {
-        config = ServerConfig.getFromFile(args[0]);
-        run();
+    public ServerMain(String[] args) {
+        try {
+            config = ServerConfig.getFromFile(args[0]);
+            run();
+        } catch (java.lang.Exception e) {
+            if (config.getConn() != null) {
+                logException(e, config.getConn());
+            }
+        }
     }
 
     /**
      * Main method.
      * @param args main arguments
-     * @throws IOException - whenever an input or output operation is failed or interrupted
-     * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
      */
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("Error: a config file must be provided as an argument.");
             return;

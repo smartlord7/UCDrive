@@ -18,13 +18,12 @@ public class ExceptionDAO {
 
     // endregion Public properties
 
-    public static DAOResult create(Exception exception) {
+    public static DAOResult create(Exception exception) throws SQLException, NoSuchMethodException {
         String sql;
         PreparedStatement stmt;
 
         sql = "INSERT INTO Exception (UserId, Message, Stack, Source, CreateDate) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
-        try {
             stmt = connection.prepareStatement(sql);
             stmt.setInt(1, exception.getUserId());
             stmt.setString(2, exception.getMessage());
@@ -33,22 +32,13 @@ public class ExceptionDAO {
 
             stmt.executeUpdate();
             connection.commit();
-        } catch (SQLException e) {
             try {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            e.printStackTrace();
-        }
 
-        try {
             return new DAOResult(false, DAOResultStatusEnum.SUCCESS, null, exception,
-                    ExceptionDAO.class, Exception.class, ExceptionDAO.class.getMethod("create", Exception.class).getName());
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+                ExceptionDAO.class, Exception.class, ExceptionDAO.class.getMethod("create", Exception.class).getName());
         }
-
-        return null;
-    }
 }

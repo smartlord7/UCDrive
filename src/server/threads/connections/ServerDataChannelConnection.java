@@ -11,21 +11,23 @@
 
 package server.threads.connections;
 
+import businesslayer.Exception.ExceptionDAO;
+import businesslayer.base.DAOResult;
 import datalayer.enumerate.FileOperationEnum;
+import datalayer.model.Exception.Exception;
 import protocol.failover.redundancy.FailoverData;
 import protocol.failover.redundancy.FailoverDataTypeEnum;
 import server.struct.ServerUserSession;
+import server.threads.failover.FailoverDataHelper;
 import util.Const;
 import util.FileMetadata;
 import util.FileUtil;
-
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.BlockingQueue;
+import java.sql.SQLException;
 
 import static sun.nio.ch.IOStatus.EOF;
 
@@ -44,6 +46,29 @@ public class ServerDataChannelConnection extends Thread {
 
     // endregion Private properties
 
+    // region Private methods
+
+    private void logException(java.lang.Exception e) {
+        DAOResult result = null;
+        try {
+            result = ExceptionDAO.create(new Exception(e, session.getUserId(),
+                    "DATA CHANNEL @" + clientSocket.getLocalSocketAddress(),
+                    clientSocket.getInetAddress().toString()));
+        } catch (SQLException | NoSuchMethodException ex) {
+            System.out.println("Error: could not log exception.");
+            ex.printStackTrace();
+        }
+
+        try {
+            FailoverDataHelper.sendDMLFailoverData(session, result);
+        } catch (IOException ex) {
+            System.out.println("Error: Exception failed to be sent to secondary server.");
+            ex.printStackTrace();
+        }
+    }
+
+    // endregion Private methods
+
     // region Public methods
 
     /**
@@ -55,13 +80,14 @@ public class ServerDataChannelConnection extends Thread {
     public ServerDataChannelConnection(Socket aClientSocket, int connectionId, ServerUserSession session) {
         this.connectionId = connectionId;
         this.session = session;
+        this.session.setUserId(-1);
         try {
             clientSocket = aClientSocket;
             in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(clientSocket.getOutputStream());
             this.start();
         } catch (IOException e) {
-            System.out.println("Connection:" + e.getMessage());
+            logException(e);
         }
     }
 
@@ -79,8 +105,8 @@ public class ServerDataChannelConnection extends Thread {
                     receiveFileByChunks();
                 }
                 session.getSyncObj().setActive(false);
-            } catch (InterruptedException | IOException e) {
-                e.printStackTrace();
+            } catch (java.lang.Exception e) {
+                logException(e);
             }
         }
     }

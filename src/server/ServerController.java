@@ -25,23 +25,18 @@ import datalayer.enumerate.FileOperationEnum;
 import protocol.clientserver.Request;
 import protocol.clientserver.Response;
 import protocol.clientserver.ResponseStatusEnum;
-import protocol.failover.redundancy.FailoverData;
-import protocol.failover.redundancy.FailoverDataTypeEnum;
 import server.struct.ServerUserSession;
+import server.threads.failover.FailoverDataHelper;
 import util.Const;
 import util.FileMetadata;
 import util.FileUtil;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -128,24 +123,6 @@ public class ServerController {
         return session.getCurrentDir();
     }
 
-    private static void sendDMLFailoverData(ServerUserSession session, DAOResult result) throws IOException {
-        byte[] buf;
-        FailoverData data;
-        ByteArrayOutputStream byteWriter;
-        ObjectOutputStream objWriter;
-
-        byteWriter = new ByteArrayOutputStream();
-        objWriter = new ObjectOutputStream(byteWriter);
-        objWriter.writeObject(result);
-        objWriter.flush();
-        buf = byteWriter.toByteArray();
-
-        data = new FailoverData(Arrays.hashCode(buf), buf.length, buf.length,
-                result.getEntity().getClass().toString(), null, buf, FailoverDataTypeEnum.DB_DML);
-
-        session.getDataToSync().add(data);
-    }
-
     // endregion Private methods
 
     // region Public methods
@@ -170,7 +147,7 @@ public class ServerController {
         resp = new Response();
         user = gson.fromJson(req.getContent(), User.class);
         result = UserDAO.create(user);
-        sendDMLFailoverData(session, result);
+        FailoverDataHelper.sendDMLFailoverData(session, result);
         UserDAO.authenticate(user);
         userId = user.getUserId();
 
@@ -182,7 +159,7 @@ public class ServerController {
         }
 
         result = FilePermissionDAO.create(new FilePermission(userId, initialDir, FilePermissionEnum.READ_WRITE));
-        sendDMLFailoverData(session, result);
+        FailoverDataHelper.sendDMLFailoverData(session, result);
 
         return initSession(session, userId, initialDir, user, resp);
     }
@@ -242,7 +219,7 @@ public class ServerController {
         sessionLog.setUserId(session.getUserId());
 
         result = SessionLogDAO.create(sessionLog);
-        sendDMLFailoverData(session, result);
+        FailoverDataHelper.sendDMLFailoverData(session, result);
         session.setUserId(0);
         session.setFileMetadata(null);
         resp.setStatus(ResponseStatusEnum.SUCCESS);

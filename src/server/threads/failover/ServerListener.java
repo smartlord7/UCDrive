@@ -94,6 +94,7 @@ public class ServerListener implements Runnable {
                 Thread.sleep(heartbeatInterval);
             }
         } catch (IOException | InterruptedException e) {
+            System.out.println("Error: could not listen heartbeat");
             e.printStackTrace();
         }
 

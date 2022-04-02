@@ -71,7 +71,8 @@ public class ServerCommandChannelHandler implements Runnable {
                 session.setDataToSync(dataToSync);
                 new ServerCommandChannelConnection(clientSocket, number, session);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
+            System.out.println("Error: could not listen for new connections");
             e.printStackTrace();
         }
     }

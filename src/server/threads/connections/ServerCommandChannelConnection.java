@@ -12,6 +12,7 @@
 package server.threads.connections;
 
 import businesslayer.Exception.ExceptionDAO;
+import businesslayer.base.DAOResult;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 import datalayer.model.Exception.Exception;
 import protocol.clientserver.Request;
@@ -20,6 +21,8 @@ import protocol.clientserver.Response;
 import protocol.clientserver.ResponseStatusEnum;
 import server.ServerController;
 import server.struct.ServerUserSession;
+import server.threads.failover.FailoverDataHelper;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
@@ -47,9 +50,22 @@ public class ServerCommandChannelConnection extends Thread {
     // region Private methods
 
     private void logException(java.lang.Exception e) {
-        ExceptionDAO.create(new Exception(e, session.getUserId(),
-                "CMD CHANNEL @" + clientSocket.getLocalSocketAddress(),
-                clientSocket.getInetAddress().toString()));
+        DAOResult result = null;
+        try {
+            result = ExceptionDAO.create(new Exception(e, session.getUserId(),
+                    "CMD CHANNEL @" + clientSocket.getLocalSocketAddress(),
+                    clientSocket.getInetAddress().toString()));
+        } catch (SQLException | NoSuchMethodException ex) {
+            System.out.println("Error: could not log exception.");
+            ex.printStackTrace();
+        }
+
+        try {
+            FailoverDataHelper.sendDMLFailoverData(session, result);
+        } catch (IOException ex) {
+            System.out.println("Error: Exception failed to be sent to secondary server.");
+            ex.printStackTrace();
+        }
     }
 
     private void sendResponse() throws IOException {
@@ -87,8 +103,8 @@ public class ServerCommandChannelConnection extends Thread {
             out.flush();
             out.reset();
             this.start();
-        } catch (IOException e) {
-            System.out.println("Connection:" + e.getMessage());
+        } catch (java.lang.Exception e) {
+            logException(e);
         }
     }
 

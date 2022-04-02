@@ -48,7 +48,6 @@ public class ServerListened implements Runnable {
         DatagramPacket packetRequest;
         DatagramPacket packetResponse;
         ByteArrayOutputStream byteWriter;
-        ObjectOutputStream objWriter;
 
         try {
             System.out.println("[HEARTBEAT] Started at port: " + port);
@@ -63,6 +62,7 @@ public class ServerListened implements Runnable {
                 socket.send(packetResponse);
             }
         } catch (IOException e) {
+            System.out.println("Error: could not send heartbeat");
             e.printStackTrace();
         }
     }

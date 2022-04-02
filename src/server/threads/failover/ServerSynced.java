@@ -138,7 +138,8 @@ public class ServerSynced implements Runnable{
                 response = new FailoverFeedback(temp.getId(), FailoverFeedbackTypeEnum.ACK);
                 sendFeedback(response, socket, packetRequest);
             }
-        } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+        } catch (Exception e) {
+            System.out.println("Error: could not receive sync data.");
             e.printStackTrace();
         }
     }
