@@ -22,8 +22,18 @@ import java.sql.SQLException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Class that has all the main server methods related to the database.
+ */
 public class ServerMain {
+
+    // region Private properties
+
     private final ServerConfig config;
+
+    // endregion Private properties
+
+    // region Private methods
 
     /**
      * Method used to establish the Database connection.
@@ -93,6 +103,10 @@ public class ServerMain {
         startThreads();
     }
 
+    // endregion Private methods
+
+    // region Public methods
+
     /**
      *  Server Main method.
      * @param args main arguments.
@@ -113,4 +127,7 @@ public class ServerMain {
     public static void main(String[] args) throws IOException, InterruptedException {
         new ServerMain(args);
     }
+
+    // endregion Public methods
+
 }

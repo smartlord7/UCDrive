@@ -8,12 +8,22 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Class that has the connection to the database methods.
+ */
 public class ConnectionFactory {
+
+    // region Public properties
+
     public static final String HOST_NAME = "localhost";
     public static final String CONNECTION_PARAMS = "encrypt=true;trustServerCertificate=true";
     public static final String DEFAULT_INSTANCE = "sqlexpress02";
     public static final String DEFAULT_DATABASE = "UCDriveMainServer";
     public static final String DEFAULT_USER = "ucdriveadmin";
+
+    // endregion Public properties
+
+    // region Private methods
 
     /**
      * Method that prints the connection information.
@@ -28,6 +38,10 @@ public class ConnectionFactory {
         System.out.println("Product name: " + dm.getDatabaseProductName());
         System.out.println("Product version: " + dm.getDatabaseProductVersion());
     }
+
+    // endregion Private methods
+
+    // region Public methods
 
     /**
      * Method used to set up the connection to the database.
@@ -85,4 +99,7 @@ public class ConnectionFactory {
 
         return getConnection(instance, database, user, password);
     }
+
+    // endregion Public methods
+
 }

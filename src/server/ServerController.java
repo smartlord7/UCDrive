@@ -25,8 +25,18 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+/**
+ * Class that has the verification methods of the server.
+ */
 public class ServerController {
+
+    // region Private properties
+
     private static final Gson gson = new Gson();
+
+    // endregion Private properties
+
+    // region Private methods
 
     /**
      * Method that verifies the user login credentials.
@@ -90,6 +100,10 @@ public class ServerController {
 
         return resp;
     }
+
+    // endregion Private methods
+
+    // region Public methods
 
     /**
      * Method used to register a user.
@@ -412,4 +426,7 @@ public class ServerController {
                 \t\t\t5 - EXIT
                                     \s""";
     }
+
+    // endregion Public methods
+
 }
