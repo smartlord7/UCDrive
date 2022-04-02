@@ -699,17 +699,32 @@ public class ClientMain {
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void uploadFiles() throws IOException, ClassNotFoundException {
-        ArrayList<String> filesToUpload;
+        String fileName;
+        String[] split;
         DataInputStream fileReader;
 
         if (!hasSession()) {
             return;
         }
 
-        filesToUpload = new ArrayList<>();
+        if (!st.hasMoreTokens()) {
+            error("missing argument");
+            return;
+        }
 
-        while (st.hasMoreTokens()) {
-            String fileName = st.nextToken();
+        split = line.split("'");
+
+        if (split.length == 1) {
+            split = line.split("\\s+");
+        }
+
+        for (int i = 1; i < split.length; i++) {
+            fileName = split[i];
+
+            if (fileName.strip().length() == 0) {
+                continue;
+            }
+
             Path path = Paths.get(fileName);
 
             if (!Files.exists(path)) {
@@ -728,12 +743,8 @@ public class ClientMain {
                 return;
             }
 
-            filesToUpload.add(fileName);
-        }
-
-        for (String file : filesToUpload) {
-            Path p = Paths.get(file);
-            FileMetadata info = new FileMetadata(p.getName(p.getNameCount() - 1).toString(), (int) Files.size(Paths.get(file)));
+            Path p = Paths.get(fileName);
+            FileMetadata info = new FileMetadata(p.getName(p.getNameCount() - 1).toString(), (int) Files.size(Paths.get(fileName)));
             req.setMethod(RequestMethodEnum.USER_UPLOAD_FILE);
             req.setSession(session);
             req.setContent(gson.toJson(info));
@@ -745,7 +756,7 @@ public class ClientMain {
 
                 if (resp.isValid()) {
                     if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                        fileReader = new DataInputStream(new FileInputStream(file));
+                        fileReader = new DataInputStream(new FileInputStream(fileName));
                         boolean retry = false;
                         int fileSize = info.getFileSize();
                         byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
@@ -761,11 +772,15 @@ public class ClientMain {
 
                         fileReader.close();
 
-                        if (!retry && config.isServerConnected()) {
-                            System.out.println("File '" + file + "' successfully uploaded. ");
+                        if (!retry) {
+                            System.out.println("File '" + fileName + "' successfully uploaded. ");
                             break;
                         } else {
-                            error("could not upload " + file + ". Attempting retry no " + counter);
+                            if (!config.isServerConnected()) {
+                                error("could not upload " + fileName);
+                                return;
+                            }
+                            error("could not upload " + fileName + ". Attempting retry no " + counter);
                             counter++;
                         }
                     } else if (resp.getStatus() == ResponseStatusEnum.UNAUTHORIZED) {
@@ -783,13 +798,32 @@ public class ClientMain {
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
     private void downloadFiles() throws IOException, ClassNotFoundException {
+        String fileName;
+        String[] split;
+
         if (!hasSession()) {
             return;
         }
 
-        FileMetadata fileMeta;
+        if (!st.hasMoreTokens()) {
+            error("missing argument");
+            return;
+        }
 
-        while (st.hasMoreTokens()) {
+        FileMetadata fileMeta;
+        split = line.split("'");
+
+        if (split.length == 1) {
+            split = line.split("\\s+");
+        }
+
+        for (int i = 1; i < split.length; i++) {
+            fileName = split[i];
+
+            if (fileName.strip().length() == 0) {
+                continue;
+            }
+
             int counter = 1;
             req.setMethod(RequestMethodEnum.USER_DOWNLOAD_FILE);
             fileMeta = new FileMetadata();
@@ -834,12 +868,17 @@ public class ClientMain {
                         }
 
                         fileWriter.close();
-                        if (bytesRead != -2 && config.isSecondaryServerConfigured()) {
+                        if (bytesRead != -2) {
                             break;
-                        }
+                        } else {
+                            if (!config.isServerConnected()) {
+                                error("could not upload " + fileName);
+                                return;
+                            }
 
-                        error("could not download " + fileMeta.getFileName() + ". Attempting retry no " + counter);
-                        counter++;
+                            error("could not download " + fileMeta.getFileName() + ". Attempting retry no " + counter);
+                            counter++;
+                        }
                     } else {
                         showResponseErrors(resp.getErrors());
                         break;

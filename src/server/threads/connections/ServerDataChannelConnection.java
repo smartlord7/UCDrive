@@ -24,6 +24,7 @@ import util.FileMetadata;
 import util.FileUtil;
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -111,7 +112,12 @@ public class ServerDataChannelConnection extends Thread {
                 }
                 session.getSyncObj().setActive(false);
             } catch (java.lang.Exception e) {
+                Class<? extends java.lang.Exception> eClass = e.getClass();
                 logException(e);
+
+                if (eClass == SocketException.class || eClass == EOFException.class) {
+                    return;
+                }
             }
         }
     }
