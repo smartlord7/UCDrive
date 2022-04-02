@@ -3,11 +3,21 @@ package protocol.clientserver;
 import java.io.Serializable;
 import java.util.HashMap;
 
+/**
+ * Class that has the response methods.
+ */
 public class Response implements Serializable {
+
+    // region Private properties
+
     private ResponseStatusEnum status;
     private HashMap<String, String> errors;
     private String content;
     private boolean isValid;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -26,6 +36,8 @@ public class Response implements Serializable {
         this.errors = errors;
         this.content = content;
     }
+
+    // endregion Public methods
 
     // region Getters and Setters
 
@@ -60,5 +72,7 @@ public class Response implements Serializable {
     public void setValid(boolean valid) {
         isValid = valid;
     }
+
     // endregion Getters and Setters
+
 }

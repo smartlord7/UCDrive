@@ -2,9 +2,19 @@ package protocol.clientserver;
 
 import java.io.Serializable;
 
+/**
+ * Class that has the request methods.
+ */
 public class Request implements Serializable {
+
+    // region Private properties
+
     private RequestMethodEnum method;
     private String content;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -21,6 +31,8 @@ public class Request implements Serializable {
         this.method = method;
         this.content = content;
     }
+
+    // endregion Public methods
 
     // region Getters and Setters
 

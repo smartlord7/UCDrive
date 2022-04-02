@@ -9,6 +9,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
+/**
+ * Class that has the failover data methods.
+ */
 public class FailoverData implements Serializable {
 
     // region Private properties
@@ -137,5 +140,5 @@ public class FailoverData implements Serializable {
     }
 
     // endregion Getters and Setters
-    
+
 }
