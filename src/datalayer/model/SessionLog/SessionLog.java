@@ -14,12 +14,12 @@ package datalayer.model.SessionLog;
 import datalayer.base.IDatabaseEntity;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.sql.Timestamp;
 
 /**
  * Class that has the Session log methods.
  */
+
 public class SessionLog implements IDatabaseEntity, Serializable {
 
     // region Private properties

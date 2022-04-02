@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 /**
  * Class that has the user methods.
  */
+
 public class User implements IDatabaseEntity, Serializable {
 
     // region Private properties
