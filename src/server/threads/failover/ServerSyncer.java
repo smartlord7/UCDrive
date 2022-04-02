@@ -12,10 +12,19 @@ import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Class that has the server syncer methods.
+ */
 public class ServerSyncer implements Runnable {
+
+    // region Private properties
 
     private final InetSocketAddress syncedHost;
     private final BlockingQueue<FailoverData> dataToSync;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -89,4 +98,7 @@ public class ServerSyncer implements Runnable {
             e.printStackTrace();
         }
     }
+
+    // endregion Public methods
+
 }

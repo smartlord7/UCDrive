@@ -4,8 +4,18 @@ import util.Const;
 import java.io.*;
 import java.net.*;
 
+/**
+ * Class that has the server listened methods.
+ */
 public class ServerListened implements Runnable {
+
+    // region Private properties
+
     private final int port;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -45,4 +55,7 @@ public class ServerListened implements Runnable {
             e.printStackTrace();
         }
     }
+
+    // endregion Public methods
+
 }

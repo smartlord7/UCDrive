@@ -5,11 +5,21 @@ import util.Const;
 import java.io.*;
 import java.net.*;
 
+/**
+ * Class that has the server listener methods.
+ */
 public class ServerListener implements Runnable {
+
+    // region Private properties
+
     private final InetSocketAddress listenedHost;
     private final int heartbeatInterval;
     private final int maxFailedHeartbeats;
     private final int timeout;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -78,4 +88,7 @@ public class ServerListener implements Runnable {
 
         System.out.println("[HEARTBEAT] Server at " + listenedHost + " is down.");
     }
+
+    // endregion Public methods
+
 }

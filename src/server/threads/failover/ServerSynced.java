@@ -14,8 +14,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Class that has the server synced methods.
+ */
 public class ServerSynced implements Runnable{
+
+    // region Private properties
+
     private final int port;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -111,6 +121,17 @@ public class ServerSynced implements Runnable{
         }
     }
 
+    // endregion Public methods
+
+    // region Private methods
+
+    /**
+     * Method that sends the feedback on the packet transmission.
+     * @param response is the response status.
+     * @param socket is the handler socket.
+     * @param packetRequest is the packet request.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     private void sendFeedback(FailoverFeedback response, DatagramSocket socket, DatagramPacket packetRequest) throws IOException {
         byte[] buf;
         ByteArrayOutputStream byteWriter;
@@ -125,4 +146,7 @@ public class ServerSynced implements Runnable{
         packetResponse = new DatagramPacket(buf, buf.length, packetRequest.getSocketAddress());
         socket.send(packetResponse);
     }
+
+    // endregion Private methods
+
 }
