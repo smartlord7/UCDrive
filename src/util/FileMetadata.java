@@ -22,7 +22,9 @@ public class FileMetadata {
         this.fileName = fileName;
         this.fileSize = fileSize;
     }
+
     // region Getters and Setters
+
     public String getFileName() {
         return fileName;
     }
@@ -46,5 +48,7 @@ public class FileMetadata {
     public void setOp(FileOperationEnum op) {
         this.op = op;
     }
+
     // endregion Getters and Setters
+
 }

@@ -18,9 +18,22 @@ public class FailoverData implements Serializable {
     private byte[] content;
     private FailoverDataTypeEnum type;
 
+    /**
+     * Constructor method
+     */
     public FailoverData() {
     }
 
+    /**
+     * Constructor method.
+     * @param id is the data id.
+     * @param size is the partial size being sent.
+     * @param totalSize is the total size to be sent.
+     * @param name is the name of the packet.
+     * @param checksum is the checksum array.
+     * @param content is the content that is being sent.
+     * @param type is the data type.
+     */
     public FailoverData(int id, int size, int totalSize, String name, byte[] checksum, byte[] content, FailoverDataTypeEnum type) {
         this.id = id;
         this.size = size;
@@ -30,6 +43,8 @@ public class FailoverData implements Serializable {
         this.content = content;
         this.type = type;
     }
+
+    // region Getters and Setters
 
     public int getId() {
         return id;
@@ -79,10 +94,6 @@ public class FailoverData implements Serializable {
         this.totalSize = totalSize;
     }
 
-    public boolean verifyChecksum() throws NoSuchAlgorithmException {
-        return Arrays.equals(this.checksum, Hasher.hashBytes(StringUtil.bytesToHex(this.content), Const.FILE_CONTENT_CHECKSUM_ALGORITHM));
-    }
-
     public int getSize() {
         return size;
     }
@@ -91,6 +102,21 @@ public class FailoverData implements Serializable {
         this.size = size;
     }
 
+    // endregion Getters and Setters
+
+    /**
+     * Method to verify the check sum.
+     * @return if the check sum is equal or not.
+     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
+     */
+    public boolean verifyChecksum() throws NoSuchAlgorithmException {
+        return Arrays.equals(this.checksum, Hasher.hashBytes(this.content, Const.CONTENT_CHECKSUM_ALGORITHM));
+    }
+
+    /**
+     * To String method.
+     * @return the string to print the failover data.
+     */
     @Override
     public String toString() {
         return new StringJoiner(", ", FailoverData.class.getSimpleName() + "[", "]")

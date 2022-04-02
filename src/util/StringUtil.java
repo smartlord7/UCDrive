@@ -4,7 +4,7 @@ public class StringUtil {
     /**
      * Method that converts bytes to hexadecimal.
      * @param bytes are the bytes to be converted
-     * @return the converted bytes to hex.
+     * @return the converted bytes to hexadecimal.
      */
     public static String bytesToHex(byte[] bytes) {
         StringBuilder hexString = new StringBuilder(2 * bytes.length);
