@@ -650,6 +650,25 @@ public class ClientMain {
                 ----------------------------------------------------------------------------------------------------------------""");
     }
 
+    private void showMenu() {
+        System.out.println("""
+                |--------------------------------------------------------------------------------------|
+                |    ||       ||  |||||||||   |||||||     ||||||||     ||   ||        ||   |||||||||   |
+                |    ||       ||  ||          ||     ||   ||     ||    ||    ||      ||    ||          |
+                |    ||       ||  ||          ||      ||  |||||||||    ||     ||    ||     |||||||||   |
+                |    ||       ||  ||          ||     ||   ||  \\\\       ||      ||  ||      ||          |
+                |    |||||||||||  |||||||||   ||||||||    ||     \\\\    ||        ||        |||||||||   |
+                |--------------------------------------------------------------------------------------|
+                
+                @By Sancho Simões
+                @By Tiago Ventura
+                Bachelor in Computer Science and Engineering, University of Coimbra
+                2021/2022 - 3rd year, 2nd semester - Distributed Systems
+                
+                Type ? or 'help' to view the available commands
+                """);
+    }
+
     private void clearChannels() throws IOException {
         if (config.isServerConnected()) {
             outCmd.flush();
@@ -674,6 +693,8 @@ public class ClientMain {
     }
 
     public void run() throws IOException, ClassNotFoundException {
+        showMenu();
+
         System.out.print(cmdPrefix(user, currLocalDir));
         while (!(line = in.readLine()).equalsIgnoreCase("exit")) {
             line = line.strip().trim();
