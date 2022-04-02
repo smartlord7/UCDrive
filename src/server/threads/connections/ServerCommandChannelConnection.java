@@ -6,7 +6,6 @@ import protocol.clientserver.Response;
 import protocol.failover.redundancy.FailoverData;
 import server.ServerController;
 import server.struct.ServerUserSession;
-
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;

@@ -591,46 +591,33 @@ public class ClientMain {
                 if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
                     fileMeta = gson.fromJson(resp.getContent(), FileMetadata.class);
                     FileMetadata finalFileMeta = fileMeta;
-                    new Thread(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            try {
-                                readFile();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                    int totalRead = 0;
+                    int bytesRead;
+                    int readSize;
+                    FileOutputStream fileWriter;
+
+                    int fileSize = finalFileMeta.getFileSize();
+                    readSize = Math.min(fileSize, Const.DOWNLOAD_FILE_CHUNK_SIZE);
+                    byte[] buffer = new byte[readSize];
+                    fileWriter = new FileOutputStream(currLocalDir + "\\" + finalFileMeta.getFileName());
+
+                    while ((bytesRead = receiveData(buffer, readSize)) != EOF) {
+                        byte[] finalBuffer = buffer;
+
+                        if (bytesRead > finalFileMeta.getFileSize()) {
+                            finalBuffer = FileUtil.substring(buffer, 0, fileSize);
                         }
 
-                        private void readFile() throws IOException {
-                            int totalRead = 0;
-                            int bytesRead;
-                            int readSize;
-                            FileOutputStream fileWriter;
+                        totalRead += bytesRead;
+                        fileWriter.write(finalBuffer);
 
-                            int fileSize = finalFileMeta.getFileSize();
-                            readSize = Math.min(fileSize, Const.DOWNLOAD_FILE_CHUNK_SIZE);
-                            byte[] buffer = new byte[readSize];
-                            fileWriter = new FileOutputStream(currLocalDir + "\\" + finalFileMeta.getFileName());
-
-                            while ((bytesRead = receiveData(buffer, readSize)) != EOF) {
-                                byte[] finalBuffer = buffer;
-
-                                if (bytesRead > finalFileMeta.getFileSize()) {
-                                    finalBuffer = FileUtil.substring(buffer, 0, fileSize);
-                                }
-
-                                totalRead += bytesRead;
-                                fileWriter.write(finalBuffer);
-
-                                if (totalRead >= fileSize) {
-                                    fileWriter.close();
-                                    System.out.println("File '" + finalFileMeta.getFileName() + "' downloaded.");
-                                    return;
-                                }
-                            }
+                        if (totalRead >= fileSize) {
+                            fileWriter.close();
+                            System.out.println("File '" + finalFileMeta.getFileName() + "' downloaded.");
+                            return;
                         }
-                    }).start();
+                    }
                 } else {
                     showErrors(resp.getErrors());
                 }
