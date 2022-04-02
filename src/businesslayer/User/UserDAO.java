@@ -9,6 +9,11 @@ import java.sql.*;
 public class UserDAO {
     public static Connection connection;
 
+    /**
+     * Method that creates the user in the database.
+     * @param user is the user.
+     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
+     */
     public static void create(User user) throws NoSuchAlgorithmException {
         PreparedStatement stmt;
         try {
@@ -28,6 +33,12 @@ public class UserDAO {
         }
     }
 
+    /**
+     * Method that changes the usre password in the database.
+     * @param user is the user.
+     * @return -1 if wrong username, -2 if wrong password, 0 if success.
+     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
+     */
     public static int changePassword(User user) throws NoSuchAlgorithmException {
         PreparedStatement stmt;
 
@@ -73,6 +84,13 @@ public class UserDAO {
         return 0;
     }
 
+    /**
+     * Method that authenticates the user in the database.
+     * @param user is the user.
+     * @return -1 if wrong username, -2 if wrong password, 0 if success.
+     * @throws SQLException - whenever a database related error occurs.
+     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
+     */
     public static int authenticate(User user) throws SQLException, NoSuchAlgorithmException {
         PreparedStatement stmt;
         String passwordHash;

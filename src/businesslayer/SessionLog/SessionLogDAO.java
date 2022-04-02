@@ -10,6 +10,11 @@ import java.sql.SQLException;
 public class SessionLogDAO {
     public static Connection connection;
 
+    /**
+     * Method that creates the session,
+     * @param sessionLog is the session log.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     public static void create(SessionLog sessionLog) throws SQLException {
         PreparedStatement stmt;
 
@@ -24,6 +29,12 @@ public class SessionLogDAO {
         connection.commit();
     }
 
+    /**
+     * Method that gets the directory from the last session.
+     * @param userId is the user id.
+     * @return the last directory.
+     * @throws SQLException - whenever a database related error occurs.
+     */
     public static String getDirectoryFromLastSession(int userId) throws SQLException {
         PreparedStatement stmt;
         ResultSet res;
