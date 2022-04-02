@@ -76,6 +76,10 @@ public class ClientMain {
         }
     }
 
+    /**
+     * Method that prints the error message.
+     * @param msg is the error message.
+     */
     private void error(String msg) {
         System.out.println(Const.COLOR_RED + "Error: " + msg + "." + Const.COLOR_RESET);
     }
