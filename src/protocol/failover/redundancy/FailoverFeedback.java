@@ -2,9 +2,19 @@ package protocol.failover.redundancy;
 
 import java.io.Serializable;
 
+/**
+ * Class that has the failover feedback methods.
+ */
 public class FailoverFeedback implements Serializable {
+
+    // region Private properties
+
     private int id;
     private FailoverFeedbackTypeEnum feedback;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -21,6 +31,8 @@ public class FailoverFeedback implements Serializable {
         this.id = id;
         this.feedback = feedback;
     }
+
+    // endregion Public methods
 
     // region Getters and Setters
 

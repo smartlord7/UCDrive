@@ -2,6 +2,8 @@ package protocol.failover.redundancy;
 
 import java.io.Serializable;
 
+// region Public enum
+
 /**
  * This enum is used to represent the data type of the failover.
  * FILE - Failover in a file.
@@ -11,3 +13,5 @@ import java.io.Serializable;
 public enum FailoverDataTypeEnum implements Serializable {
     FILE, DB_DML
 }
+
+// endregion Public enum

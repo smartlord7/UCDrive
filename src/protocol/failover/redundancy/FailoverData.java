@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.StringJoiner;
 
 public class FailoverData implements Serializable {
+
+    // region Private properties
+
     private int id;
     private int size;
     private int totalSize;
@@ -17,6 +20,10 @@ public class FailoverData implements Serializable {
     private byte[] checksum;
     private byte[] content;
     private FailoverDataTypeEnum type;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method
@@ -43,6 +50,33 @@ public class FailoverData implements Serializable {
         this.content = content;
         this.type = type;
     }
+
+    /**
+     * Method to verify the check sum.
+     * @return if the check sum is equal or not.
+     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
+     */
+    public boolean verifyChecksum() throws NoSuchAlgorithmException {
+        return Arrays.equals(this.checksum, Hasher.hashBytes(StringUtil.bytesToHex(this.content), Const.FILE_CONTENT_CHECKSUM_ALGORITHM));
+    }
+
+    /**
+     * To String method.
+     * @return the string to print the failover data.
+     */
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", FailoverData.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("size=" + size)
+                .add("totalSize=" + totalSize)
+                .add("name='" + name + "'")
+                .add("checksum=" + Arrays.toString(checksum))
+                .add("type=" + type)
+                .toString();
+    }
+
+    // endregion Public methods
 
     // region Getters and Setters
 
@@ -103,29 +137,5 @@ public class FailoverData implements Serializable {
     }
 
     // endregion Getters and Setters
-
-    /**
-     * Method to verify the check sum.
-     * @return if the check sum is equal or not.
-     * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
-     */
-    public boolean verifyChecksum() throws NoSuchAlgorithmException {
-        return Arrays.equals(this.checksum, Hasher.hashBytes(StringUtil.bytesToHex(this.content), Const.FILE_CONTENT_CHECKSUM_ALGORITHM));
-    }
-
-    /**
-     * To String method.
-     * @return the string to print the failover data.
-     */
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", FailoverData.class.getSimpleName() + "[", "]")
-                .add("id=" + id)
-                .add("size=" + size)
-                .add("totalSize=" + totalSize)
-                .add("name='" + name + "'")
-                .add("checksum=" + Arrays.toString(checksum))
-                .add("type=" + type)
-                .toString();
-    }
+    
 }
