@@ -39,7 +39,6 @@ import static sun.nio.ch.IOStatus.EOF;
 /**
  * Class that has the client main methods.
  */
-
 public class ClientMain {
 
     // region Private properties
@@ -68,13 +67,17 @@ public class ClientMain {
     // region Private methods
 
     /**
-     * Method to print the errors.
+     * Method to print the response errors.
      * @param errors the occurred errors.
      */
-    private void showErrors(HashMap<String, String> errors) {
+    private void showResponseErrors(HashMap<String, String> errors) {
         for (String key : errors.keySet()) {
             System.out.println(key + ": " + errors.get(key));
         }
+    }
+
+    private void error(String msg) {
+        System.out.println(Const.COLOR_RED + "Error: " + msg + "." + Const.COLOR_RESET);
     }
 
     /**
@@ -88,11 +91,12 @@ public class ClientMain {
         String prefix;
 
         userName = user.getUserName();
-        prefix = (config.isServerConnected() ? "Connected to " + cmdSocket.getInetAddress().getHostAddress() + "\n" : "");
+        prefix = (config.isServerConnected() ? "|Connected to " + cmdSocket.getInetAddress().getHostAddress() + "|\n" : "");
         prefix += (user.isAuth() ? userName + "@" : "") + Const.APP_NAME + "-local~\\" + currLocalDir + "\n";
 
         if (user.isAuth()) {
-            prefix +=  StringUtil.repeat(" ", userName.length()) + "@" + Const.APP_NAME + "-remote~\\" + session.getCurrentDir() + Const.CMD_SYMBOL;
+            prefix = Const.COLOR_YELLOW + prefix + StringUtil.repeat(" ", userName.length()) + "@"
+                    + Const.APP_NAME + "-remote~\\" + session.getCurrentDir() + Const.COLOR_RESET + "\n" + Const.CMD_SYMBOL;
         } else {
             prefix = Const.COLOR_YELLOW + prefix + Const.COLOR_RESET + Const.CMD_SYMBOL;
         }
@@ -106,7 +110,7 @@ public class ClientMain {
      */
     private boolean hasAuth() {
         if (!user.isAuth()) {
-            System.out.println("Error: user not logged in.");
+            error("user not logged in");
 
             return false;
         }
@@ -120,7 +124,7 @@ public class ClientMain {
      */
     private boolean hasConnection() {
         if (!config.isServerConnected()) {
-            System.out.println("Error: server not connected.");
+            error("server not connected");
 
             return false;
         }
@@ -142,18 +146,23 @@ public class ClientMain {
      */
     private void switchToSecondaryServer() throws IOException {
         if (config.isMainServerDown()) {
-            System.out.println("Error: main server is down.");
+            error("main server is down");
 
             if (config.isSecondaryServerConfigured()) {
                 System.out.println("Switching to secondary server...");
                 connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerDataPort());
+
+                if (config.isServerConnected()) {
+                    config.switchServerConfig();
+                    config.setMainServerDown(false);
+                }
             } else {
-                System.out.println("Error: can't switch to secondary server since it is not configured. After configuring it, you have to connect manually to it.");
+                error("can't switch to secondary server since it is not configured. After configuring it, you have to connect manually to it");
                 config.setServerConnected(false);
                 user.setAuth(false);
             }
         } else {
-            System.out.println("Error: secondary server down. Nothing more you can do.");
+            error("secondary server down. Nothing more you can do");
             config.setServerConnected(false);
             user.setAuth(false);
         }
@@ -194,12 +203,12 @@ public class ClientMain {
                     outCmd.writeObject(req);
                 }
             } else {
-                System.out.println("Error: secondary server down. Nothing more you can do.");
+                error("secondary server down. Nothing more you can do");
                 config.setServerConnected(false);
                 user.setAuth(false);
             }
         } catch (IOException e) {
-            System.out.println("Error: could not send request.");
+            error("could not send request");
         }
     }
 
@@ -216,12 +225,12 @@ public class ClientMain {
                 config.setMainServerDown(true);
                 switchToSecondaryServer();
             } else {
-                System.out.println("Error: secondary server down. Nothing more you can do.");
+                error("secondary server down. Nothing more you can do");
                 config.setServerConnected(false);
                 user.setAuth(false);
             }
         } catch (IOException e) {
-            System.out.println("Error: could not send data.");
+            error("could not send data");
         }
     }
 
@@ -238,12 +247,12 @@ public class ClientMain {
                 config.setMainServerDown(true);
                 switchToSecondaryServer();
             } else {
-                System.out.println("Error: secondary server down. Nothing more you can do.");
+                error("secondary server down. Nothing more you can do");
                 config.setServerConnected(false);
                 user.setAuth(false);
             }
         } catch (IOException e) {
-            System.out.println("Error: could not receive response.");
+            error("could not receive response");
         }
     }
 
@@ -262,12 +271,12 @@ public class ClientMain {
                 config.setMainServerDown(true);
                 switchToSecondaryServer();
             } else {
-                System.out.println("Error: secondary server down. Nothing more you can do.");
+                error("secondary server down. Nothing more you can do");
                 config.setServerConnected(false);
                 user.setAuth(false);
             }
         } catch (IOException e) {
-            System.out.println("Error: could not receive response.");
+            error("could not receive response");
         }
 
         return EOF;
@@ -284,7 +293,7 @@ public class ClientMain {
         try {
             cmdSocket = new Socket(ip, cmdPort);
         } catch (SocketException | UnknownHostException e) {
-            System.out.println("Error: cmd host " + ip + ":" + cmdPort + " unreachable.");
+            error("cmd host " + ip + ":" + cmdPort + " unreachable");
             return;
         }
 
@@ -293,7 +302,7 @@ public class ClientMain {
         try {
             dataSocket = new Socket(ip, dataPort);
         } catch (SocketException | UnknownHostException e) {
-            System.out.println("Error: data host " + ip + ":" + dataPort + " unreachable.");
+            error("data host " + ip + ":" + dataPort + " unreachable");
             cmdSocket.close();
             return;
         }
@@ -314,25 +323,30 @@ public class ClientMain {
      */
     private void connectServer() throws IOException {
         if (!config.isMainServerConfigured()) {
-            System.out.println("Error: main server not configured.");
+            error("main server not configured");
             return;
         }
 
         connectServer_(config.getMainServerIp(), config.getMainServerCmdPort(), config.getMainServerDataPort());
 
         if (!config.isServerConnected()) {
-            System.out.println("Error: main server is down.");
+            error("main server is down");
             System.out.println("Switching to secondary server...");
 
             if (!config.isSecondaryServerConfigured()) {
-                System.out.println("Error: can't switch to secondary server since it is not configured. After configuring it, you have to connect manually to it.");
+                error("can't switch to secondary server since it is not configured. After configuring it, you have to connect manually to it");
                 return;
             }
+
             connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerCmdPort());
 
             if (!config.isServerConnected()) {
-                System.out.println("Error: secondary server down. Nothing more you can do.");
+                error("secondary server down. Nothing more you can do");
+                return;
             }
+
+            config.switchServerConfig();
+            config.setMainServerDown(false);
         }
     }
 
@@ -368,7 +382,7 @@ public class ClientMain {
         try {
             selectedServer = st.nextToken();
         } catch (NoSuchElementException e) {
-            System.out.println("Error: malformed command.");
+            error("Error: malformed command");
             return;
         }
 
@@ -410,7 +424,7 @@ public class ClientMain {
      */
     private void authUser() throws IOException, ClassNotFoundException {
         if (user.isAuth()) {
-            System.out.println("Error: user already logged in.");
+            error("user already logged in");
             return;
         }
 
@@ -436,7 +450,7 @@ public class ClientMain {
                 sessionLog.setStartDate(new Timestamp(System.currentTimeMillis()));
             } else {
                 errors = resp.getErrors();
-                showErrors(errors);
+                showResponseErrors(errors);
             }
         }
     }
@@ -471,7 +485,7 @@ public class ClientMain {
                 System.out.println("User logged out.");
                 user.setAuth(false);
             } else {
-                showErrors(resp.getErrors());
+                showResponseErrors(resp.getErrors());
             }
         }
     }
@@ -503,7 +517,7 @@ public class ClientMain {
                 user.setAuth(true);
             } else {
                 errors = resp.getErrors();
-                showErrors(errors);
+                showResponseErrors(errors);
             }
         }
     }
@@ -532,7 +546,7 @@ public class ClientMain {
                 System.out.println("Password changed successfully!");
             } else {
                 errors = resp.getErrors();
-                showErrors(errors);
+                showResponseErrors(errors);
             }
         }
     }
@@ -555,7 +569,7 @@ public class ClientMain {
         File file = new File(dir);
 
         if (!file.isDirectory() || !file.exists()) {
-            System.out.println("Error: no directory '" + dir + "' found.");
+            error("no directory '" + dir + "' found");
         } else {
             System.out.println(FileUtil.listDirFiles(file));
         }
@@ -590,7 +604,7 @@ public class ClientMain {
                 System.out.println(resp.getContent());
             } else {
                 errors = resp.getErrors();
-                showErrors(errors);
+                showResponseErrors(errors);
             }
         }
     }
@@ -605,7 +619,7 @@ public class ClientMain {
         try {
             dir = st.nextToken();
         } catch (NoSuchElementException e) {
-            System.out.println("Error: missing argument.");
+            error("missing argument");
             return;
         }
 
@@ -631,7 +645,7 @@ public class ClientMain {
         try {
             dir = st.nextToken();
         } catch (NoSuchElementException e) {
-            System.out.println("Error: missing argument.");
+            error("missing argument");
             return;
         }
 
@@ -649,7 +663,7 @@ public class ClientMain {
                 session.setCurrentDir(resp.getContent());
             } else {
                 errors = resp.getErrors();
-                showErrors(errors);
+                showResponseErrors(errors);
             }
         }
     }
@@ -679,13 +693,13 @@ public class ClientMain {
                 path = Paths.get(fileName);
 
                 if (!Files.exists(path)) {
-                    System.out.println("Error: file '" + fileName + "' does not exist.");
+                    error("file '" + fileName + "' does not exist");
                     return;
                 }
             }
 
             if (Files.size(path) == 0) {
-                System.out.println("Error: file '" + fileName + "' is empty.");
+                error("file '" + fileName + "' is empty");
                 return;
             }
 
@@ -715,7 +729,7 @@ public class ClientMain {
 
                     fileReader.close();
                 } else if (resp.getStatus() == ResponseStatusEnum.UNAUTHORIZED) {
-                    showErrors(resp.getErrors());
+                    showResponseErrors(resp.getErrors());
                 }
             }
         }
@@ -773,7 +787,7 @@ public class ClientMain {
                         }
                     }
                 } else {
-                    showErrors(resp.getErrors());
+                    showResponseErrors(resp.getErrors());
                 }
             }
         }
@@ -865,15 +879,16 @@ public class ClientMain {
         }
     }
 
+    /**
+     * Main method to run the choosen method by the client in the cmd.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
+     * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
+     */
+
     // endregion Private methods
 
     // region Public methods
 
-    /**
-     * Main method to run the chosen method by the client in the cmd.
-     * @throws IOException - whenever an input or output operation is failed or interrupted.
-     * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
-     */
     public void run() throws IOException, ClassNotFoundException {
         String cmd = null;
 
@@ -921,7 +936,7 @@ public class ClientMain {
             } else if (cmd.equalsIgnoreCase("download")) {
                 downloadFiles();
             } else {
-                System.out.println("Error: unknown command '" + line + "'.");
+                error("unknown command '" + line + "'");
             }
 
             clearChannels();

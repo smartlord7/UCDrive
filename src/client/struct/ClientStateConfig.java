@@ -16,7 +16,6 @@ import java.util.StringJoiner;
 /**
  * Class that has the client state configuration methods.
  */
-
 public class ClientStateConfig {
 
     // region Private properties
@@ -172,6 +171,15 @@ public class ClientStateConfig {
 
     public void setServerConnected(boolean serverConnected) {
         isServerConnected = serverConnected;
+    }
+
+    public void switchServerConfig() {
+        this.mainServerIp = secondaryServerIp;
+        this.secondaryServerIp = mainServerIp;
+        this.mainServerCmdPort = secondaryServerCmdPort;
+        this.mainServerDataPort = secondaryServerDataPort;
+        this.secondaryServerCmdPort = mainServerCmdPort;
+        this.secondaryServerDataPort = mainServerDataPort;
     }
 
     // endregion Getters and Setters.
