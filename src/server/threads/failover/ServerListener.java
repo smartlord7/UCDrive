@@ -31,7 +31,7 @@ public class ServerListener implements Runnable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -52,6 +52,11 @@ public class ServerListener implements Runnable {
         thisThread.start();
         thisThread.join();
     }
+
+    // endregion Constructors
+
+    // region Public methods
+
 
     /**
      * Method used to listen to the main server heartbeats.

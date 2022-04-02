@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.StringJoiner;
 
 /**
- * Class that has the failover data methods.
+ * Class that holds the data about a failover object.
  */
 
 public class FailoverData implements Serializable {
@@ -37,7 +37,7 @@ public class FailoverData implements Serializable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -58,6 +58,10 @@ public class FailoverData implements Serializable {
         this.content = content;
         this.type = type;
     }
+
+    // endregion Constructors
+
+    // region Public methods
 
     /**
      * Method to verify the check sum.

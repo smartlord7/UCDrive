@@ -113,7 +113,7 @@ public class ServerMain {
         }
 
         new Thread(new ServerCommandChannelHandler(config.getCommandPort(), sessions, dataToSync)).start();
-        new Thread(new ServerDataChannelHandler(config.getDataPort(), sessions, dataToSync)).start();
+        new Thread(new ServerDataChannelHandler(config.getDataPort(), sessions)).start();
 
     }
 
@@ -129,7 +129,7 @@ public class ServerMain {
 
     // endregion Private methods
 
-    // region Public methods
+    // region Constructors
 
     /**
      *  Server Main method.
@@ -145,6 +145,10 @@ public class ServerMain {
             }
         }
     }
+
+    // endregion Constructors
+
+    // region Public methods
 
     /**
      * Main method.

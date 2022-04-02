@@ -15,7 +15,6 @@ import businesslayer.base.DAOResult;
 import protocol.failover.redundancy.FailoverData;
 import protocol.failover.redundancy.FailoverDataTypeEnum;
 import server.struct.ServerUserSession;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -33,7 +32,7 @@ public class FailoverDataHelper {
      * Method used to send the data manipulation language failover data.
      * @param session is the current server user session.
      * @param result is the DAO result status.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     public static void sendDMLFailoverData(ServerUserSession session, DAOResult result) throws IOException {
         byte[] buf;

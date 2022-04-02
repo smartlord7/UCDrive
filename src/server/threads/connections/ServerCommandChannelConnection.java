@@ -47,10 +47,35 @@ public class ServerCommandChannelConnection extends Thread {
 
     // endregion Private properties
 
+    // region Constructors
+
+    /**
+     * Constructor method.
+     * @param socket is the socket.
+     * @param id is the connection id.
+     * @param session is the current session.
+     */
+    public ServerCommandChannelConnection(Socket socket, int id, ServerUserSession session) {
+        this.connectionId = id;
+        this.session = session;
+        try {
+            clientSocket = socket;
+            in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
+            out = new ObjectOutputStream(new DataOutputStream(clientSocket.getOutputStream()));
+            out.flush();
+            out.reset();
+            this.start();
+        } catch (java.lang.Exception e) {
+            logException(e);
+        }
+    }
+
+    // endregion Constructors
+
     // region Private methods
 
     /**
-     * Method used to print the log exception.
+     * Method used to print and log exception into the database.
      * @param e is the exception.
      */
     private void logException(java.lang.Exception e) {
@@ -73,8 +98,8 @@ public class ServerCommandChannelConnection extends Thread {
     }
 
     /**
-     * Method used to send the response.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * Method used to send the response to the client.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void sendResponse() throws IOException {
         out.writeObject(resp);
@@ -83,9 +108,9 @@ public class ServerCommandChannelConnection extends Thread {
     }
 
     /**
-     * Method used to send the error.
+     * Method used to send the error to the client.
      * @param e is the exception.
-     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void sendError(java.lang.Exception e) throws IOException {
         resp = new Response();
@@ -137,28 +162,7 @@ public class ServerCommandChannelConnection extends Thread {
     // region Public methods
 
     /**
-     * Constructor method.
-     * @param socket is the socket.
-     * @param id is the connection id.
-     * @param session is the current session.
-     */
-    public ServerCommandChannelConnection(Socket socket, int id, ServerUserSession session) {
-        this.connectionId = id;
-        this.session = session;
-        try {
-            clientSocket = socket;
-            in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
-            out = new ObjectOutputStream(new DataOutputStream(clientSocket.getOutputStream()));
-            out.flush();
-            out.reset();
-            this.start();
-        } catch (java.lang.Exception e) {
-            logException(e);
-        }
-    }
-
-    /**
-     * Method that sends a request and writes the response to the client.
+     * Method that sends a data byte array to the client.
      */
     @Override
     public void run() {

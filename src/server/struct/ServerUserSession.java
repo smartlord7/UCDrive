@@ -33,7 +33,7 @@ public class ServerUserSession {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -55,7 +55,9 @@ public class ServerUserSession {
         this.syncObj = new SyncObj();
     }
 
-    // endregion Public methods
+    // endregion Constructors
+
+    // region Public methods
 
     // region Getters and Setters
 
@@ -100,5 +102,7 @@ public class ServerUserSession {
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 
 }

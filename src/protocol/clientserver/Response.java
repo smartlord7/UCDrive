@@ -29,7 +29,7 @@ public class Response implements Serializable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -49,7 +49,9 @@ public class Response implements Serializable {
         this.content = content;
     }
 
-    // endregion Public methods
+    // endregion Constructors
+
+    // region Public methods
 
     // region Getters and Setters
 
@@ -86,5 +88,7 @@ public class Response implements Serializable {
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 
 }

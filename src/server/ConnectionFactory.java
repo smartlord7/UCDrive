@@ -70,7 +70,7 @@ public class ConnectionFactory {
     }
 
     /**
-     * Method that gets the current connection.
+     * Method that gets the current connection via the terminal.
      * @return the current connection.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws SQLException - whenever a database related error occurs.

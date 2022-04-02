@@ -12,9 +12,7 @@
 package businesslayer.base;
 
 import datalayer.base.IDatabaseEntity;
-
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 
 /**

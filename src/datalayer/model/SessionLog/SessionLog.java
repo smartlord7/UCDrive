@@ -32,7 +32,7 @@ public class SessionLog implements IDatabaseEntity, Serializable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -43,8 +43,8 @@ public class SessionLog implements IDatabaseEntity, Serializable {
     /**
      * Constructor method.
      * @param userId is the user id.
-     * @param startDate is the first Session Log date.
-     * @param endDate is the last Session Log date.
+     * @param startDate is the start date of the session.
+     * @param endDate is the end data of the session.
      * @param lastDirectory is the last accessed directory.
      */
     public SessionLog(int userId, Timestamp startDate, Timestamp endDate, String lastDirectory) {
@@ -54,7 +54,9 @@ public class SessionLog implements IDatabaseEntity, Serializable {
         this.lastDirectory = lastDirectory;
     }
 
-    // endregion Public methods
+    // endregion Constructors
+
+    // region Public methods
 
     // region Getters and Setters
 
@@ -99,5 +101,7 @@ public class SessionLog implements IDatabaseEntity, Serializable {
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 
 }

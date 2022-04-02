@@ -16,7 +16,7 @@ import datalayer.enumerate.FilePermissionEnum;
 import java.io.Serializable;
 
 /**
- * Class that has the file permission methods.
+ * Class that holds the data about a file permission.
  */
 
 public class FilePermission implements IDatabaseEntity, Serializable {
@@ -29,7 +29,7 @@ public class FilePermission implements IDatabaseEntity, Serializable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -49,7 +49,9 @@ public class FilePermission implements IDatabaseEntity, Serializable {
         this.permission = permission;
     }
 
-    // endregion Public methods
+    // endregion Constructors
+
+    // region Public methods
 
     // region Getters and Setters
 
@@ -78,5 +80,7 @@ public class FilePermission implements IDatabaseEntity, Serializable {
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 
 }

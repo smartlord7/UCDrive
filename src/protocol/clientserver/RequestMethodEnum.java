@@ -13,8 +13,6 @@ package protocol.clientserver;
 
 import java.io.Serializable;
 
-// region Public enum
-
 /**
  * This enum is used to represent the request methods that are avaliable trough the following keywords:
  * USER_CREATE - Method to register a user.
@@ -37,5 +35,3 @@ public enum RequestMethodEnum implements Serializable {
     USER_UPLOAD_FILE,
     USER_LOGOUT
 }
-
-// endregion Public enum

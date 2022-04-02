@@ -27,7 +27,7 @@ public class ServerListened implements Runnable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -37,6 +37,10 @@ public class ServerListened implements Runnable {
         this.port = port;
         new Thread(this).start();
     }
+
+    // endregion Constructors
+
+    // region Public methods
 
     /**
      * Method associated to the thread that sends the heartbeats relative to the main server.

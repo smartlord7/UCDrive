@@ -38,7 +38,7 @@ public class ServerSynced implements Runnable{
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -48,6 +48,10 @@ public class ServerSynced implements Runnable{
         this.port = port;
         new Thread(this).start();
     }
+
+    // endregion Constructors
+
+    // region Public methods
 
     /**
      * Method used to await new data from the main server to sync locally.

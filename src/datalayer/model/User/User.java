@@ -32,7 +32,7 @@ public class User implements IDatabaseEntity, Serializable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -45,7 +45,7 @@ public class User implements IDatabaseEntity, Serializable {
      * @param userId is the user id.
      * @param userName is the user login name.
      * @param password is the user password.
-     * @param createDate is the user register date.
+     * @param createDate is the user registry date.
      */
     public User(int userId, String userName, String password, Timestamp createDate) {
         this.userId = userId;
@@ -54,7 +54,9 @@ public class User implements IDatabaseEntity, Serializable {
         this.createDate = createDate;
     }
 
-    // endregion Public methods
+    // region Constructors
+
+    // region Public methods
 
     // region Getters and Setters
 
@@ -107,5 +109,7 @@ public class User implements IDatabaseEntity, Serializable {
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 
 }

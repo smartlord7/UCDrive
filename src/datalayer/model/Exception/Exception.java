@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 /**
- *Class that has the exception methods and implements it.
+ *Class that holds the data about an exception
  */
 
 public class Exception implements IDatabaseEntity, Serializable {
@@ -35,7 +35,7 @@ public class Exception implements IDatabaseEntity, Serializable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -77,7 +77,9 @@ public class Exception implements IDatabaseEntity, Serializable {
         this.other = other;
     }
 
-    // endregion Public methods
+    // endregion Constructors
+
+    // region Public methods
 
     // region Getters and Setters
 
@@ -138,5 +140,7 @@ public class Exception implements IDatabaseEntity, Serializable {
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 
 }

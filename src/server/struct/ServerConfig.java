@@ -43,7 +43,7 @@ public class ServerConfig {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -77,7 +77,9 @@ public class ServerConfig {
         return config;
     }
 
-    // endregion Public methods
+    // endregion Constructors
+
+    // region Public methods
 
     // region Getters and Setters
 
@@ -202,5 +204,7 @@ public class ServerConfig {
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 
 }

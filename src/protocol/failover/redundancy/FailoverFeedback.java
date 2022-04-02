@@ -26,7 +26,7 @@ public class FailoverFeedback implements Serializable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -44,7 +44,9 @@ public class FailoverFeedback implements Serializable {
         this.feedback = feedback;
     }
 
-    // endregion Public methods
+    // endregion Constructors
+
+    // region Public methods
 
     // region Getters and Setters
 
@@ -65,5 +67,7 @@ public class FailoverFeedback implements Serializable {
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 
 }

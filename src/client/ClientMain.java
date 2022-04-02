@@ -33,7 +33,6 @@ import java.sql.Timestamp;
 import java.util.*;
 import util.Const;
 import util.StringUtil;
-
 import static sun.nio.ch.IOStatus.EOF;
 
 /**
@@ -191,7 +190,7 @@ public class ClientMain {
     }
 
     /**
-     * Method that sends the requests.
+     * Method that sends the requests to the server.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void sendRequest() throws IOException {
@@ -217,7 +216,7 @@ public class ClientMain {
     }
 
     /**
-     * Method that sends the data.
+     * Method that sends the data in a byte array to the server.
      * @param data is the data to be sent.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
@@ -250,7 +249,7 @@ public class ClientMain {
     }
 
     /**
-     * Method that receives the response.
+     * Method that receives the server response to the request.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
@@ -276,7 +275,7 @@ public class ClientMain {
      * Method that receives the data.
      * @param buffer is the buffer containing the data.
      * @param readSize is the buffer read size.
-     * @return the end when the buffer reaches the end.
+     * @return the number of read bytes or a code for further validations.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private int receiveData(byte[] buffer, int readSize) throws IOException {
@@ -307,8 +306,8 @@ public class ClientMain {
     }
 
     /**
-     * Method used to connect the server.
-     * @param ip is the connection ip
+     * Method used to connect to the server.
+     * @param ip is the server ip
      * @param cmdPort is the command handler port.
      * @param dataPort is the data handler port.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
@@ -397,7 +396,7 @@ public class ClientMain {
     }
 
     /**
-     * Method used to configure the server.
+     * Method used to configure the servers.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void configServers() throws IOException {
@@ -982,10 +981,8 @@ public class ClientMain {
 
     // endregion Private methods
 
-    // region Public methods
-
-    public void run() throws IOException, ClassNotFoundException {
-        String cmd = null;
+    private void run() throws IOException, ClassNotFoundException {
+        String cmd;
 
         showMenu();
 
@@ -1042,6 +1039,8 @@ public class ClientMain {
         System.exit(0);
     }
 
+    // region Constructors
+
     /**
      * Main method.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
@@ -1050,6 +1049,10 @@ public class ClientMain {
     public ClientMain() throws IOException, ClassNotFoundException {
         run();
     }
+
+    // endregion Constructors
+
+    // region Public methods
 
     /**
      * Main method.

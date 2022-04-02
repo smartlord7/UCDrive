@@ -11,13 +11,9 @@
 
 package datalayer.base;
 
-// region Public interface
-
 /**
- * Class that implements the IDatabase Entity interface.
+ * Interface implemented by the classes indirectly mapped to the database.
  */
 
 public interface IDatabaseEntity {
 }
-
-// endregion Public interface

@@ -34,7 +34,7 @@ public class ServerSyncer implements Runnable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -48,6 +48,10 @@ public class ServerSyncer implements Runnable {
 
         new Thread(this).start();
     }
+
+    // endregion Constructors
+
+    // region Public methods
 
     /**
      * Method used to await new data from threads to sync with the secondary server.

@@ -13,8 +13,6 @@ package protocol.failover.redundancy;
 
 import java.io.Serializable;
 
-// region Public enum
-
 /**
  * This enum is used to represent the failover feedback with the following status:
  * ACK- Acknowledged.
@@ -24,5 +22,3 @@ import java.io.Serializable;
 public enum FailoverFeedbackTypeEnum implements Serializable {
     ACK, NACK
 }
-
-// endregion Public enum

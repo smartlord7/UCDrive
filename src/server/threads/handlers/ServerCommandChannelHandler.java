@@ -36,7 +36,7 @@ public class ServerCommandChannelHandler implements Runnable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -49,6 +49,10 @@ public class ServerCommandChannelHandler implements Runnable {
         this.sessions = sessions;
         this.dataToSync = dataToSync;
     }
+
+    // endregion Constructors
+
+    // region Public methods
 
     /**
      * Method that creates a thread for TCP client connection to the command channel.

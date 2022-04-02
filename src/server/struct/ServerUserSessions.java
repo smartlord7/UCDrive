@@ -14,7 +14,7 @@ package server.struct;
 import java.util.HashMap;
 
 /**
- * Class that has the server user sessions methods.
+ * Class that stores the server user sessions in a sync way.
  */
 
 public class ServerUserSessions {
@@ -25,7 +25,7 @@ public class ServerUserSessions {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor Method.
@@ -33,6 +33,10 @@ public class ServerUserSessions {
     public ServerUserSessions() {
         this.sessions = new HashMap<>();
     }
+
+    // region Constructors
+
+    // region Public methods
 
     /**
      * Method that creates a user session.
@@ -54,12 +58,12 @@ public class ServerUserSessions {
         sessions.remove(client);
     }
 
-    // endregion Public methods
-
     // region Getters and Setters
     public synchronized ServerUserSession getSession(String client) {
         return sessions.get(client);
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 }

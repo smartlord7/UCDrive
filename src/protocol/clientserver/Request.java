@@ -12,7 +12,6 @@
 package protocol.clientserver;
 
 import client.struct.ClientUserSession;
-
 import java.io.Serializable;
 
 /**
@@ -29,7 +28,7 @@ public class Request implements Serializable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -39,8 +38,8 @@ public class Request implements Serializable {
 
     /**
      * Constructor method.
-     * @param method is the method requested to be executed.
-     * @param content is the string content.
+     * @param method is the method requested to be executed in server side.
+     * @param content is the content used with the method.
      */
     public Request(RequestMethodEnum method, String content, ClientUserSession session) {
         this.method = method;
@@ -48,7 +47,9 @@ public class Request implements Serializable {
         this.session = session;
     }
 
-    // endregion Public methods
+    // emdregion Constructors
+
+    // region Public methods
 
     // region Getters and Setters
 
@@ -77,5 +78,7 @@ public class Request implements Serializable {
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 
 }

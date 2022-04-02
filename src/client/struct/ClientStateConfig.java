@@ -20,21 +20,21 @@ public class ClientStateConfig {
 
     // region Private properties
 
+    private boolean isMainServerDown;
+    private boolean isMainServerConfigured;
+    private boolean isSecondaryServerConfigured;
+    private boolean isSecondaryServerDown;
+    private boolean isServerConnected;
     private int mainServerCmdPort;
     private int mainServerDataPort;
     private int secondaryServerCmdPort;
     private int secondaryServerDataPort;
     private String mainServerIp;
     private String secondaryServerIp;
-    private boolean isMainServerDown;
-    private boolean isMainServerConfigured;
-    private boolean isSecondaryServerConfigured;
-    private boolean isSecondaryServerDown;
-    private boolean isServerConnected;
 
     // endregion Private Properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -60,6 +60,10 @@ public class ClientStateConfig {
         this.secondaryServerIp = secondaryServerIp;
     }
 
+    // endregion Constructors
+
+    // region Public methods
+
     /**
      * To string method.
      * @return the string to print the config.
@@ -80,8 +84,6 @@ public class ClientStateConfig {
                 .add("isServerConnected=" + isServerConnected() + "\n")
                 .toString();
     }
-
-    // endregion Public methods
 
     // region Getters and Setters.
 
@@ -184,4 +186,5 @@ public class ClientStateConfig {
 
     // endregion Getters and Setters.
 
+    // endregion Public methods
 }

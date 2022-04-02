@@ -14,9 +14,8 @@ package client.struct;
 import java.io.Serializable;
 
 /**
- * Class that has the client user session methods.
+ * Class that holds the user session data in client side.
  */
-
 public class ClientUserSession implements Serializable {
 
     // region Private properties
@@ -26,7 +25,7 @@ public class ClientUserSession implements Serializable {
 
     // endregion Private properties
 
-    // region Public methods
+    // region Constructors
 
     /**
      * Constructor method.
@@ -44,7 +43,10 @@ public class ClientUserSession implements Serializable {
         this.currentDir = lastSessionDir;
     }
 
-    // endregion Public methods
+    // endregion Constructors
+
+
+    // region Public methods
 
     // region Getters and Setters
 
@@ -65,5 +67,7 @@ public class ClientUserSession implements Serializable {
     }
 
     // endregion Getters and Setters
+
+    // endregion Public methods
 
 }

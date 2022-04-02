@@ -368,7 +368,7 @@ public class ServerController {
 
         userId = session.getUserId();
         dir = getSessionCurrentDir(session, req);
-        perm = FilePermissionDAO.getPermission(new FilePermission(session.getUserId(), dir, null));
+        perm = FilePermissionDAO.getPermission(new FilePermission(userId, dir, null));
         resp = new Response();
         errors = new HashMap<>();
 

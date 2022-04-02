@@ -51,82 +51,6 @@ public class ServerDataChannelConnection extends Thread {
     // region Private methods
 
     /**
-     * Method used to print the log exception.
-     * @param e is the exception.
-     */
-    private void logException(java.lang.Exception e) {
-        DAOResult result = null;
-        try {
-            result = ExceptionDAO.create(new Exception(e, session.getUserId(),
-                    "DATA CHANNEL @" + clientSocket.getLocalSocketAddress(),
-                    clientSocket.getInetAddress().toString()));
-        } catch (SQLException | NoSuchMethodException ex) {
-            System.out.println("Error: could not log exception.");
-            ex.printStackTrace();
-        }
-
-        try {
-            FailoverDataHelper.sendDMLFailoverData(session, result);
-        } catch (IOException ex) {
-            System.out.println("Error: Exception failed to be sent to secondary server.");
-            ex.printStackTrace();
-        }
-    }
-
-    // endregion Private methods
-
-    // region Public methods
-
-    /**
-     * Constructor method.
-     * @param aClientSocket is the client socket.
-     * @param connectionId is the connection Id.
-     * @param session is the current session.
-     */
-    public ServerDataChannelConnection(Socket aClientSocket, int connectionId, ServerUserSession session) {
-        this.connectionId = connectionId;
-        this.session = session;
-        this.session.setUserId(-1);
-        try {
-            clientSocket = aClientSocket;
-            in = new DataInputStream(clientSocket.getInputStream());
-            out = new DataOutputStream(clientSocket.getOutputStream());
-            this.start();
-        } catch (IOException e) {
-            logException(e);
-        }
-    }
-
-    /**
-     * Method that awaits the command thread notification in order to perform an upload/download operation.
-     */
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                session.getSyncObj().wait(false);
-                if (session.getFileMetadata().getOp() == FileOperationEnum.DOWNLOAD) {
-                    sendFileByChunks();
-                } else {
-                    receiveFileByChunks();
-                }
-                session.getSyncObj().setActive(false);
-            } catch (java.lang.Exception e) {
-                Class<? extends java.lang.Exception> eClass = e.getClass();
-                logException(e);
-
-                if (eClass == SocketException.class || eClass == EOFException.class) {
-                    return;
-                }
-            }
-        }
-    }
-
-    // endregion Public methods
-
-    // region Private methods
-
-    /**
      * Method used to send the selected upload file by chunks.
      @throws IOException - whenever an input or output operation is failed or interrupted.
      */
@@ -206,6 +130,82 @@ public class ServerDataChannelConnection extends Thread {
         }
     }
 
+    /**
+     * Method used to print and log the exception into the database.
+     * @param e is the exception.
+     */
+    private void logException(java.lang.Exception e) {
+        DAOResult result = null;
+        try {
+            result = ExceptionDAO.create(new Exception(e, session.getUserId(),
+                    "DATA CHANNEL @" + clientSocket.getLocalSocketAddress(),
+                    clientSocket.getInetAddress().toString()));
+        } catch (SQLException | NoSuchMethodException ex) {
+            System.out.println("Error: could not log exception.");
+            ex.printStackTrace();
+        }
+
+        try {
+            FailoverDataHelper.sendDMLFailoverData(session, result);
+        } catch (IOException ex) {
+            System.out.println("Error: Exception failed to be sent to secondary server.");
+            ex.printStackTrace();
+        }
+    }
+
     // endregion Private methods
+
+    // region Constructors
+
+    /**
+     * Constructor method.
+     * @param aClientSocket is the client socket.
+     * @param connectionId is the connection Id.
+     * @param session is the current session.
+     */
+    public ServerDataChannelConnection(Socket aClientSocket, int connectionId, ServerUserSession session) {
+        this.connectionId = connectionId;
+        this.session = session;
+        this.session.setUserId(-1);
+        try {
+            clientSocket = aClientSocket;
+            in = new DataInputStream(clientSocket.getInputStream());
+            out = new DataOutputStream(clientSocket.getOutputStream());
+            this.start();
+        } catch (IOException e) {
+            logException(e);
+        }
+    }
+
+    // endregion Constructors
+
+    // region Public methods
+
+    /**
+     * Method that awaits the command thread notification in order to perform an upload/download operation.
+     */
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                session.getSyncObj().wait(false);
+                if (session.getFileMetadata().getOp() == FileOperationEnum.DOWNLOAD) {
+                    sendFileByChunks();
+                } else {
+                    receiveFileByChunks();
+                }
+                session.getSyncObj().setActive(false);
+            } catch (java.lang.Exception e) {
+                Class<? extends java.lang.Exception> eClass = e.getClass();
+                logException(e);
+
+                if (eClass == SocketException.class || eClass == EOFException.class) {
+                    return;
+                }
+            }
+        }
+    }
+
+    // endregion Public methods
 
 }
