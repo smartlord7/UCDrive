@@ -6,7 +6,14 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+/**
+ * Class that has the DAOResult methods.
+ */
+
 public class DAOResult implements Serializable {
+
+    // region Private properties
+
     private boolean isQuery;
     private DAOResultStatusEnum status;
     private HashMap<String, String> errors;
@@ -16,9 +23,26 @@ public class DAOResult implements Serializable {
     private String daoMethod;
     private int code;
 
+    // endregion Private properties
+
+    // region Public methods
+
+    /**
+     * Constructor method.
+     */
     public DAOResult() {
     }
 
+    /**
+     * Constructor method.
+     * @param isQuery is the query verification.
+     * @param status is the DAOResult status.
+     * @param errors are the errors occurred.
+     * @param entity is the database entity.
+     * @param daoClass is the DAO class.
+     * @param entityClass is the entity class.
+     * @param daoMethod is the DAO method.
+     */
     public DAOResult(boolean isQuery, DAOResultStatusEnum status, HashMap<String, String> errors,
                      IDatabaseEntity entity, Class<?> daoClass, Class<?> entityClass, String daoMethod) {
         this.isQuery = isQuery;
@@ -30,6 +54,17 @@ public class DAOResult implements Serializable {
         this.daoMethod = daoMethod;
     }
 
+    /**
+     * Constructor method.
+     * @param isQuery is the query verification.
+     * @param status is the DAOResult status.
+     * @param errors are the errors occurred.
+     * @param entity is the database entity.
+     * @param daoClass is the DAO class.
+     * @param entityClass is the entity class.
+     * @param daoMethod is the DAO method.
+     * @param code is the identification code.
+     */
     public DAOResult(boolean isQuery, DAOResultStatusEnum status, HashMap<String, String> errors, IDatabaseEntity entity,
                      Class<?> daoClass, Class<?> entityClass, String daoMethod, int code) {
         this.isQuery = isQuery;
@@ -41,6 +76,10 @@ public class DAOResult implements Serializable {
         this.daoMethod = daoMethod;
         this.code = code;
     }
+
+    // endregion Public methods
+
+    // region Getters and Setters
 
     public boolean isQuery() {
         return isQuery;
@@ -105,4 +144,7 @@ public class DAOResult implements Serializable {
     public void setEntityClass(Class<?> entityClass) {
         this.entityClass = entityClass;
     }
+
+    // endregion Getters and Setters
+
 }

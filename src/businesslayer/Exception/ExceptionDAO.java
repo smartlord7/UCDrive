@@ -10,6 +10,7 @@ import java.sql.SQLException;
 /**
  * Class that has the exception DAO methods.
  */
+
 public class ExceptionDAO {
 
     // region Public properties
@@ -18,6 +19,15 @@ public class ExceptionDAO {
 
     // endregion Public properties
 
+    // region Public methods
+
+    /**
+     * Method that creates the DAO result.
+     * @param exception is the exception thrown.
+     * @return the created DAO result.
+     * @throws SQLException - whenever a database related error occurs.
+     * @throws NoSuchMethodException - when a particular method cannot be found.
+     */
     public static DAOResult create(Exception exception) throws SQLException, NoSuchMethodException {
         String sql;
         PreparedStatement stmt;
@@ -41,4 +51,7 @@ public class ExceptionDAO {
             return new DAOResult(false, DAOResultStatusEnum.SUCCESS, null, exception,
                 ExceptionDAO.class, Exception.class, ExceptionDAO.class.getMethod("create", Exception.class).getName());
         }
+
+    // endregion Public methods
+
 }
