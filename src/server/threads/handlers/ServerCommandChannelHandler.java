@@ -9,11 +9,21 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Class that has the server command channel handler methods.
+ */
 public class ServerCommandChannelHandler implements Runnable {
+
+    // region Private properties
+
     private int number = 0;
     private final int port;
     private final ServerUserSessions sessions;
     private final BlockingQueue<FailoverData> dataToSync;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -45,4 +55,7 @@ public class ServerCommandChannelHandler implements Runnable {
             e.printStackTrace();
         }
     }
+
+    // endregion Public methods
+
 }
