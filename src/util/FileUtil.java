@@ -10,7 +10,7 @@ public class FileUtil {
      * @return the files in the directory.
      */
     public static String listDirFiles(File dir) {
-        String list = "";
+        String list = "\n";
         StringBuilder sb = new StringBuilder(list);
         File[] filesList = dir.listFiles();
 
@@ -20,7 +20,7 @@ public class FileUtil {
             }
         }
 
-        return sb.toString();
+        return sb.toString().strip();
     }
 
     /**

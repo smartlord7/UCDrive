@@ -281,7 +281,7 @@ public class ClientMain {
             config.setMainServerIp(in.readLine());
             System.out.print("Command channel port: ");
             config.setMainServerCmdPort(Integer.parseInt(in.readLine()));
-            System.out.print("Data channel: ");
+            System.out.print("Data channel port: ");
             config.setMainServerDataPort(Integer.parseInt(in.readLine()));
             config.setMainServerConfigured(true);
         } else {
@@ -290,7 +290,7 @@ public class ClientMain {
             config.setSecondaryServerIp(in.readLine());
             System.out.print("Command channel port: ");
             config.setSecondaryServerCmdPort(Integer.parseInt(in.readLine()));
-            System.out.print("Data channel: ");
+            System.out.print("Data channel port: ");
             config.setSecondaryServerDataPort(Integer.parseInt(in.readLine()));
             config.setSecondaryServerConfigured(true);
         }
@@ -625,6 +625,31 @@ public class ClientMain {
         }
     }
 
+    private void showConfig() {
+        System.out.println(config);
+    }
+
+    private void showHelp() {
+        System.out.println("""
+                ----------------------------------------------------------------------------------------------------------------
+                Help:
+                \tconfig <server> - enter server configuration mode: m for main server and other for secondary server
+                \tshowconfig - show current client state/config (i.e. servers IPs, ports, ...)
+                \tconnect - connect to the server
+                \tdisconnect - disconnect to the server
+                \tauth - enter authentication mode
+                \tlogout - logout from server
+                \tregister - enter registration mode
+                \tcpwd - change user password
+                \tls <dir> - list <dir> local files or the current local directory files, if <dir> is not specified
+                \tsls <dir> - list <dir> remote files or the current remote directory files, if <dir> is not specified
+                \tcd <dir> - change the current local directory to <dir>
+                \tcd <dir> - change the current remote directory to <dir>
+                \tupload <filepath> - upload the current local directory file specified by <path> to the current remote directory
+                \tdownload <filepath> - download the current remote directory file specified by <path> to the current local directory
+                ----------------------------------------------------------------------------------------------------------------""");
+    }
+
     private void clearChannels() throws IOException {
         if (config.isServerConnected()) {
             outCmd.flush();
@@ -655,10 +680,12 @@ public class ClientMain {
             st = new StringTokenizer(line);
             String cmd = st.nextToken();
 
-            if (cmd.equalsIgnoreCase("config")) {
+            if (cmd.equalsIgnoreCase("help") || cmd.equals("?")) {
+                showHelp();
+            } else if (cmd.equalsIgnoreCase("config")) {
                 configServers();
             } else if (cmd.equalsIgnoreCase("showconfig")) {
-                System.out.println(config);
+                showConfig();
             } else if (cmd.equalsIgnoreCase("connect")){
                 connectServer();
             } else if (cmd.equalsIgnoreCase("disconnect")){

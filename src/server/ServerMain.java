@@ -37,6 +37,7 @@ public class ServerMain {
 
         } catch (SQLException e) {
             System.out.println("Error: could not establish connection to SQLServer instance");
+            e.printStackTrace();
             System.exit(0);
         }
     }
