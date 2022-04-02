@@ -10,15 +10,27 @@ public class User {
     private Timestamp createDate;
     private boolean isAuth;
 
+    /**
+     * Constructor method.
+     */
     public User() {
     }
 
+    /**
+     * Constructor method.
+     * @param userId is the user id.
+     * @param userName is the user login name.
+     * @param password is the user password.
+     * @param createDate is the user register date.
+     */
     public User(int userId, String userName, String password, Timestamp createDate) {
         this.userId = userId;
         this.userName = userName;
         this.password = password;
         this.createDate = createDate;
     }
+
+    // region Getters and Setters
 
     public int getUserId() {
         return userId;
@@ -67,4 +79,7 @@ public class User {
     public void setAuth(boolean auth) {
         isAuth = auth;
     }
+
+    // endregion Getters and Setters
+
 }

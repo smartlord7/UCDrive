@@ -15,9 +15,21 @@ public class ClientStateConfig {
     private boolean isSecondaryServerDown;
     private boolean isServerConnected;
 
+    /**
+     * Constructor method.
+     */
     public ClientStateConfig() {
     }
 
+    /**
+     * Constructor method.
+     * @param mainServerCmdPort is the main server command handler port.
+     * @param mainServerDataPort is the main server data handler port.
+     * @param secondaryServerCmdPort is the secondary server command handler port.
+     * @param secondaryServerDataPort is the secondary server data handler port.
+     * @param mainServerIp is the main server ip.
+     * @param secondaryServerIp is the secondary server ip.
+     */
     public ClientStateConfig(int mainServerCmdPort, int mainServerDataPort, int secondaryServerCmdPort, int secondaryServerDataPort, String mainServerIp, String secondaryServerIp) {
         this.mainServerCmdPort = mainServerCmdPort;
         this.mainServerDataPort = mainServerDataPort;
@@ -26,6 +38,8 @@ public class ClientStateConfig {
         this.mainServerIp = mainServerIp;
         this.secondaryServerIp = secondaryServerIp;
     }
+
+    // region Getters and Setters.
 
     public int getMainServerCmdPort() {
         return mainServerCmdPort;
@@ -115,6 +129,12 @@ public class ClientStateConfig {
         isServerConnected = serverConnected;
     }
 
+    // endregion Getters and Setters.
+
+    /**
+     * To string method.
+     * @return the string to print the config.
+     */
     @Override
     public String toString() {
         return new StringJoiner("| ", ClientStateConfig.class.getSimpleName() + "[\n", "]")

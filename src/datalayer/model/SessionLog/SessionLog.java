@@ -10,15 +10,27 @@ public class SessionLog {
     private Timestamp endDate;
     private String lastDirectory;
 
+    /**
+     * Constructor method.
+     */
     public SessionLog() {
     }
 
+    /**
+     * Constructor method.
+     * @param userId is the user id.
+     * @param startDate is the first Session Log date.
+     * @param endDate is the last Session Log date.
+     * @param lastDirectory is the last accessed directory.
+     */
     public SessionLog(int userId, Timestamp startDate, Timestamp endDate, String lastDirectory) {
         this.userId = userId;
         this.startDate = startDate;
         this.endDate = endDate;
         this.lastDirectory = lastDirectory;
     }
+
+    // region Getters and Setters
 
     public int getSessionLogId() {
         return sessionLogId;
@@ -59,4 +71,7 @@ public class SessionLog {
     public void setLastDirectory(String lastDirectory) {
         this.lastDirectory = lastDirectory;
     }
+
+    // endregion Getters and Setters
+
 }
