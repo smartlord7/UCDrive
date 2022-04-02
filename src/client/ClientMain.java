@@ -292,6 +292,7 @@ public class ClientMain {
             dataSocket = new Socket(ip, dataPort);
         } catch (SocketException | UnknownHostException e) {
             System.out.println("Error: data host " + ip + ":" + dataPort + " unreachable.");
+            cmdSocket.close();
             return;
         }
 

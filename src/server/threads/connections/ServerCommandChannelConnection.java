@@ -11,10 +11,13 @@
 
 package server.threads.connections;
 
+import businesslayer.Exception.ExceptionDAO;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
+import datalayer.model.Exception.Exception;
 import protocol.clientserver.Request;
 import protocol.clientserver.RequestMethodEnum;
 import protocol.clientserver.Response;
-import protocol.failover.redundancy.FailoverData;
+import protocol.clientserver.ResponseStatusEnum;
 import server.ServerController;
 import server.struct.ServerUserSession;
 import java.io.*;
@@ -22,7 +25,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.concurrent.BlockingQueue;
+import java.util.HashMap;
 
 /**
  * Class that has the most methods to handle the server command channel connection.
@@ -40,6 +43,31 @@ public class ServerCommandChannelConnection extends Thread {
     private Socket clientSocket;
 
     // endregion Private properties
+
+    // region Private methods
+
+    private void logException(java.lang.Exception e) {
+        ExceptionDAO.create(new Exception(e, session.getUserId(),
+                "CMD CHANNEL @" + clientSocket.getLocalSocketAddress(),
+                clientSocket.getInetAddress().toString()));
+    }
+
+    private void sendResponse() throws IOException {
+        out.writeObject(resp);
+        out.flush();
+        out.reset();
+    }
+
+    private void sendError(java.lang.Exception e) throws IOException {
+        resp = new Response();
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("Internal Server Error", e.getMessage());
+        resp.setStatus(ResponseStatusEnum.ERROR);
+        resp.setErrors(errors);
+        sendResponse();
+    }
+
+    // endregion Private methods
 
     // region Public methods
 
@@ -69,18 +97,23 @@ public class ServerCommandChannelConnection extends Thread {
      */
     @Override
     public void run() {
-        while(true) {
+        while (true) {
             try {
-                req = (Request) in.readObject();
                 handleRequest();
-                out.writeObject(resp);
-                out.flush();
-                out.reset();
-            } catch (SocketException | EOFException e) {
-                System.out.println("[ERROR] Client " + clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " disconnected!");
-                return;
-            } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException | InterruptedException | NoSuchMethodException e) {
-                e.printStackTrace();
+                sendResponse();
+            }  catch (java.lang.Exception e) {
+                Class<? extends java.lang.Exception> eClass = e.getClass();
+                logException(e);
+
+                if (eClass == SocketException.class || eClass == EOFException.class) {
+                    return;
+                } else {
+                    try {
+                        sendError(e);
+                    } catch (IOException ex) {
+                        logException(ex);
+                    }
+                }
             }
         }
     }
@@ -94,9 +127,9 @@ public class ServerCommandChannelConnection extends Thread {
      * @throws SQLException - whenever a database related error occurs.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
-     * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
      */
-    private void handleRequest() throws SQLException, NoSuchAlgorithmException, IOException, InterruptedException, NoSuchMethodException {
+    private void handleRequest() throws SQLException, NoSuchAlgorithmException, IOException, NoSuchMethodException, ClassNotFoundException {
+        req = (Request) in.readObject();
         RequestMethodEnum method = req.getMethod();
 
         switch (method) {

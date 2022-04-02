@@ -15,7 +15,7 @@ import java.sql.SQLException;
 public class FilePermissionDAO implements BaseDAO, Serializable {
     public static Connection connection;
 
-    public static DAOResult create(FilePermission filePerm) throws NoSuchMethodException {
+    public static DAOResult create(FilePermission filePerm) throws NoSuchMethodException, SQLException {
         String sql;
         PreparedStatement stmt;
 
@@ -27,23 +27,13 @@ public class FilePermissionDAO implements BaseDAO, Serializable {
         sql = "INSERT INTO FilePermission (Directory, PermissionType, UserId)" +
                 "VALUES (?, ?, ?)";
 
-        try {
-            stmt = connection.prepareStatement(sql);
-            stmt.setString(1, filePerm.getDirectory());
-            stmt.setInt(2, filePerm.getPermission().ordinal());
-            stmt.setInt(3, filePerm.getUserId());
-            stmt.executeUpdate();
+        stmt = connection.prepareStatement(sql);
+        stmt.setString(1, filePerm.getDirectory());
+        stmt.setInt(2, filePerm.getPermission().ordinal());
+        stmt.setInt(3, filePerm.getUserId());
+        stmt.executeUpdate();
 
-            connection.commit();
-
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            e.printStackTrace();
-        }
+        connection.commit();
 
         return new DAOResult(false, DAOResultStatusEnum.SUCCESS, null, filePerm,
                 FilePermissionDAO.class, FilePermission.class, FilePermissionDAO.class.getMethod("create", FilePermission.class).getName());

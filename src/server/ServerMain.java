@@ -11,6 +11,7 @@
 
 package server;
 
+import businesslayer.Exception.ExceptionDAO;
 import businesslayer.FilePermission.FilePermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
@@ -72,6 +73,7 @@ public class ServerMain {
             UserDAO.connection = config.getConn();
             SessionLogDAO.connection = config.getConn();
             FilePermissionDAO.connection = config.getConn();
+            ExceptionDAO.connection = config.getConn();
 
             Path p = Paths.get(Const.USERS_FOLDER_NAME);
             if (!Files.exists(p)) {

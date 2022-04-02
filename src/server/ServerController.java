@@ -256,7 +256,7 @@ public class ServerController {
      * @return the response status.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      */
-    public static Response changeUserPassword(Request req) throws NoSuchAlgorithmException, NoSuchMethodException {
+    public static Response changeUserPassword(Request req) throws NoSuchAlgorithmException, NoSuchMethodException, SQLException {
         Response resp = new Response();
         User user = gson.fromJson(req.getContent(), User.class);
         DAOResult result = UserDAO.changePassword(user);
