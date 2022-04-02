@@ -23,7 +23,6 @@ import server.threads.handlers.ServerCommandChannelHandler;
 import server.threads.handlers.ServerDataChannelHandler;
 import server.struct.ServerUserSessions;
 import util.Const;
-import util.StringUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,6 +36,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Class that has all the main server methods related to the database.
  */
+
 public class ServerMain {
 
     // region Private properties

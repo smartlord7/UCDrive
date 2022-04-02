@@ -23,6 +23,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Class that has the server data channel handler methods.
  */
+
 public class ServerDataChannelHandler implements Runnable {
 
     // region Private properties

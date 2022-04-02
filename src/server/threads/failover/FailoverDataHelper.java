@@ -10,7 +10,20 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
+/**
+ * Class that has the failover data helper methods.
+ */
+
 public class FailoverDataHelper {
+
+    // region Public methods
+
+    /**
+     * Method used to send the data manipulation language failover data.
+     * @param session is the current server user session.
+     * @param result is the DAO result status.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     public static void sendDMLFailoverData(ServerUserSession session, DAOResult result) throws IOException {
         byte[] buf;
         FailoverData data;
@@ -28,4 +41,7 @@ public class FailoverDataHelper {
 
         session.getDataToSync().add(data);
     }
+
+    // endregion Public methods
+
 }

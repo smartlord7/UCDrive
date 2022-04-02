@@ -24,6 +24,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Class that has the server command channel handler methods.
  */
+
 public class ServerCommandChannelHandler implements Runnable {
 
     // region Private properties

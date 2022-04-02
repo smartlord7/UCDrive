@@ -22,6 +22,7 @@ import java.sql.SQLException;
 /**
  * Class that has the connection to the database methods.
  */
+
 public class ConnectionFactory {
 
     // region Public properties

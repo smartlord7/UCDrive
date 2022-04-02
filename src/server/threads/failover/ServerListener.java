@@ -19,6 +19,7 @@ import java.net.*;
 /**
  * Class that has the server listener methods.
  */
+
 public class ServerListener implements Runnable {
 
     // region Private properties

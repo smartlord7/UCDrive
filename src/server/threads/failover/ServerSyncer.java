@@ -24,6 +24,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Class that has the server syncer methods.
  */
+
 public class ServerSyncer implements Runnable {
 
     // region Private properties

@@ -42,6 +42,7 @@ import java.util.HashMap;
 /**
  * Class that has the verification methods of the server.
  */
+
 public class ServerController {
 
     // region Private properties

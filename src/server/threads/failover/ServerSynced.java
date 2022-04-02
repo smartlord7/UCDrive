@@ -19,18 +19,17 @@ import protocol.failover.redundancy.FailoverFeedbackTypeEnum;
 import util.Const;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Class that has the server synced methods.
  */
+
 public class ServerSynced implements Runnable{
 
     // region Private properties
