@@ -16,6 +16,7 @@ import java.util.HashMap;
 /**
  * Class that has the server user sessions methods.
  */
+
 public class ServerUserSessions {
 
     // region Private properties

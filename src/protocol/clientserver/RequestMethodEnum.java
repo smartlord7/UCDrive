@@ -26,6 +26,7 @@ import java.io.Serializable;
  * USER_UPLOAD_FILE - Method to upload a file.
  * USER_LOGOUT - Method to log out a user.
  */
+
 public enum RequestMethodEnum implements Serializable {
     USER_CREATE,
     USER_AUTHENTICATION,

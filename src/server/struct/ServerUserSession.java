@@ -20,6 +20,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Class that the server user session methods.
  */
+
 public class ServerUserSession {
 
     // region Private properties

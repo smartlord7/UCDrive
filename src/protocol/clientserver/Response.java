@@ -17,6 +17,7 @@ import java.util.HashMap;
 /**
  * Class that has the response methods.
  */
+
 public class Response implements Serializable {
 
     // region Private properties

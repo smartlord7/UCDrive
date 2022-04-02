@@ -21,6 +21,7 @@ import java.io.Serializable;
  * SUCCESS - Everything executed successfully.
  * UNAUTHORIZED - Missing permissions.
  */
+
 public enum ResponseStatusEnum implements Serializable {
     ERROR, SUCCESS, UNAUTHORIZED
 }

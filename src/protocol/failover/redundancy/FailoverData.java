@@ -14,7 +14,6 @@ package protocol.failover.redundancy;
 import util.Const;
 import util.Hasher;
 import util.StringUtil;
-
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -23,6 +22,7 @@ import java.util.StringJoiner;
 /**
  * Class that has the failover data methods.
  */
+
 public class FailoverData implements Serializable {
 
     // region Private properties

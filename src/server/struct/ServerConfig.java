@@ -19,6 +19,7 @@ import java.sql.Connection;
 /**
  * Class that has the server configuration methods.
  */
+
 public class ServerConfig {
     //TODO field validations and separation in two configs (Main and Secondary server)
 

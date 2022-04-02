@@ -16,6 +16,7 @@ import java.io.Serializable;
 /**
  * Class that has the failover feedback methods.
  */
+
 public class FailoverFeedback implements Serializable {
 
     // region Private properties

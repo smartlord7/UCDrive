@@ -18,6 +18,7 @@ import java.io.Serializable;
 /**
  * Class that holds a request data.
  */
+
 public class Request implements Serializable {
 
     // region Private properties
