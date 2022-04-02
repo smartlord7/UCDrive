@@ -2,7 +2,13 @@ package client.struct;
 
 import java.util.StringJoiner;
 
+/**
+ * Class that has the client state configuration methods.
+ */
 public class ClientStateConfig {
+
+    // region Private properties
+
     private int mainServerCmdPort;
     private int mainServerDataPort;
     private int secondaryServerCmdPort;
@@ -14,6 +20,10 @@ public class ClientStateConfig {
     private boolean isSecondaryServerConfigured;
     private boolean isSecondaryServerDown;
     private boolean isServerConnected;
+
+    // endregion Private Properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -38,6 +48,29 @@ public class ClientStateConfig {
         this.mainServerIp = mainServerIp;
         this.secondaryServerIp = secondaryServerIp;
     }
+
+    /**
+     * To string method.
+     * @return the string to print the config.
+     */
+    @Override
+    public String toString() {
+        return new StringJoiner("| ", ClientStateConfig.class.getSimpleName() + "[\n", "]")
+                .add("mainServerCmdPort=" + mainServerCmdPort + "\n")
+                .add("mainServerDataPort=" + mainServerDataPort + "\n")
+                .add("secondaryServerCmdPort=" + secondaryServerCmdPort + "\n")
+                .add("secondaryServerDataPort=" + secondaryServerDataPort + "\n")
+                .add("mainServerIp='" + mainServerIp + "'" + "\n")
+                .add("secondaryServerIp='" + secondaryServerIp + "'" + "\n")
+                .add("isMainServerDown=" + isMainServerDown + "\n")
+                .add("isMainServerConfigured=" + isMainServerConfigured + "\n")
+                .add("isSecondaryServerConfigured=" + isSecondaryServerConfigured + "\n")
+                .add("isSecondaryServerDown=" + isSecondaryServerDown + "\n")
+                .add("isServerConnected=" + isServerConnected() + "\n")
+                .toString();
+    }
+
+    // endregion Public methods
 
     // region Getters and Setters.
 
@@ -131,24 +164,4 @@ public class ClientStateConfig {
 
     // endregion Getters and Setters.
 
-    /**
-     * To string method.
-     * @return the string to print the config.
-     */
-    @Override
-    public String toString() {
-        return new StringJoiner("| ", ClientStateConfig.class.getSimpleName() + "[\n", "]")
-                .add("mainServerCmdPort=" + mainServerCmdPort + "\n")
-                .add("mainServerDataPort=" + mainServerDataPort + "\n")
-                .add("secondaryServerCmdPort=" + secondaryServerCmdPort + "\n")
-                .add("secondaryServerDataPort=" + secondaryServerDataPort + "\n")
-                .add("mainServerIp='" + mainServerIp + "'" + "\n")
-                .add("secondaryServerIp='" + secondaryServerIp + "'" + "\n")
-                .add("isMainServerDown=" + isMainServerDown + "\n")
-                .add("isMainServerConfigured=" + isMainServerConfigured + "\n")
-                .add("isSecondaryServerConfigured=" + isSecondaryServerConfigured + "\n")
-                .add("isSecondaryServerDown=" + isSecondaryServerDown + "\n")
-                .add("isServerConnected=" + isServerConnected() + "\n")
-                .toString();
-    }
 }

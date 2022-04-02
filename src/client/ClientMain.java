@@ -25,7 +25,13 @@ import util.StringUtil;
 
 import static sun.nio.ch.IOStatus.EOF;
 
+/**
+ * Class that has the client main methods.
+ */
 public class ClientMain {
+
+    // region Private properties
+
     private String currLocalDir = System.getProperty("user.dir");
     private ObjectOutputStream outCmd;
     private ObjectInputStream inCmd;
@@ -44,6 +50,10 @@ public class ClientMain {
     private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     private final Request req = new Request();
     private final Gson gson = new Gson();
+
+    // endregion Private properties
+
+    // region Private methods
 
     /**
      * Method to print the errors.
@@ -832,6 +842,11 @@ public class ClientMain {
      * @throws IOException - whenever an input or output operation is failed or interpreted.
      * @throws ClassNotFoundException - when the Java Virtual Machine (JVM) tries to load a particular class and the specified class cannot be found in the classpath.
      */
+
+    // endregion Private methods
+
+    // region Public methods
+
     public void run() throws IOException, ClassNotFoundException {
         showMenu();
 
@@ -901,4 +916,7 @@ public class ClientMain {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         new ClientMain();
     }
+
+    // endregion Public methods
+
 }
