@@ -359,6 +359,7 @@ public class ClientMain {
      */
     private void configServers() throws IOException {
         String selectedServer;
+        String line;
 
         try {
             selectedServer = st.nextToken();
@@ -367,24 +368,34 @@ public class ClientMain {
             return;
         }
 
-        if (selectedServer.equalsIgnoreCase("m")) {
-            System.out.println("------Main server------");
-            System.out.print("IP: ");
-            config.setMainServerIp(in.readLine());
-            System.out.print("Command channel port: ");
-            config.setMainServerCmdPort(Integer.parseInt(in.readLine()));
-            System.out.print("Data channel port: ");
-            config.setMainServerDataPort(Integer.parseInt(in.readLine()));
-            config.setMainServerConfigured(true);
-        } else {
-            System.out.println("------Secondary server------");
-            System.out.print("IP: ");
-            config.setSecondaryServerIp(in.readLine());
-            System.out.print("Command channel port: ");
-            config.setSecondaryServerCmdPort(Integer.parseInt(in.readLine()));
-            System.out.print("Data channel port: ");
-            config.setSecondaryServerDataPort(Integer.parseInt(in.readLine()));
-            config.setSecondaryServerConfigured(true);
+        try {
+            if (selectedServer.equalsIgnoreCase("m")) {
+                System.out.print("IP address: ");
+                line = in.readLine();
+                if (StringUtil.isEmptyOrNull(line)) {
+                    return;
+                }
+                config.setMainServerIp(line);
+                System.out.print("Command channel port: ");
+                config.setMainServerCmdPort(Integer.parseInt(in.readLine()));
+                System.out.print("Data channel port: ");
+                config.setMainServerDataPort(Integer.parseInt(in.readLine()));
+                config.setMainServerConfigured(true);
+            } else {
+                System.out.print("IP address: ");
+                line = in.readLine();
+                if (StringUtil.isEmptyOrNull(line)) {
+                    return;
+                }
+                config.setSecondaryServerIp(line);
+                System.out.print("Command channel port: ");
+                config.setSecondaryServerCmdPort(Integer.parseInt(in.readLine()));
+                System.out.print("Data channel port: ");
+                config.setSecondaryServerDataPort(Integer.parseInt(in.readLine()));
+                config.setSecondaryServerConfigured(true);
+            }
+        } catch (NumberFormatException ignored) {
+
         }
     }
 

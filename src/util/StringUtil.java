@@ -53,6 +53,10 @@ public class StringUtil {
         return sb.toString();
     }
 
+    public static boolean isEmptyOrNull(String str) {
+        return str == null || str.length() == 0;
+    }
+
     // endregion Public methods
 
 }
