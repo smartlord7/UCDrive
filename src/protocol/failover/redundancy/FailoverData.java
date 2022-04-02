@@ -110,7 +110,7 @@ public class FailoverData implements Serializable {
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      */
     public boolean verifyChecksum() throws NoSuchAlgorithmException {
-        return Arrays.equals(this.checksum, Hasher.hashBytes(this.content, Const.CONTENT_CHECKSUM_ALGORITHM));
+        return Arrays.equals(this.checksum, Hasher.hashBytes(StringUtil.bytesToHex(this.content), Const.FILE_CONTENT_CHECKSUM_ALGORITHM));
     }
 
     /**
