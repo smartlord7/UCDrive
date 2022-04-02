@@ -1,5 +1,7 @@
 package datalayer.enumerate;
 
+// region Public enum
+
 /**
  * This enum represents the file permission with the following designations:
  * READ - Read permission only.
@@ -9,6 +11,8 @@ package datalayer.enumerate;
  */
 public enum FilePermissionEnum {
     READ, WRITE, READ_WRITE, NONE;
+
+    // region Public methods
 
     /**
      * Method that returns the permission.
@@ -23,4 +27,9 @@ public enum FilePermissionEnum {
             default -> NONE;
         };
     }
+
+    // endregion Public methods
+
 }
+
+// endregion Public enum
