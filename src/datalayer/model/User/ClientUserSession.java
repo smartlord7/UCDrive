@@ -1,8 +1,18 @@
 package datalayer.model.User;
 
+/**
+ * Class that has the client user session methods.
+ */
 public class ClientUserSession {
+
+    // region Private properties
+
     private int userId;
     private String currentDir;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -19,6 +29,8 @@ public class ClientUserSession {
         this.userId = userId;
         this.currentDir = lastSessionDir;
     }
+
+    // endregion Public methods
 
     // region Getters and Setters
 

@@ -2,13 +2,23 @@ package datalayer.model.User;
 
 import java.sql.Timestamp;
 
+/**
+ * Class that has the user methods.
+ */
 public class User {
+
+    // region Private properties
+
     private int userId;
     private String userName;
     private String password;
     private String newPassword;
     private Timestamp createDate;
     private boolean isAuth;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -29,6 +39,8 @@ public class User {
         this.password = password;
         this.createDate = createDate;
     }
+
+    // endregion Public methods
 
     // region Getters and Setters
 
