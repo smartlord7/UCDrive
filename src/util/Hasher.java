@@ -18,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Class that has the hashing methods.
  */
+
 public class Hasher {
 
     // region Public methods

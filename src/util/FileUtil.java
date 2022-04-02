@@ -12,11 +12,11 @@
 package util;
 
 import java.io.*;
-import java.util.PropertyPermission;
 
 /**
  * Class that has Util file methods,such as listing and parsing directories.
  */
+
 public class FileUtil {
 
     // region Public methods

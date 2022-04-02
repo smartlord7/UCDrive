@@ -15,7 +15,6 @@ package util;
  * Class that has Util methods of string, mainly converting bytes to hexadecimal.
  */
 
-
 public class StringUtil {
 
     // region Public methods
@@ -53,6 +52,11 @@ public class StringUtil {
         return sb.toString();
     }
 
+    /**
+     * Method that checks if the string is empty or null.
+     * @param str the string to check.
+     * @return if the string is null or empty.
+     */
     public static boolean isEmptyOrNull(String str) {
         return str == null || str.length() == 0;
     }

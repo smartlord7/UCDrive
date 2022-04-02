@@ -13,10 +13,10 @@ package util;
 
 import datalayer.enumerate.FileOperationEnum;
 
-
 /**
  * Class that has the file metadata and it's properties.
  */
+
 public class FileMetadata {
 
     // region Private properties

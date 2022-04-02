@@ -14,6 +14,7 @@ package sync;
 /**
  * Class that defines the SyncObj and its methods.
  */
+
 public class SyncObj {
 
     // region Private properties

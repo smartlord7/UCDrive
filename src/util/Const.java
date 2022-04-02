@@ -14,6 +14,7 @@ package util;
 /**
  * Class that has all the constants.
  */
+
 public class Const {
 
     // region Const
