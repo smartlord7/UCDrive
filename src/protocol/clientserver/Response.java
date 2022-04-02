@@ -9,14 +9,25 @@ public class Response implements Serializable {
     private String content;
     private boolean isValid;
 
+    /**
+     * Constructor method.
+     */
     public Response() {
     }
 
+    /**
+     * Constructor method.
+     * @param status is the response status.
+     * @param errors are the occurred errors.
+     * @param content is the content of the string.
+     */
     public Response(ResponseStatusEnum status, HashMap<String, String> errors, String content) {
         this.status = status;
         this.errors = errors;
         this.content = content;
     }
+
+    // region Getters and Setters
 
     public ResponseStatusEnum getStatus() {
         return status;
@@ -49,4 +60,5 @@ public class Response implements Serializable {
     public void setValid(boolean valid) {
         isValid = valid;
     }
+    // endregion Getters and Setters
 }
