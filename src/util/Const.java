@@ -18,14 +18,15 @@ public class Const {
 
     // region Const
 
-    public static final String APP_NAME = "UCDrive";
-    public static final String APP_VERSION = "1.0";
     public static final String COLOR_RESET = "\033[0m";
     public static final String COLOR_BLUE = "\033[0;34m";
     public static final String COLOR_RED = "\u001B[31m";
     public static final String COLOR_GREEN = "\u001B[32m";
     public static final String COLOR_YELLOW = "\u001B[33m";
+    public static final String APP_NAME = "UCDrive";
+    public static final String CMD_SYMBOL = Const.COLOR_GREEN + "$ " + Const.COLOR_RESET;
     public static final String USERS_FOLDER_NAME = "users";
+    public static final String APP_VERSION = "1.0";
     public static final String PASSWORD_HASH_ALGORITHM = "SHA-256";
     public static final String FILE_CONTENT_CHECKSUM_ALGORITHM = "MD5";
     public static final int UPLOAD_FILE_CHUNK_SIZE = 512;

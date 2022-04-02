@@ -92,7 +92,7 @@ public class ClientMain {
         if (user.isAuth()) {
             prefix += StringUtil.repeat(" ", userName.length()) + "@" + Const.APP_NAME + "-remote~\\" + session.getCurrentDir() + "\n$ ";
         } else {
-            prefix = Const.COLOR_YELLOW + prefix + Const.COLOR_RESET +  Const.COLOR_GREEN + "$ " + Const.COLOR_RESET;
+            prefix = Const.COLOR_YELLOW + prefix + Const.COLOR_RESET + Const.CMD_SYMBOL;
         }
 
         return prefix;
@@ -861,13 +861,20 @@ public class ClientMain {
     // region Public methods
 
     public void run() throws IOException, ClassNotFoundException {
+        String cmd = null;
+
         showMenu();
 
         System.out.print(cmdPrefix(user, currLocalDir));
         while (!(line = in.readLine()).equalsIgnoreCase("exit")) {
             line = line.strip().trim();
             st = new StringTokenizer(line);
-            String cmd = st.nextToken();
+
+            if (!st.hasMoreTokens()) {
+                System.out.print(Const.CMD_SYMBOL);
+                continue;
+            }
+            cmd = st.nextToken();
 
             if (cmd.equalsIgnoreCase("help") || cmd.equals("?")) {
                 showHelp();
