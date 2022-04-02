@@ -41,7 +41,6 @@ public class ServerDataChannelConnection extends Thread {
     private DataInputStream in;
     private DataOutputStream out;
     private Socket clientSocket;
-    private final BlockingQueue<FailoverData> dataToSync;
 
     // endregion Private properties
 
@@ -52,12 +51,10 @@ public class ServerDataChannelConnection extends Thread {
      * @param aClientSocket is the client socket.
      * @param connectionId is the connection Id.
      * @param session is the current session.
-     * @param dataToSync is the data to sync.
      */
-    public ServerDataChannelConnection(Socket aClientSocket, int connectionId, ServerUserSession session, BlockingQueue<FailoverData> dataToSync) {
+    public ServerDataChannelConnection(Socket aClientSocket, int connectionId, ServerUserSession session) {
         this.connectionId = connectionId;
         this.session = session;
-        this.dataToSync = dataToSync;
         try {
             clientSocket = aClientSocket;
             in = new DataInputStream(clientSocket.getInputStream());
@@ -160,7 +157,7 @@ public class ServerDataChannelConnection extends Thread {
 
             totalRead += bytesRead;
             fileWriter.write(finalBuffer);
-            dataToSync.add(new FailoverData(counter, finalBuffer.length, fileSize, session.getCurrentDir() + "\\" + fileMeta.getFileName(), null, finalBuffer.clone(), FailoverDataTypeEnum.FILE));
+            session.getDataToSync().add(new FailoverData(counter, finalBuffer.length, fileSize, session.getCurrentDir() + "\\" + fileMeta.getFileName(), null, finalBuffer.clone(), FailoverDataTypeEnum.FILE));
 
             if (totalRead >= fileSize) {
                 fileWriter.close();

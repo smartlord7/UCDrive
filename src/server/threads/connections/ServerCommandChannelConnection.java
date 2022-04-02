@@ -33,9 +33,10 @@ public class ServerCommandChannelConnection extends Thread {
 
     private final int connectionId;
     private final ServerUserSession session;
+    private Request req;
+    private Response resp;
     private ObjectInputStream in;
     private ObjectOutputStream out;
-    private final BlockingQueue<FailoverData> dataToSync;
     private Socket clientSocket;
 
     // endregion Private properties
@@ -47,12 +48,10 @@ public class ServerCommandChannelConnection extends Thread {
      * @param socket is the socket.
      * @param id is the connection id.
      * @param session is the current session.
-     * @param dataToSync is the data to sync.
      */
-    public ServerCommandChannelConnection(Socket socket, int id, ServerUserSession session, BlockingQueue<FailoverData> dataToSync) {
+    public ServerCommandChannelConnection(Socket socket, int id, ServerUserSession session) {
         this.connectionId = id;
         this.session = session;
-        this.dataToSync = dataToSync;
         try {
             clientSocket = socket;
             in = new ObjectInputStream(new DataInputStream(clientSocket.getInputStream()));
@@ -71,18 +70,16 @@ public class ServerCommandChannelConnection extends Thread {
     @Override
     public void run() {
         while(true) {
-            Response resp;
-            Request req;
             try {
                 req = (Request) in.readObject();
-                resp = handleRequest(req);
+                handleRequest();
                 out.writeObject(resp);
                 out.flush();
                 out.reset();
             } catch (SocketException | EOFException e) {
                 System.out.println("[ERROR] Client " + clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " disconnected!");
                 return;
-            } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException | InterruptedException e) {
+            } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException | InterruptedException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
         }
@@ -94,15 +91,12 @@ public class ServerCommandChannelConnection extends Thread {
 
     /**
      *  Method that handles the request.
-     * @param req is the request sent to the server.
-     * @return the server response.
      * @throws SQLException - whenever a database related error occurs.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      * @throws InterruptedException - if the method is interrupted (i.e. manually stopping the program)
      */
-    private Response handleRequest(Request req) throws SQLException, NoSuchAlgorithmException, IOException, InterruptedException {
-        Response resp = null;
+    private void handleRequest() throws SQLException, NoSuchAlgorithmException, IOException, InterruptedException, NoSuchMethodException {
         RequestMethodEnum method = req.getMethod();
 
         switch (method) {
@@ -115,8 +109,6 @@ public class ServerCommandChannelConnection extends Thread {
             case USER_UPLOAD_FILE -> resp = ServerController.uploadFiles(req, session);
             case USER_DOWNLOAD_FILE -> resp = ServerController.downloadFiles(req, session);
         }
-
-        return resp;
     }
 
     // endregion Private methods

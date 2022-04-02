@@ -11,16 +11,23 @@
 
 package businesslayer.User;
 
+import businesslayer.SessionLog.SessionLogDAO;
+import businesslayer.base.BaseDAO;
+import businesslayer.base.DAOResult;
+import businesslayer.base.DAOResultStatusEnum;
+import datalayer.model.SessionLog.SessionLog;
 import datalayer.model.User.User;
 import util.Const;
 import util.Hasher;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
 /**
  * Class that has the user DAO methods.
  */
-public class UserDAO {
+public class UserDAO implements BaseDAO, Serializable{
 
     // region Public properties
 
@@ -35,10 +42,14 @@ public class UserDAO {
      * @param user is the user.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      */
-    public static void create(User user) throws NoSuchAlgorithmException {
+    public static DAOResult create(User user) throws NoSuchAlgorithmException, NoSuchMethodException {
+        String sql;
         PreparedStatement stmt;
+
+        sql = "INSERT INTO [User] (UserName, PasswordHash, CreateDate) VALUES (?, ?, CURRENT_TIMESTAMP)";
+
         try {
-            stmt = connection.prepareStatement("INSERT INTO [User] (UserName, PasswordHash, CreateDate) VALUES (?, ?, CURRENT_TIMESTAMP)");
+            stmt = connection.prepareStatement(sql);
             stmt.setString(1, user.getUserName());
             stmt.setString(2, Hasher.hashString(user.getPassword(), Const.PASSWORD_HASH_ALGORITHM));
 
@@ -52,6 +63,9 @@ public class UserDAO {
             }
             e.printStackTrace();
         }
+
+        return new DAOResult(false, DAOResultStatusEnum.SUCCESS, null, user,
+                UserDAO.class, User.class, UserDAO.class.getMethod("create", User.class).getName());
     }
 
     /**
@@ -60,11 +74,16 @@ public class UserDAO {
      * @return -1 if wrong username, -2 if wrong password, 0 if success.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      */
-    public static int changePassword(User user) throws NoSuchAlgorithmException {
+    public static DAOResult changePassword(User user) throws NoSuchAlgorithmException, NoSuchMethodException {
+        String sql;
+        String method;
         PreparedStatement stmt;
 
+        method = UserDAO.class.getMethod("changePassword", User.class).getName();
+        sql = "SELECT UserId, PasswordHash FROM [USER] WHERE UserName = ?";
+
         try {
-            stmt = connection.prepareStatement("SELECT UserId, PasswordHash FROM [USER] WHERE UserName = ?");
+            stmt = connection.prepareStatement(sql);
             stmt.setString(1, user.getUserName());
 
             ResultSet res = stmt.executeQuery();
@@ -79,12 +98,14 @@ public class UserDAO {
 
             if (userId == -1) {
                 // Wrong userName
-                return -1;
+                return new DAOResult(false, DAOResultStatusEnum.SUCCESS, null,
+                        user, UserDAO.class,  User.class, method, -1);
             }
 
             if (!Hasher.hashString(user.getPassword(), Const.PASSWORD_HASH_ALGORITHM).equals(passwordHash)) {
                 // Wrong password
-                return -2;
+                return new DAOResult(false, DAOResultStatusEnum.SUCCESS, null, user,
+                        UserDAO.class, User.class, method, -2);
             }
 
             stmt = connection.prepareStatement("UPDATE [User] SET PasswordHash = ? WHERE UserId = ?");
@@ -102,7 +123,8 @@ public class UserDAO {
             e.printStackTrace();
         }
 
-        return 0;
+        return new DAOResult(false, DAOResultStatusEnum.SUCCESS, null, user,
+                UserDAO.class, User.class, method);
     }
 
     /**
@@ -112,12 +134,15 @@ public class UserDAO {
      * @throws SQLException - whenever a database related error occurs.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      */
-    public static int authenticate(User user) throws SQLException, NoSuchAlgorithmException {
-        PreparedStatement stmt;
+    public static DAOResult authenticate(User user) throws SQLException, NoSuchAlgorithmException, NoSuchMethodException {
         String passwordHash;
+        String sql;
+        PreparedStatement stmt;
         ResultSet res;
+        String currMethod = UserDAO.class.getMethod("authenticate", User.class).getName();
 
-        stmt = connection.prepareStatement("SELECT UserId, PasswordHash FROM [User] WHERE UserName = ? ");
+        sql = "SELECT UserId, PasswordHash FROM [User] WHERE UserName = ? ";
+        stmt = connection.prepareStatement(sql);
 
         stmt.setString(1, user.getUserName());
         res = stmt.executeQuery();
@@ -131,15 +156,18 @@ public class UserDAO {
 
         if (passwordHash == null) {
             // Wrong userName
-            return -1;
+            return new DAOResult(true, DAOResultStatusEnum.SUCCESS, null, user,
+                    UserDAO.class, User.class,  currMethod, -2);
         }
 
         if (!Hasher.hashString(user.getPassword(), Const.PASSWORD_HASH_ALGORITHM).equals(passwordHash)) {
             // Wrong password
-            return -2;
+            return new DAOResult(true, DAOResultStatusEnum.SUCCESS, null, user,
+                    UserDAO.class, User.class, currMethod, -2);
         }
 
-        return 0;
+        return new DAOResult(true, DAOResultStatusEnum.SUCCESS, null, user,
+                UserDAO.class, User.class, currMethod);
     }
 
     // endregion Public methods

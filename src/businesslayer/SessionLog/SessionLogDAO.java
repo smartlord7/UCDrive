@@ -11,8 +11,13 @@
 
 package businesslayer.SessionLog;
 
+import businesslayer.FilePermission.FilePermissionDAO;
+import businesslayer.base.BaseDAO;
+import businesslayer.base.DAOResult;
+import businesslayer.base.DAOResultStatusEnum;
+import datalayer.model.FilePermission.FilePermission;
 import datalayer.model.SessionLog.SessionLog;
-
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,7 +26,7 @@ import java.sql.SQLException;
 /**
  * Class that has the session log DAO methods.
  */
-public class SessionLogDAO {
+public class SessionLogDAO implements BaseDAO, Serializable {
 
     // region Public properties
 
@@ -36,18 +41,24 @@ public class SessionLogDAO {
      * @param sessionLog is the session log.
      * @throws SQLException - whenever a database related error occurs.
      */
-    public static void create(SessionLog sessionLog) throws SQLException {
+    public static DAOResult create(SessionLog sessionLog) throws SQLException, NoSuchMethodException {
+        String sql;
         PreparedStatement stmt;
 
-        stmt = connection.prepareStatement("INSERT INTO SessionLog " +
-                "(StartDate, EndDate, LastDirectory, UserId) VALUES " +
-                "(?, ?, ?, ?)");
+        sql = "INSERT INTO SessionLog " +
+        "(StartDate, EndDate, LastDirectory, UserId) VALUES " +
+                "(?, ?, ?, ?)";
+
+        stmt = connection.prepareStatement(sql);
         stmt.setTimestamp(1, sessionLog.getStartDate());
         stmt.setTimestamp(2, sessionLog.getEndDate());
         stmt.setString(3, sessionLog.getLastDirectory());
         stmt.setInt(4, sessionLog.getUserId());
 
         connection.commit();
+
+        return new DAOResult(false, DAOResultStatusEnum.SUCCESS, null, sessionLog,
+                SessionLogDAO.class, SessionLog.class, SessionLogDAO.class.getMethod("create", SessionLog.class).getName());
     }
 
     /**

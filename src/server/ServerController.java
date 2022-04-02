@@ -11,6 +11,7 @@
 
 package server;
 
+import businesslayer.base.DAOResult;
 import businesslayer.FilePermission.FilePermissionDAO;
 import businesslayer.SessionLog.SessionLogDAO;
 import businesslayer.User.UserDAO;
@@ -24,17 +25,23 @@ import datalayer.enumerate.FileOperationEnum;
 import protocol.clientserver.Request;
 import protocol.clientserver.Response;
 import protocol.clientserver.ResponseStatusEnum;
+import protocol.failover.redundancy.FailoverData;
+import protocol.failover.redundancy.FailoverDataTypeEnum;
 import server.struct.ServerUserSession;
 import util.Const;
 import util.FileMetadata;
 import util.FileUtil;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -56,15 +63,15 @@ public class ServerController {
      * @param user user login name.
      * @param result is the checking result.
      */
-    private static void checkUserCredentials(Response resp, User user, int result) {
-        if (result == 0) {
+    private static void checkUserCredentials(Response resp, User user, DAOResult result) {
+        if (result.getCode() == 0) {
             resp.setStatus(ResponseStatusEnum.SUCCESS);
         } else {
             resp.setStatus(ResponseStatusEnum.ERROR);
             HashMap<String, String> errors = new HashMap<>();
-            if (result == -1) {
+            if (result.getCode() == -1) {
                 errors.put("UserNotFound", "User '" + user.getUserName() + "' not found");
-            } else if (result == -2) {
+            } else if (result.getCode() == -2) {
                 errors.put("WrongPassword", "Wrong password");
             }
             resp.setErrors(errors);
@@ -121,6 +128,24 @@ public class ServerController {
         return session.getCurrentDir();
     }
 
+    private static void sendDMLFailoverData(ServerUserSession session, DAOResult result) throws IOException {
+        byte[] buf;
+        FailoverData data;
+        ByteArrayOutputStream byteWriter;
+        ObjectOutputStream objWriter;
+
+        byteWriter = new ByteArrayOutputStream();
+        objWriter = new ObjectOutputStream(byteWriter);
+        objWriter.writeObject(result);
+        objWriter.flush();
+        buf = byteWriter.toByteArray();
+
+        data = new FailoverData(Arrays.hashCode(buf), buf.length, buf.length,
+                result.getEntity().getClass().toString(), null, buf, FailoverDataTypeEnum.DB_DML);
+
+        session.getDataToSync().add(data);
+    }
+
     // endregion Private methods
 
     // region Public methods
@@ -134,21 +159,30 @@ public class ServerController {
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
-    public static Response createUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException, IOException {
+    public static Response createUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException, IOException, NoSuchMethodException {
         int userId;
         String initialDir;
         User user;
         Response resp;
+        Path p;
+        DAOResult result;
 
         resp = new Response();
         user = gson.fromJson(req.getContent(), User.class);
-        UserDAO.create(user);
+        result = UserDAO.create(user);
+        sendDMLFailoverData(session, result);
         UserDAO.authenticate(user);
         userId = user.getUserId();
 
         initialDir = Const.USERS_FOLDER_NAME + "\\" + user.getUserName();
-        Files.createDirectory(Paths.get(initialDir));
-        FilePermissionDAO.create(new FilePermission(userId, initialDir, FilePermissionEnum.READ_WRITE));
+        p = Paths.get(initialDir);
+
+        if (!Files.exists(p)) {
+            Files.createDirectory(Paths.get(initialDir));
+        }
+
+        result = FilePermissionDAO.create(new FilePermission(userId, initialDir, FilePermissionEnum.READ_WRITE));
+        sendDMLFailoverData(session, result);
 
         return initSession(session, userId, initialDir, user, resp);
     }
@@ -161,19 +195,19 @@ public class ServerController {
      * @throws SQLException - whenever a database related error occurs.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      */
-    public static Response authUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException, IOException {
-        int loginResult;
+    public static Response authUser(Request req, ServerUserSession session) throws SQLException, NoSuchAlgorithmException, IOException, NoSuchMethodException {
         int userId;
         String currentDir;
         Path p;
         User user;
         Response resp;
+        DAOResult result;
 
         resp = new Response();
         user = gson.fromJson(req.getContent(), User.class);
-        loginResult = UserDAO.authenticate(user);
+        result = UserDAO.authenticate(user);
 
-        checkUserCredentials(resp, user, loginResult);
+        checkUserCredentials(resp, user, result);
 
         if (resp.getStatus() != ResponseStatusEnum.SUCCESS) {
             return resp;
@@ -197,16 +231,18 @@ public class ServerController {
      * @return the response status.
      * @throws SQLException - whenever a database related error occurs.
      */
-    public static Response logoutUser(Request req, ServerUserSession session) throws SQLException {
+    public static Response logoutUser(Request req, ServerUserSession session) throws SQLException, IOException, NoSuchMethodException {
         Response resp;
         SessionLog sessionLog;
+        DAOResult result;
 
         resp = new Response();
         sessionLog = gson.fromJson(req.getContent(), SessionLog.class);
         sessionLog.setLastDirectory(getSessionCurrentDir(session, req));
         sessionLog.setUserId(session.getUserId());
 
-        SessionLogDAO.create(sessionLog);
+        result = SessionLogDAO.create(sessionLog);
+        sendDMLFailoverData(session, result);
         session.setUserId(0);
         session.setFileMetadata(null);
         resp.setStatus(ResponseStatusEnum.SUCCESS);
@@ -220,10 +256,10 @@ public class ServerController {
      * @return the response status.
      * @throws NoSuchAlgorithmException - when a particular cryptographic algorithm is requested but is not available in the environment.
      */
-    public static Response changeUserPassword(Request req) throws NoSuchAlgorithmException {
+    public static Response changeUserPassword(Request req) throws NoSuchAlgorithmException, NoSuchMethodException {
         Response resp = new Response();
         User user = gson.fromJson(req.getContent(), User.class);
-        int result = UserDAO.changePassword(user);
+        DAOResult result = UserDAO.changePassword(user);
 
         checkUserCredentials(resp, user, result);
 

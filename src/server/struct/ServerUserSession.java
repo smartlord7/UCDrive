@@ -11,8 +11,11 @@
 
 package server.struct;
 
+import protocol.failover.redundancy.FailoverData;
 import sync.SyncObj;
 import util.FileMetadata;
+
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Class that the server user session methods.
@@ -25,6 +28,7 @@ public class ServerUserSession {
     private String currentDir;
     private FileMetadata fileMetadata;
     private SyncObj syncObj;
+    private BlockingQueue<FailoverData> dataToSync;
 
     // endregion Private properties
 
@@ -41,10 +45,12 @@ public class ServerUserSession {
      * Constructor method
      * @param userId is the user id.
      * @param lastSessionDir is the last session accessed directory.
+     * @param dataToSync is the data to sync with the secondary server.
      */
-    public ServerUserSession(int userId, String lastSessionDir) {
+    public ServerUserSession(int userId, String lastSessionDir, BlockingQueue<FailoverData> dataToSync) {
         this.userId = userId;
         this.currentDir = lastSessionDir;
+        this.dataToSync = dataToSync;
         this.syncObj = new SyncObj();
     }
 
@@ -82,6 +88,14 @@ public class ServerUserSession {
 
     public synchronized void setSyncObj(SyncObj syncObj) {
         this.syncObj = syncObj;
+    }
+
+    public BlockingQueue<FailoverData> getDataToSync() {
+        return dataToSync;
+    }
+
+    public void setDataToSync(BlockingQueue<FailoverData> dataToSync) {
+        this.dataToSync = dataToSync;
     }
 
     // endregion Getters and Setters

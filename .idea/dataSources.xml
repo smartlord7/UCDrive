@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:sqlserver://localhost\SQLEXPRESS02;database=UCDriveMainServer</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="UCDriveSecondaryServer@localhost" uuid="9a4a3ac9-2c7c-474e-87a3-c54ee8737708">
+      <driver-ref>sqlserver.ms</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
+      <jdbc-url>jdbc:sqlserver://localhost\SQLEXPRESS01;database=UCDriveSecondaryServer</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

@@ -12,6 +12,7 @@
 package server.threads.handlers;
 
 import protocol.failover.redundancy.FailoverData;
+import server.struct.ServerUserSession;
 import server.threads.connections.ServerCommandChannelConnection;
 import server.struct.ServerUserSessions;
 
@@ -53,14 +54,22 @@ public class ServerCommandChannelHandler implements Runnable {
      */
     @Override
     public void run() {
-        try (ServerSocket listenSocket = new ServerSocket(port)) {
+        String client;
+        ServerSocket listenSocket;
+        Socket clientSocket;
+        ServerUserSession session;
+
+        try {
+            listenSocket = new ServerSocket(port);
             System.out.println("[CMD CHANNEL] Started at port: " + port);
             while(true) {
-                Socket clientSocket = listenSocket.accept();
+                clientSocket = listenSocket.accept();
                 System.out.println("[CMD CHANNEL] Client received: " + clientSocket.getInetAddress());
                 number++;
-                String client = clientSocket.getInetAddress().toString();
-                new ServerCommandChannelConnection(clientSocket, number, sessions.addSession(client), dataToSync);
+                client = clientSocket.getInetAddress().toString();
+                session = sessions.addSession(client);
+                session.setDataToSync(dataToSync);
+                new ServerCommandChannelConnection(clientSocket, number, session);
             }
         } catch(IOException e) {
             e.printStackTrace();

@@ -11,6 +11,7 @@
 
 package server.threads.failover;
 
+import businesslayer.base.DAOResult;
 import protocol.failover.redundancy.FailoverData;
 import protocol.failover.redundancy.FailoverDataTypeEnum;
 import protocol.failover.redundancy.FailoverFeedback;
@@ -18,6 +19,8 @@ import protocol.failover.redundancy.FailoverFeedbackTypeEnum;
 import util.Const;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.file.Files;
@@ -60,8 +63,9 @@ public class ServerSynced implements Runnable{
         byte[] content;
         String filePath;
         Path p;
-        FailoverData request;
         FailoverFeedback response;
+        DAOResult daoResult;
+        FailoverData request;
         FailoverData temp;
         DatagramSocket socket;
         DatagramPacket packetRequest;
@@ -120,14 +124,21 @@ public class ServerSynced implements Runnable{
                             currSize = 0;
                         }
                     } else if (temp.getType() == FailoverDataTypeEnum.DB_DML) {
+                        buf = temp.getContent();
+                        byteReader = new ByteArrayInputStream(buf);
+                        objectReader = new ObjectInputStream(byteReader);
+                        daoResult = (DAOResult) objectReader.readObject();
 
+                        Method method = daoResult.getDaoClass().getMethod(daoResult.getDaoMethod(), daoResult.getEntityClass());
+                        Object dao = daoResult.getDaoClass().getDeclaredConstructor().newInstance();
+                        method.invoke(dao, daoResult.getEntity());
                     }
                 }
 
                 response = new FailoverFeedback(temp.getId(), FailoverFeedbackTypeEnum.ACK);
                 sendFeedback(response, socket, packetRequest);
             }
-        } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException e) {
+        } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();
         }
     }

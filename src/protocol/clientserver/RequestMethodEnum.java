@@ -24,7 +24,7 @@ import java.io.Serializable;
  * USER_CHANGE_CWD - Method to change the directory.
  * USER_DOWNLOAD_FILE - Method to download a file.
  * USER_UPLOAD_FILE - Method to upload a file.
- * USER_LOGOUT - Method to logout a user.
+ * USER_LOGOUT - Method to log out a user.
  */
 public enum RequestMethodEnum implements Serializable {
     USER_CREATE,

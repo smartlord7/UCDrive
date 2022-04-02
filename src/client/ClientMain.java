@@ -459,7 +459,7 @@ public class ClientMain {
 
         req.setMethod(RequestMethodEnum.USER_LOGOUT);
         sessionLog.setEndDate(new Timestamp(System.currentTimeMillis()));
-        req.setContent(gson.toJson(session));
+        req.setContent(gson.toJson(sessionLog));
 
         exchangeReqResp();
 

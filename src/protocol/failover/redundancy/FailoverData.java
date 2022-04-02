@@ -40,12 +40,6 @@ public class FailoverData implements Serializable {
     // region Public methods
 
     /**
-     * Constructor method
-     */
-    public FailoverData() {
-    }
-
-    /**
      * Constructor method.
      * @param id is the data id.
      * @param size is the partial size being sent.

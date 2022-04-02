@@ -1,8 +1,11 @@
 package datalayer.model.FilePermission;
 
+import datalayer.base.IDatabaseEntity;
 import datalayer.enumerate.FilePermissionEnum;
 
-public class FilePermission {
+import java.io.Serializable;
+
+public class FilePermission implements IDatabaseEntity, Serializable {
     private int userId;
     private String directory;
     private FilePermissionEnum permission;

@@ -11,12 +11,14 @@
 
 package datalayer.model.User;
 
+import datalayer.base.IDatabaseEntity;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
  * Class that has the user methods.
  */
-public class User {
+public class User implements IDatabaseEntity, Serializable {
 
     // region Private properties
 

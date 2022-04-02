@@ -61,7 +61,7 @@ public class ServerDataChannelHandler implements Runnable {
                 System.out.println("[DATA CHANNEL] Client received: " + clientSocket);
                 number++;
                 String client = clientSocket.getInetAddress().toString();
-                new ServerDataChannelConnection(clientSocket, number, sessions.getSession(client), dataToSync);
+                new ServerDataChannelConnection(clientSocket, number, sessions.getSession(client));
             }
         } catch(IOException e) {
             e.printStackTrace();

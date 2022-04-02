@@ -1,27 +1,34 @@
 package businesslayer.FilePermission;
 
+import businesslayer.base.BaseDAO;
+import businesslayer.base.DAOResult;
+import businesslayer.base.DAOResultStatusEnum;
 import datalayer.enumerate.FilePermissionEnum;
 import datalayer.model.FilePermission.FilePermission;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class FilePermissionDAO {
+public class FilePermissionDAO implements BaseDAO, Serializable {
     public static Connection connection;
 
-    public static void create(FilePermission filePerm) {
+    public static DAOResult create(FilePermission filePerm) throws NoSuchMethodException {
+        String sql;
         PreparedStatement stmt;
 
-        try {
-            if (filePerm.getPermission() == FilePermissionEnum.NONE) {
-                return;
-            }
+        if (filePerm.getPermission() == FilePermissionEnum.NONE) {
+            return new DAOResult(false, DAOResultStatusEnum.IGNORED, null, filePerm,
+                    DAOResult.class, FilePermission.class, DAOResult.class.getEnclosingMethod().getName());
+        }
 
-            stmt = connection.prepareStatement(
-                    "INSERT INTO FilePermission (Directory, PermissionType, UserId)" +
-                            "VALUES (?, ?, ?)");
+        sql = "INSERT INTO FilePermission (Directory, PermissionType, UserId)" +
+                "VALUES (?, ?, ?)";
+
+        try {
+            stmt = connection.prepareStatement(sql);
             stmt.setString(1, filePerm.getDirectory());
             stmt.setInt(2, filePerm.getPermission().ordinal());
             stmt.setInt(3, filePerm.getUserId());
@@ -38,6 +45,8 @@ public class FilePermissionDAO {
             e.printStackTrace();
         }
 
+        return new DAOResult(false, DAOResultStatusEnum.SUCCESS, null, filePerm,
+                FilePermissionDAO.class, FilePermission.class, FilePermissionDAO.class.getMethod("create", FilePermission.class).getName());
     }
 
     public static FilePermissionEnum getPermission(FilePermission filePerm) throws SQLException {
