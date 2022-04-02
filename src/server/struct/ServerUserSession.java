@@ -3,11 +3,21 @@ package server.struct;
 import sync.SyncObj;
 import util.FileMetadata;
 
+/**
+ * Class that the server user session methods.
+ */
 public class ServerUserSession {
+
+    // region Private properties
+
     private int userId;
     private String currentDir;
     private FileMetadata fileMetadata;
     private SyncObj syncObj;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -26,7 +36,11 @@ public class ServerUserSession {
         this.currentDir = lastSessionDir;
         this.syncObj = new SyncObj();
     }
+
+    // endregion Public methods
+
     // region Getters and Setters
+
     public synchronized int getUserId() {
         return userId;
     }
@@ -58,5 +72,7 @@ public class ServerUserSession {
     public synchronized void setSyncObj(SyncObj syncObj) {
         this.syncObj = syncObj;
     }
+
     // endregion Getters and Setters
+
 }

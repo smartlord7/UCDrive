@@ -5,10 +5,14 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.sql.Connection;
 
+/**
+ * Class that has the server configuration methods.
+ */
 public class ServerConfig {
     //TODO field validations and separation in two configs (Main and Secondary server)
 
     // region Private properties
+
     private boolean isSecondary;
     private int commandPort;
     private int dataPort;
@@ -26,6 +30,8 @@ public class ServerConfig {
     private Connection conn;
 
     // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -59,7 +65,10 @@ public class ServerConfig {
         return config;
     }
 
+    // endregion Public methods
+
     // region Getters and Setters
+
     public int getCommandPort() {
         return commandPort;
     }
@@ -181,4 +190,5 @@ public class ServerConfig {
     }
 
     // endregion Getters and Setters
+
 }

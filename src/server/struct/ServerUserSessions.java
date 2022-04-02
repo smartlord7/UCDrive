@@ -2,8 +2,18 @@ package server.struct;
 
 import java.util.HashMap;
 
+/**
+ * Class that has the server user sessions methods.
+ */
 public class ServerUserSessions {
+
+    // region Private properties
+
     private final HashMap<String, ServerUserSession> sessions;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor Method.
@@ -31,6 +41,8 @@ public class ServerUserSessions {
     public synchronized void removeSession(String client) {
         sessions.remove(client);
     }
+
+    // endregion Public methods
 
     // region Getters and Setters
     public synchronized ServerUserSession getSession(String client) {
