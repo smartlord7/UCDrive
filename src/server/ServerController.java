@@ -112,6 +112,14 @@ public class ServerController {
         return resp;
     }
 
+    private static String getSessionCurrentDir(ServerUserSession session, Request req) {
+        if (session.getCurrentDir() == null) {
+            return req.getSession().getCurrentDir();
+        }
+
+        return session.getCurrentDir();
+    }
+
     // endregion Private methods
 
     // region Public methods
@@ -194,7 +202,7 @@ public class ServerController {
 
         resp = new Response();
         sessionLog = gson.fromJson(req.getContent(), SessionLog.class);
-        sessionLog.setLastDirectory(session.getCurrentDir());
+        sessionLog.setLastDirectory(getSessionCurrentDir(session, req));
         sessionLog.setUserId(session.getUserId());
 
         SessionLogDAO.create(sessionLog);
@@ -240,13 +248,18 @@ public class ServerController {
             f = new File(dir);
 
             if (!f.exists() || !f.isDirectory()) {
-                dir = session.getCurrentDir() + "\\" + dir;
+                dir = getSessionCurrentDir(session, req) + "\\" + dir;
                 f = new File(dir);
 
                 validDir = directoryExists(resp, dir, f);
             }
         } else {
-            dir = session.getCurrentDir();
+            dir = getSessionCurrentDir(session, req);
+
+            if (dir == null) {
+                dir = req.getSession().getCurrentDir();
+            }
+
             f = new File(dir);
         }
 
@@ -299,7 +312,7 @@ public class ServerController {
             }
 
             if (validDir) {
-                String nextCWD = FileUtil.getNextCWD(targetDir, session.getCurrentDir());
+                String nextCWD = FileUtil.getNextCWD(targetDir, getSessionCurrentDir(session, req));
                 perm = FilePermissionDAO.getPermission(session.getUserId(), nextCWD);
 
                 if (perm == FilePermissionEnum.READ || perm == FilePermissionEnum.READ_WRITE) {
@@ -339,7 +352,7 @@ public class ServerController {
         FileMetadata fileMeta;
 
         userId = session.getUserId();
-        dir = session.getCurrentDir();
+        dir = getSessionCurrentDir(session, req);
         perm = FilePermissionDAO.getPermission(userId, dir);
         resp = new Response();
         errors = new HashMap<>();
@@ -379,7 +392,7 @@ public class ServerController {
         FileMetadata fileMeta;
 
         userId = session.getUserId();
-        currDir = session.getCurrentDir();
+        currDir = getSessionCurrentDir(session, req);
         resp = new Response();
         errors = new HashMap<>();
 

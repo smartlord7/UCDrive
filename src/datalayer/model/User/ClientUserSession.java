@@ -11,10 +11,12 @@
 
 package datalayer.model.User;
 
+import java.io.Serializable;
+
 /**
  * Class that has the client user session methods.
  */
-public class ClientUserSession {
+public class ClientUserSession implements Serializable {
 
     // region Private properties
 

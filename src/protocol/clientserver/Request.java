@@ -11,10 +11,12 @@
 
 package protocol.clientserver;
 
+import datalayer.model.User.ClientUserSession;
+
 import java.io.Serializable;
 
 /**
- * Class that has the request methods.
+ * Class that holds a request data.
  */
 public class Request implements Serializable {
 
@@ -22,6 +24,7 @@ public class Request implements Serializable {
 
     private RequestMethodEnum method;
     private String content;
+    private ClientUserSession session;
 
     // endregion Private properties
 
@@ -38,9 +41,10 @@ public class Request implements Serializable {
      * @param method is the method requested to be executed.
      * @param content is the string content.
      */
-    public Request(RequestMethodEnum method, String content) {
+    public Request(RequestMethodEnum method, String content, ClientUserSession session) {
         this.method = method;
         this.content = content;
+        this.session = session;
     }
 
     // endregion Public methods
@@ -61,6 +65,14 @@ public class Request implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public ClientUserSession getSession() {
+        return session;
+    }
+
+    public void setSession(ClientUserSession session) {
+        this.session = session;
     }
 
     // endregion Getters and Setters

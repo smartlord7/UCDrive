@@ -139,9 +139,6 @@ public class ClientMain {
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void switchToSecondaryServer() throws IOException {
-        config.setServerConnected(false);
-        user.setAuth(false);
-
         if (config.isMainServerDown()) {
             System.out.println("Error: main server is down.");
 
@@ -150,10 +147,13 @@ public class ClientMain {
                 connectServer_(config.getSecondaryServerIp(), config.getSecondaryServerCmdPort(), config.getSecondaryServerDataPort());
             } else {
                 System.out.println("Error: can't switch to secondary server since it is not configured. After configuring it, you have to connect manually to it.");
+                config.setServerConnected(false);
+                user.setAuth(false);
             }
-
         } else {
             System.out.println("Error: secondary server down. Nothing more you can do.");
+            config.setServerConnected(false);
+            user.setAuth(false);
         }
     }
 
@@ -181,6 +181,7 @@ public class ClientMain {
      */
     private void sendRequest() throws IOException {
         try {
+            req.setSession(session);
             outCmd.writeObject(req);
         } catch (SocketException e) {
             if (!config.isMainServerDown()) {
