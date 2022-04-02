@@ -6,8 +6,18 @@ import util.Hasher;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
+/**
+ * Class that has the user DAO methods.
+ */
 public class UserDAO {
+
+    // region Public properties
+
     public static Connection connection;
+
+    // endregion Public properties
+
+    // region Public methods
 
     /**
      * Method that creates the user in the database.
@@ -120,4 +130,7 @@ public class UserDAO {
 
         return 0;
     }
+
+    // endregion Public methods
+
 }

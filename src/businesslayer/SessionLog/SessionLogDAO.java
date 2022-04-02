@@ -7,8 +7,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class that has the session log DAO methods.
+ */
 public class SessionLogDAO {
+
+    // region Public properties
+
     public static Connection connection;
+
+    // endregion Public properties
+
+    // region Public methods
 
     /**
      * Method that creates the session,
@@ -54,4 +64,7 @@ public class SessionLogDAO {
 
         return lastDirectory;
     }
+
+    // endregion Public methods
+
 }
