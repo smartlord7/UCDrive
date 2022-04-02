@@ -743,10 +743,16 @@ public class ClientMain {
         }
     }
 
+    /**
+     * Method to print the config.
+     */
     private void showConfig() {
         System.out.println(config);
     }
 
+    /**
+     * Method that prints the help menu.
+     */
     private void showHelp() {
         System.out.println("""
                 ----------------------------------------------------------------------------------------------------------------
@@ -768,6 +774,9 @@ public class ClientMain {
                 ----------------------------------------------------------------------------------------------------------------""");
     }
 
+    /**
+     * Method that prints the Menu.
+     */
     private void showMenu() {
         System.out.println("""
                 |--------------------------------------------------------------------------------------|
@@ -787,6 +796,10 @@ public class ClientMain {
                 """);
     }
 
+    /**
+     * Method that clears the channels.
+     * @throws IOException - whenever an input or output operation is failed or interpreted.
+     */
     private void clearChannels() throws IOException {
         if (config.isServerConnected()) {
             outCmd.flush();
