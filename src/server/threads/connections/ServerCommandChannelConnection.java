@@ -13,13 +13,23 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Class that has the most methods to handle the server command channel connection.
+ */
 public class ServerCommandChannelConnection extends Thread {
+
+    // region Private properties
+
     private final int connectionId;
     private final ServerUserSession session;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private final BlockingQueue<FailoverData> dataToSync;
     private Socket clientSocket;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -67,6 +77,10 @@ public class ServerCommandChannelConnection extends Thread {
         }
     }
 
+    // endregion Public methods
+
+    // region Private methods
+
     /**
      *  Method that handles the request.
      * @param req is the request sent to the server.
@@ -93,4 +107,7 @@ public class ServerCommandChannelConnection extends Thread {
 
         return resp;
     }
+
+    // endregion Private methods
+
 }

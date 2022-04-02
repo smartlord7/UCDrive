@@ -18,13 +18,23 @@ import java.util.concurrent.BlockingQueue;
 
 import static sun.nio.ch.IOStatus.EOF;
 
+/**
+ * Class that has the most methods to handle the server data channel connection.
+ */
 public class ServerDataChannelConnection extends Thread {
+
+    // region Private properties
+
     private final int connectionId;
     private final ServerUserSession session;
     private DataInputStream in;
     private DataOutputStream out;
     private Socket clientSocket;
     private final BlockingQueue<FailoverData> dataToSync;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -66,6 +76,10 @@ public class ServerDataChannelConnection extends Thread {
             }
         }
     }
+
+    // endregion Public methods
+
+    // region Private methods
 
     /**
      * Method used to send the selected upload file by chunks.
@@ -145,4 +159,7 @@ public class ServerDataChannelConnection extends Thread {
             counter++;
         }
     }
+
+    // endregion Private methods
+
 }
