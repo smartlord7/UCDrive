@@ -221,13 +221,18 @@ public class ClientMain {
      * @param data is the data to be sent.
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
-    private void sendData(byte[] data) throws IOException {
+    private int sendData(byte[] data) throws IOException {
         try {
             outData.write(data);
+            outData.flush();
         } catch (SocketException e) {
             if (!config.isMainServerDown()) {
                 config.setMainServerDown(true);
                 switchToSecondaryServer();
+
+                if (config.isServerConnected()) {
+                    return -2;
+                }
             } else {
                 error("secondary server down. Nothing more you can do");
                 config.setServerConnected(false);
@@ -235,7 +240,13 @@ public class ClientMain {
             }
         } catch (IOException e) {
             error("could not send data");
+
+            if (config.isServerConnected()) {
+                return -2;
+            }
         }
+
+        return EOF;
     }
 
     /**
@@ -250,6 +261,7 @@ public class ClientMain {
             if (!config.isMainServerDown()) {
                 config.setMainServerDown(true);
                 switchToSecondaryServer();
+
             } else {
                 error("secondary server down. Nothing more you can do");
                 config.setServerConnected(false);
@@ -274,6 +286,10 @@ public class ClientMain {
             if (!config.isMainServerDown()) {
                 config.setMainServerDown(true);
                 switchToSecondaryServer();
+
+                if (config.isServerConnected()) {
+                    return -2;
+                }
             } else {
                 error("secondary server down. Nothing more you can do");
                 config.setServerConnected(false);
@@ -281,6 +297,10 @@ public class ClientMain {
             }
         } catch (IOException e) {
             error("could not receive response");
+
+            if (config.isServerConnected()) {
+                return -2;
+            }
         }
 
         return EOF;
@@ -294,6 +314,7 @@ public class ClientMain {
      * @throws IOException - whenever an input or output operation is failed or interrupted.
      */
     private void connectServer_(String ip, int cmdPort, int dataPort) throws IOException {
+        config.setServerConnected(false);
         try {
             cmdSocket = new Socket(ip, cmdPort);
         } catch (SocketException | UnknownHostException e) {
@@ -714,26 +735,43 @@ public class ClientMain {
             Path p = Paths.get(file);
             FileMetadata info = new FileMetadata(p.getName(p.getNameCount() - 1).toString(), (int) Files.size(Paths.get(file)));
             req.setMethod(RequestMethodEnum.USER_UPLOAD_FILE);
+            req.setSession(session);
             req.setContent(gson.toJson(info));
 
-            exchangeReqResp();
+            int counter = 1;
+            while (true) {
 
-            if (resp.isValid()) {
-                if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                    fileReader = new DataInputStream(new FileInputStream(file));
-                    int fileSize = info.getFileSize();
-                    byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
+                exchangeReqResp();
 
-                    int readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
+                if (resp.isValid()) {
+                    if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                        fileReader = new DataInputStream(new FileInputStream(file));
+                        boolean retry = false;
+                        int fileSize = info.getFileSize();
+                        byte[] buffer = new byte[Const.UPLOAD_FILE_CHUNK_SIZE];
 
-                    while (fileReader.read(buffer, 0, readSize) != -1) {
-                        outData.write(buffer);
-                        outData.flush();
+                        int readSize = Math.min(fileSize, Const.UPLOAD_FILE_CHUNK_SIZE);
+
+                        while (fileReader.read(buffer, 0, readSize) != -1) {
+                            if (sendData(buffer) == -2) {
+                                retry = true;
+                                break;
+                            }
+                        }
+
+                        fileReader.close();
+
+                        if (!retry && config.isServerConnected()) {
+                            System.out.println("File '" + file + "' successfully uploaded. ");
+                            break;
+                        } else {
+                            error("could not upload " + file + ". Attempting retry no " + counter);
+                            counter++;
+                        }
+                    } else if (resp.getStatus() == ResponseStatusEnum.UNAUTHORIZED) {
+                        showResponseErrors(resp.getErrors());
+                        break;
                     }
-
-                    fileReader.close();
-                } else if (resp.getStatus() == ResponseStatusEnum.UNAUTHORIZED) {
-                    showResponseErrors(resp.getErrors());
                 }
             }
         }
@@ -752,46 +790,60 @@ public class ClientMain {
         FileMetadata fileMeta;
 
         while (st.hasMoreTokens()) {
+            int counter = 1;
             req.setMethod(RequestMethodEnum.USER_DOWNLOAD_FILE);
             fileMeta = new FileMetadata();
             fileMeta.setFileName(st.nextToken());
             req.setContent(gson.toJson(fileMeta));
+            req.setSession(session);
 
-            exchangeReqResp();
+            while (true) {
 
-            if (resp.isValid()) {
-                if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
-                    fileMeta = gson.fromJson(resp.getContent(), FileMetadata.class);
-                    FileMetadata finalFileMeta = fileMeta;
+                exchangeReqResp();
 
-                    int totalRead = 0;
-                    int bytesRead;
-                    int readSize;
-                    FileOutputStream fileWriter;
+                if (resp.isValid()) {
+                    if (resp.getStatus() == ResponseStatusEnum.SUCCESS) {
+                        fileMeta = gson.fromJson(resp.getContent(), FileMetadata.class);
+                        FileMetadata finalFileMeta = fileMeta;
 
-                    int fileSize = finalFileMeta.getFileSize();
-                    readSize = Math.min(fileSize, Const.DOWNLOAD_FILE_CHUNK_SIZE);
-                    byte[] buffer = new byte[readSize];
-                    fileWriter = new FileOutputStream(currLocalDir + "\\" + finalFileMeta.getFileName());
+                        int totalRead = 0;
+                        int bytesRead;
+                        int readSize;
+                        FileOutputStream fileWriter;
 
-                    while ((bytesRead = receiveData(buffer, readSize)) != EOF) {
-                        byte[] finalBuffer = buffer;
+                        int fileSize = finalFileMeta.getFileSize();
+                        readSize = Math.min(fileSize, Const.DOWNLOAD_FILE_CHUNK_SIZE);
+                        byte[] buffer = new byte[readSize];
+                        fileWriter = new FileOutputStream(currLocalDir + "\\" + finalFileMeta.getFileName());
 
-                        if (bytesRead > finalFileMeta.getFileSize()) {
-                            finalBuffer = FileUtil.substring(buffer, 0, fileSize);
+                        while ((bytesRead = receiveData(buffer, readSize)) > 0) {
+                            byte[] finalBuffer = buffer;
+
+                            if (bytesRead > finalFileMeta.getFileSize()) {
+                                finalBuffer = FileUtil.substring(buffer, 0, fileSize);
+                            }
+
+                            totalRead += bytesRead;
+                            fileWriter.write(finalBuffer);
+
+                            if (totalRead >= fileSize) {
+                                fileWriter.close();
+                                System.out.println("File '" + finalFileMeta.getFileName() + "' successfully downloaded.\n");
+                                break;
+                            }
                         }
 
-                        totalRead += bytesRead;
-                        fileWriter.write(finalBuffer);
-
-                        if (totalRead >= fileSize) {
-                            fileWriter.close();
-                            System.out.println("File '" + finalFileMeta.getFileName() + "' downloaded.");
-                            return;
+                        fileWriter.close();
+                        if (bytesRead != -2 && config.isSecondaryServerConfigured()) {
+                            break;
                         }
+
+                        error("could not download " + fileMeta.getFileName() + ". Attempting retry no " + counter);
+                        counter++;
+                    } else {
+                        showResponseErrors(resp.getErrors());
+                        break;
                     }
-                } else {
-                    showResponseErrors(resp.getErrors());
                 }
             }
         }

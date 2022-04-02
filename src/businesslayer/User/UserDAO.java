@@ -137,7 +137,7 @@ public class UserDAO implements BaseDAO, Serializable{
         if (passwordHash == null) {
             // Wrong userName
             return new DAOResult(true, DAOResultStatusEnum.SUCCESS, null, user,
-                    UserDAO.class, User.class,  currMethod, -2);
+                    UserDAO.class, User.class,  currMethod, -1);
         }
 
         if (!Hasher.hashString(user.getPassword(), Const.PASSWORD_HASH_ALGORITHM).equals(passwordHash)) {

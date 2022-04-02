@@ -13,6 +13,7 @@ package server.threads.connections;
 
 import businesslayer.Exception.ExceptionDAO;
 import businesslayer.base.DAOResult;
+import client.struct.ClientUserSession;
 import datalayer.model.Exception.Exception;
 import protocol.clientserver.Request;
 import protocol.clientserver.RequestMethodEnum;
@@ -95,6 +96,19 @@ public class ServerCommandChannelConnection extends Thread {
         sendResponse();
     }
 
+    private void updateSession() {
+        if (req != null) {
+            ClientUserSession reqSession;
+
+            reqSession = req.getSession();
+
+            if (reqSession != null) {
+                session.setUserId(reqSession.getUserId());
+                session.setCurrentDir(reqSession.getCurrentDir());
+            }
+        }
+    }
+
     /**
      *  Method that handles the request.
      * @throws SQLException - whenever a database related error occurs.
@@ -104,6 +118,7 @@ public class ServerCommandChannelConnection extends Thread {
     private void handleRequest() throws SQLException, NoSuchAlgorithmException, IOException, NoSuchMethodException, ClassNotFoundException {
         req = (Request) in.readObject();
         RequestMethodEnum method = req.getMethod();
+        updateSession();
 
         switch (method) {
             case USER_CREATE -> resp = ServerController.createUser(req, session);
