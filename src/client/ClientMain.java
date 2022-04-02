@@ -42,7 +42,8 @@ import static sun.nio.ch.IOStatus.EOF;
 public class ClientMain {
 
     // region Private properties
-
+    public static final String RESET = "\033[0m";
+    public static final String BLUE = "\033[0;34m";
     private String currLocalDir = System.getProperty("user.dir");
     private ObjectOutputStream outCmd;
     private ObjectInputStream inCmd;
@@ -799,7 +800,7 @@ public class ClientMain {
      * Method that prints the Menu.
      */
     private void showMenu() {
-        System.out.println("""
+        System.out.println(BLUE + """
                 |--------------------------------------------------------------------------------------|
                 |    ||       ||  |||||||||   |||||||     ||||||||     ||   ||        ||   |||||||||   |
                 |    ||       ||  ||          ||     ||   ||     ||    ||    ||      ||    ||          |
@@ -814,7 +815,7 @@ public class ClientMain {
                 2021/2022 - 3rd year, 2nd semester - Distributed Systems
                 
                 Type ? or 'help' to view the available commands
-                """);
+                """ + RESET);
     }
 
     /**
