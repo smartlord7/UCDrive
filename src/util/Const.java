@@ -1,6 +1,10 @@
 package util;
 
+/**
+ * Class that has all the constants.
+ */
 public class Const {
+
     // region Const
 
     public static final String APP_NAME = "UCDrive";
@@ -13,4 +17,5 @@ public class Const {
     public static final int UDP_BUFFER_SIZE = 4096;
 
     // Const
+
 }

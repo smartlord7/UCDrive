@@ -3,7 +3,13 @@ package util;
 import java.io.*;
 import java.util.PropertyPermission;
 
+/**
+ * Class that has Util file methods,such as listing and parsing directories.
+ */
 public class FileUtil {
+
+    // region Public methods
+
     /**
      * Method used to list the directory files.
      * @param dir the directory of the files to be listed.
@@ -150,4 +156,7 @@ public class FileUtil {
         }
         return dir.getFreeSpace();
     }
+
+    // endregion Public methods
+
 }

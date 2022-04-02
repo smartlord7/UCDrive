@@ -4,7 +4,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Class that has the hashing methods.
+ */
 public class Hasher {
+
+    // region Public methods
+
     /**
      * Method that encrypts the string.
      * @param string the string to be encrypted.
@@ -27,4 +33,7 @@ public class Hasher {
         MessageDigest digest = MessageDigest.getInstance(alg);
         return digest.digest(string.getBytes(StandardCharsets.UTF_8));
     }
+
+    // endregion Public methods
+
 }

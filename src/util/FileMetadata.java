@@ -2,10 +2,21 @@ package util;
 
 import datalayer.enumerate.FileOperationEnum;
 
+
+/**
+ * Class that has the file metadata and it's attributes.
+ */
 public class FileMetadata {
+
+    // region Private properties
+
     private String fileName;
     private int fileSize;
     private FileOperationEnum op;
+
+    // endregion Private properties
+
+    // region Public methods
 
     /**
      * Constructor method.
@@ -22,6 +33,8 @@ public class FileMetadata {
         this.fileName = fileName;
         this.fileSize = fileSize;
     }
+
+    // endregion Public methods
 
     // region Getters and Setters
 

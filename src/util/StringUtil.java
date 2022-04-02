@@ -1,6 +1,14 @@
 package util;
 
+/**
+ * Class that has Util methods of string, mainly converting bytes to hexadecimal.
+ */
+
+
 public class StringUtil {
+
+    // region Public methods
+
     /**
      * Method that converts bytes to hexadecimal.
      * @param bytes are the bytes to be converted
@@ -33,4 +41,7 @@ public class StringUtil {
 
         return sb.toString();
     }
+
+    // endregion Public methods
+
 }
